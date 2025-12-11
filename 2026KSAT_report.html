@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026학년도 수능 영어 분석 보고서 (최종)</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+        
+        body { font-family: 'Pretendard', 'Malgun Gothic', sans-serif; line-height: 1.65; color: #222; background-color: #f0f2f5; margin: 0; padding: 40px; }
+        .report-container { max-width: 900px; margin: 0 auto; background: #fff; padding: 60px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border-radius: 12px; }
+        
+        /* Header */
+        header { border-bottom: 2px solid #222; padding-bottom: 20px; margin-bottom: 40px; display: flex; justify-content: space-between; align-items: flex-end; }
+        header h1 { font-size: 28px; margin: 0; color: #1a1a1a; letter-spacing: -0.5px; }
+        header .meta { text-align: right; font-size: 14px; color: #666; }
+        
+        /* Typography */
+        h2 { font-size: 22px; color: #0056b3; margin-top: 50px; margin-bottom: 20px; border-left: 5px solid #0056b3; padding-left: 15px; letter-spacing: -0.5px; }
+        h3 { font-size: 18px; color: #333; margin-top: 30px; margin-bottom: 15px; font-weight: 700; display: flex; align-items: center; }
+        h3::before { content: ''; display: inline-block; width: 6px; height: 6px; background: #0056b3; margin-right: 8px; border-radius: 50%; }
+        p { margin-bottom: 15px; color: #444; text-align: justify; word-break: keep-all; }
+        
+        /* Components */
+        .highlight-box { background-color: #f8f9fa; border: 1px solid #e9ecef; border-left: 4px solid #0056b3; padding: 20px; border-radius: 4px; margin: 20px 0; }
+        .highlight-box strong { color: #0056b3; }
+        
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
+        th, td { padding: 12px; border: 1px solid #dee2e6; text-align: center; }
+        th { background-color: #f1f3f5; font-weight: 600; color: #333; }
+        .td-highlight { background-color: #e7f5ff; font-weight: bold; color: #0056b3; }
+        
+        ul { list-style-type: disc; padding-left: 20px; margin-bottom: 20px; }
+        ol { padding-left: 20px; margin-bottom: 20px; }
+        li { margin-bottom: 8px; color: #444; }
+        
+        .chart-wrapper { margin: 30px 0; padding: 20px; border: 1px solid #eee; border-radius: 8px; background: #fff; }
+        .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; margin-right: 5px; }
+        .tag-red { background: #ffe3e3; color: #c92a2a; }
+        .tag-blue { background: #e7f5ff; color: #1864ab; }
+        
+        /* Image Style for Questions */
+        .question-img { max-width: 100%; height: auto; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px; display: block; }
+
+        /* Source Citation Style */
+        .source-box { background: #f9f9f9; border-left: 3px solid #666; padding: 8px 12px; margin-top: 5px; font-size: 0.9em; text-align: left; color: #555; }
+        .source-text { font-style: italic; color: #222; }
+        .source-ref { display: block; margin-top: 4px; font-size: 0.85em; color: #888; font-weight: bold; }
+
+        /* Print styles */
+        @media print {
+            body { background: none; padding: 0; }
+            .report-container { box-shadow: none; padding: 0; margin: 0; width: 100%; max-width: none; }
+            h2 { page-break-before: always; margin-top: 30px; }
+            h2:first-of-type { page-break-before: auto; }
+            canvas { max-height: 400px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="report-container">
+    <header>
+        <div>
+            <h1>2026학년도 수능 영어 분석 보고서</h1>
+            <p style="margin: 5px 0 0 0; font-size: 16px; color: #555;">킬러문항 배제 기조 속 변별력 확보 전략 분석</p>
+        </div>
+        <div class="meta">
+            <p style="margin:0;"><strong>발행일:</strong> 2025년 12월 8일</p>
+            <p style="margin:0;"><strong>작성:</strong> 상품연구팀</p>
+        </div>
+    </header>
+
+    <!-- 1. 개요 -->
+    <section>
+        <h2>1. 개요</h2>
+        <p>2026학년도 수능 영어는 전년과 유사한 외형적 구조를 유지했으나, <strong>실질 난이도는 ‘전반적 상승’</strong>으로 평가된다. 실제로 1등급 비율이 <strong>3.11%</strong>로 집계되어 최근 9년 중 가장 낮은 수준을 기록하였다.</p>
+        
+        <div class="chart-wrapper">
+            <canvas id="grade1Chart"></canvas>
+            <p style="text-align: center; font-size: 12px; color: #888; margin-top: 10px;">[그래프 1] 2018~2026학년도 수능 영어 1등급 비율 추이</p>
+        </div>
+
+        <p>이는 정부의 ‘킬러문항 배제’ 정책 기조 속에서도 ① 압도적인 텍스트 분량, ② 치밀한 논리 구조, ③ 정교한 함정 선택지 설계를 통해 최상위권 변별력을 확보한 결과로 분석된다.</p>
+        
+        <div class="highlight-box">
+            <h3>주요 특징 요약</h3>
+            <ul>
+                <li><strong>지문 분량 급증 (Time Attack):</strong> 총 단어 수 6,754개(역대 최다)로 시간 부족 현상 심화.</li>
+                <li><strong>논리적 압축성 강화:</strong> 문장 길이는 짧아졌으나(12.1단어), 문장 간 연결성이 촘촘해져 추론 난이도 상승.</li>
+                <li><strong>선택지 중첩 심화:</strong> 주제·빈칸 유형에서 선택지 간 의미적 차이가 미세하여 끝까지 읽어야 정답 도출 가능.</li>
+                <li><strong>EBS 연계 변화:</strong> 간접 연계 기조 유지하되, 기사/칼럼/사회과학 등 신유형 소재 비중 증가.</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- 2. 코퍼스 분석 -->
+    <section>
+        <h2>2. 코퍼스 분석 (데이터 기반)</h2>
+        <p>최근 5년간의 수능 텍스트 데이터를 정량 분석한 결과, 2026학년도 수능은 <strong>‘역대급 텍스트 볼륨’</strong>을 기록하며 수험생의 정보 처리 능력을 강하게 요구한 것으로 나타났다.</p>
+
+        <h3>2.1. 텍스트 분량 추이 및 증감 분석</h3>
+        <p>전체 단어 수가 전년 대비 <strong>264단어 증가</strong>하였다. 이는 읽기 영역뿐만 아니라 듣기 영역의 정보량까지 동반 상승했기 때문이다.</p>
+        
+        <div class="chart-wrapper">
+            <canvas id="wordCountChart"></canvas>
+            <p style="text-align: center; font-size: 12px; color: #888; margin-top: 10px;">[그래프 2] 2022~2026학년도 영역별 단어 수 및 증감 추이</p>
+        </div>
+
+        <p>특히 아래 차트에서 볼 수 있듯, 2026년의 증가폭은 최근 5년 중 가장 가파른 상승세를 보였다.</p>
+
+        <!-- 증감 차트 -->
+        <div class="chart-wrapper">
+            <canvas id="changeChart" style="max-height: 250px;"></canvas>
+            <p style="text-align: center; font-size: 12px; color: #888; margin-top: 10px;">[그래프 3] 전년 대비 전체 단어 수 증감량 (2022년 대비)</p>
+        </div>
+
+        <h3>2.2. 세부 통계 지표</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>구분</th>
+                    <th>항목</th>
+                    <th class="td-highlight">2026</th>
+                    <th>2025</th>
+                    <th>2024</th>
+                    <th>2023</th>
+                    <th>2022</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- 전체 -->
+                <tr>
+                    <td rowspan="4"><strong>전체</strong></td>
+                    <td>단어 수</td>
+                    <td class="td-highlight">6,754</td>
+                    <td>6,490</td>
+                    <td>6,573</td>
+                    <td>6,583</td>
+                    <td>6,575</td>
+                </tr>
+                <tr>
+                    <td>문장 수</td>
+                    <td class="td-highlight">522</td>
+                    <td>482</td>
+                    <td>524</td>
+                    <td>510</td>
+                    <td>525</td>
+                </tr>
+                <tr>
+                    <td>문장 길이(평균)</td>
+                    <td class="td-highlight">12.1</td>
+                    <td>12.6</td>
+                    <td>11.7</td>
+                    <td>12.1</td>
+                    <td>11.7</td>
+                </tr>
+                <tr>
+                    <td>지문 길이(평균)</td>
+                    <td class="td-highlight">150.1</td>
+                    <td>144.2</td>
+                    <td>146.1</td>
+                    <td>146.3</td>
+                    <td>146.1</td>
+                </tr>
+                <!-- 듣기/말하기 -->
+                <tr>
+                    <td rowspan="4"><strong>듣기/말하기</strong></td>
+                    <td>단어 수</td>
+                    <td class="td-highlight">2,219</td>
+                    <td>2,130</td>
+                    <td>2,189</td>
+                    <td>2,136</td>
+                    <td>2,170</td>
+                </tr>
+                <tr>
+                    <td>문장 수</td>
+                    <td class="td-highlight">300</td>
+                    <td>278</td>
+                    <td>308</td>
+                    <td>295</td>
+                    <td>313</td>
+                </tr>
+                <tr>
+                    <td>문장 길이(평균)</td>
+                    <td class="td-highlight">7.2</td>
+                    <td>7.4</td>
+                    <td>6.8</td>
+                    <td>7.1</td>
+                    <td>6.8</td>
+                </tr>
+                <tr>
+                    <td>지문 길이(평균)</td>
+                    <td class="td-highlight">130.5</td>
+                    <td>125.3</td>
+                    <td>128.8</td>
+                    <td>125.6</td>
+                    <td>127.6</td>
+                </tr>
+                <!-- 읽기/쓰기 -->
+                <tr>
+                    <td rowspan="4"><strong>읽기/쓰기</strong><br>(독해)</td>
+                    <td>단어 수</td>
+                    <td class="td-highlight">4,535</td>
+                    <td>4,360</td>
+                    <td>4,384</td>
+                    <td>4,447</td>
+                    <td>4,405</td>
+                </tr>
+                <tr>
+                    <td>문장 수</td>
+                    <td class="td-highlight">222</td>
+                    <td>204</td>
+                    <td>216</td>
+                    <td>215</td>
+                    <td>212</td>
+                </tr>
+                <tr>
+                    <td>문장 길이(평균)</td>
+                    <td class="td-highlight">18.9</td>
+                    <td>19.6</td>
+                    <td>18.6</td>
+                    <td>19.1</td>
+                    <td>19.2</td>
+                </tr>
+                <tr>
+                    <td>지문 길이(평균)</td>
+                    <td class="td-highlight">162.0</td>
+                    <td>155.7</td>
+                    <td>156.6</td>
+                    <td>158.8</td>
+                    <td>157.3</td>
+                </tr>
+            </tbody>
+        </table>
+        <ul>
+            <li><strong>지문 길이(162.0단어):</strong> 역대 가장 긴 호흡의 지문이 출제됨.</li>
+            <li><strong>문장 길이(12.1단어):</strong> 문장당 호흡은 짧아졌으나 문장 개수(522개)가 늘어나, 빠른 호흡으로 논리를 연결하는 ‘속독속해’ 능력이 필수적이었음.</li>
+        </ul>
+
+        <h3>2.3. 단어 목록 및 학제 연계성</h3>
+        <ul>
+            <li><strong>높은 일치율:</strong> 사전 표제어 기준 1,609 단어 중 <strong>1,579 단어(98.1%)</strong>*가 YES4.0 학제와 일치함.</li>
+            <li><strong>별표 단어(*):</strong> 23개로 전년과 동일한 수준을 유지함.</li>
+        </ul>
+
+        <p style="text-align: center; font-weight: bold; margin-bottom: 10px;">&lt;연도별 수능-YES4.0 학제 중복 단어&gt;</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>구분</th>
+                    <th>사전표제어 기준<br>총 단어 수</th>
+                    <th>BEFL 학제와<br>중복 단어 수(비율)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="td-highlight">2026년</td>
+                    <td>1,609 단어</td>
+                    <td class="td-highlight">1,579 단어 (98.1%)</td>
+                </tr>
+                <tr>
+                    <td>2025년</td>
+                    <td>1,567 단어</td>
+                    <td>1,540 단어 (98.2%)</td>
+                </tr>
+                <tr>
+                    <td>2024년</td>
+                    <td>1,541 단어</td>
+                    <td>1,523 단어 (98.8%)</td>
+                </tr>
+            </tbody>
+        </table>
+        <p style="font-size: 12px; color: #666; margin-top: 5px;">* 문제지에 우리말 뜻이 나오는 별표 단어는 중복수치에 포함하여 계산</p>
+    </section>
+
+    <!-- 3. 고난도 문항 분석 -->
+    <section>
+        <h2>3. 고난도 문항 상세 분석</h2>
+        <p>2026학년도 수능의 변별력은 주로 빈칸 추론, 문장 삽입, 문단 순서 유형에 집중되었다. 지문 자체의 난해함보다는 <strong>선택지의 매력도</strong>와 <strong>글의 구조적 완결성</strong>을 통해 난이도를 조절했다.</p>
+
+        <div class="highlight-box" style="background-color: #fff; border: 1px solid #ddd; border-left: 4px solid #c92a2a;">
+            <h3><span class="tag tag-red">빈칸 추론</span> 24번 문항</h3>
+            <img src="uploaded:image_48b8b0.png" onerror="this.style.display='none'" alt="2026 수능 영어 24번 문항 캡처 이미지" class="question-img">
+            <p style="margin-top: 5px; margin-bottom: 10px; font-weight: 500; color: #555; border-bottom: 1px dashed #eee; padding-bottom: 5px;">주제: 컬처테인먼트의 경제적 매력과 그에 따른 상업화의 위험성</p>
+            <ul>
+                <li><strong>난도 요인:</strong> 핵심 논지가 지문 최후반부에 등장하여 전체 맥락을 놓치면 풀 수 없음. 선택지가 모두 지문의 일부 내용을 연상시키도록 설계되어 부분 독해 시 오답 유도.</li>
+                <li><strong>평가:</strong> 사회·경제·문화 융합 소재로 배경지식 부족 시 해석 시간 지연. 2025학년도 대비 난이도 상승. 상위권 변별의 핵심.</li>
+            </ul>
+        </div>
+
+        <div class="highlight-box" style="background-color: #fff; border: 1px solid #ddd; border-left: 4px solid #c92a2a;">
+            <h3><span class="tag tag-red">문장 삽입</span> 34번 문항</h3>
+            <img src="uploaded:image_48b896.png" onerror="this.style.display='none'" alt="2026 수능 영어 34번 문항 캡처 이미지" class="question-img">
+            <p style="margin-top: 5px; margin-bottom: 10px; font-weight: 500; color: #555; border-bottom: 1px dashed #eee; padding-bottom: 5px;">주제: 의사결정에서 나타나는 인지적 편향</p>
+            <ul>
+                <li><strong>난도 요인:</strong> 삽입 문장이 일반론적 진술이라 어느 위치에나 그럴듯하게 보임(착시 효과). 앞뒤 문단의 연결 고리(지시어, 논리 관계)를 정밀하게 따져야만 정답 위치 포착 가능.</li>
+                <li><strong>평가:</strong> 2025학년도 39번과 유사하나 선택지 매력도가 더욱 강화됨. 논리적 단절을 찾는 고전적 방식보다 글의 유기적 흐름을 묻는 형태로 진화.</li>
+            </ul>
+        </div>
+
+        <div class="highlight-box" style="background-color: #fff; border: 1px solid #ddd; border-left: 4px solid #c92a2a;">
+            <h3><span class="tag tag-red">문단 순서</span> 37번 문항</h3>
+            <img src="uploaded:image_48b892.png" onerror="this.style.display='none'" alt="2026 수능 영어 37번 문항 캡처 이미지" class="question-img">
+            <p style="margin-top: 5px; margin-bottom: 10px; font-weight: 500; color: #555; border-bottom: 1px dashed #eee; padding-bottom: 5px;">주제: 아이디어가 확장·재구성되는 창의적 사고 과정</p>
+            <ul>
+                <li><strong>난도 요인:</strong> 전통적인 선형적(A→B→C) 구조가 아닌, 주제의 범위가 점진적으로 확장/축소되는 비선형적 구조. 명시적 연결어(However 등)가 최소화되어 내용상 연결성을 스스로 추론해야 함.</li>
+                <li><strong>평가:</strong> 문장 해석은 쉬우나 구조적 추론 요구치가 급증하여 1~2등급을 가르는 결정적 문항으로 작용.</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- 4. 유사 소재 커버리지 (Moved Up) -->
+    <section>
+        <h2>4. 2026학년도 수능 영어 유사 소재 커버리지 (영역별 상세 분석)</h2>
+        <p>수능 출제 경향과 윤선생 커리큘럼의 연계성을 분석한 결과, <strong>듣기와 읽기 전 영역에서 핵심 소재가 적중</strong>했음을 확인했습니다.</p>
+        
+        <h3>4.1. 듣기 영역: 실생활과 직결된 만점 준비</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th width="20%">유형<br><span style="font-size: 0.8em; font-weight: normal;">(해당 문항)</span></th>
+                    <th width="35%">핵심 메시지</th>
+                    <th width="45%">윤선생 교재의 증명 (Source Extracts)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="td-highlight">
+                        일상/실용<br>
+                        <span style="font-size: 0.85em; color: #555;">(1, 2, 7, 8,<br>9, 11, 12번)</span>
+                    </td>
+                    <td style="text-align: left;">"약속, 쇼핑, 길 찾기 등 일상 대화가 곧 수능! 윤선생은 실생활 중심의 대화문으로 듣기 만점을 준비합니다."</td>
+                    <td>
+                        <div class="source-box">
+                            <span class="source-text">"What time shall we meet? How about five?"</span>
+                            <span class="source-ref">- s08 POWERUP 1-1</span>
+                        </div>
+                        <div class="source-box">
+                            <span class="source-text">"It was 60,000 won, but now it's 50% off."</span>
+                            <span class="source-ref">- s11 SMART 중학영어 3-2</span>
+                        </div>
+                        <div class="source-box">
+                            <span class="source-text">"It was under your pillow."</span>
+                            <span class="source-ref">- s11 SMART 중학영어 3-2</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="td-highlight">
+                        정보/공지<br>
+                        <span style="font-size: 0.85em; color: #555;">(3, 10, 15번)</span>
+                    </td>
+                    <td style="text-align: left;">"안내 방송, 메시지 전달 등 까다로운 정보 전달 유형도 윤선생의 중·고급 과정에서 이미 숙련됩니다."</td>
+                    <td>
+                        <div class="source-box">
+                            <span class="source-text">"Flight 216... delayed due to bad weather."</span>
+                            <span class="source-ref">- s11 Yoon's 4-Skill Up(Fluent)</span>
+                        </div>
+                        <div class="source-box">
+                            <span class="source-text">"Could you tell him that Bob called?"</span>
+                            <span class="source-ref">- s15 Yoon's Reading Solutions D 10b</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="td-highlight">
+                        학습/지식<br>
+                        <span style="font-size: 0.85em; color: #555;">(4, 13, 14, 16번)</span>
+                    </td>
+                    <td style="text-align: left;">"디지털 중독, 환경 보호, 과학 지식까지! 듣기 영역의 고난도 시사/학술 소재를 미리 경험합니다."</td>
+                    <td>
+                        <div class="source-box">
+                            <span class="source-text">"only use electronics for less than one hour"</span>
+                            <span class="source-ref">- s11 SMART 중학영어 3-2</span>
+                        </div>
+                        <div class="source-box">
+                            <span class="source-text">"This chemical helps the bear change the fat... to water and protein."</span>
+                            <span class="source-ref">- s12 Yoon's Reading Solutions C 9a</span>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>4.2. 읽기 영역: 깊이 있는 학술 및 비판적 사고 대비</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th width="20%">유형<br><span style="font-size: 0.8em; font-weight: normal;">(해당 문항)</span></th>
+                    <th width="35%">핵심 메시지</th>
+                    <th width="45%">윤선생 교재의 증명 (Source Extracts)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="td-highlight">
+                        심층 사고<br>
+                        <span style="font-size: 0.85em; color: #555;">(21, 24, 34,<br>41-42번)</span>
+                    </td>
+                    <td style="text-align: left;">"예술 해석, 법과 자유, 미디어 비판 등 고도의 비판적 사고를 요구하는 소재를 윤선생 Advanced 과정에서 심도 있게 다룹니다."</td>
+                    <td>
+                        <div class="source-box">
+                            <span class="source-text">"capture the essence of the object" (Cubism)</span>
+                            <span class="source-ref">- s15 Yoon's Advanced Readers F 10b</span>
+                        </div>
+                        <div class="source-box">
+                            <span class="source-text">"This demands a lot of self-discipline and self-control." (Freedom)</span>
+                            <span class="source-ref">- s11 Powerup 2-2</span>
+                        </div>
+                        <div class="source-box">
+                            <span class="source-text">"Half truths are even harder to find than lies." (Media)</span>
+                            <span class="source-ref">- s14 Yoon's Reading Solutions D 10a</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="td-highlight">
+                        과학/기술/경제<br>
+                        <span style="font-size: 0.85em; color: #555;">(29, 30, 31,<br>32, 36번)</span>
+                    </td>
+                    <td style="text-align: left;">"변인 통제, 한계 효용, 디지털 데이터의 영구성 등 최신 과학/경제 주제를 담은 지문으로 배경지식과 어휘를 동시에 완성합니다."</td>
+                    <td>
+                        <div class="source-box">
+                            <span class="source-text">"law of diminishing marginal utility"</span>
+                            <span class="source-ref">- s14 Yoon's Reading Solutions D 10a</span>
+                        </div>
+                        <div class="source-box">
+                            <span class="source-text">"MP3 files are small, they are accessible through the Internet"</span>
+                            <span class="source-ref">- s14 Yoon's Reading PALS D 10a</span>
+                        </div>
+                        <div class="source-box">
+                            <span class="source-text">"if the North or South Pole is a few degrees hotter, glaciers will begin to melt."</span>
+                            <span class="source-ref">- s14 English Immersion Weather</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="td-highlight">
+                        심리/사회<br>
+                        <span style="font-size: 0.85em; color: #555;">(20, 33, 40번)</span>
+                    </td>
+                    <td style="text-align: left;">"타인과의 비교 지양, 동조 압력 등 심리학적·사회적 이슈를 다룬 지문으로 주제 추론 능력과 독해력을 향상시킵니다."</td>
+                    <td>
+                        <div class="source-box">
+                            <span class="source-text">"if you can stop comparing with others, then you can be content"</span>
+                            <span class="source-ref">- s11 Advanced Readers D 8b</span>
+                        </div>
+                        <div class="source-box">
+                            <span class="source-text">"Teenagers do many things because of peer pressure."</span>
+                            <span class="source-ref">- s12 POWERUP 3-1</span>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="highlight-box" style="background-color: #e7f5ff; border-left: 4px solid #1864ab;">
+            <h3>🏆 분석 결론: 윤선생 커리큘럼의 독보적 강점</h3>
+            <p>"수능 영어의 모든 주제와 유형은 이미 윤선생 교재에 있었습니다. 윤선생은 단순한 영어 학습을 넘어, 수능이 요구하는 방대한 배경지식과 비판적 사고 능력을 단계적으로 완성시키는 가장 체계적이고 앞선 커리큘럼입니다."</p>
+        </div>
+    </section>
+
+    <!-- 5. 시사점 및 제언 (Moved Down) -->
+    <section>
+        <h2>5. 시사점 및 제언</h2>
+        <p>2026학년도 수능 영어는 단순한 문장 해석 능력을 넘어, 논리적 사고력과 정보 처리 속도를 종합적으로 평가하는 방향으로 체질이 재편되었다. 텍스트 규모 확대와 선택지 정교화는 수험생의 독해 체력과 사고 과정 전반을 요구하며, 향후 수능 영어 대비 전략에도 중요한 시사점을 제공한다.</p>
+
+        <h3>5.1. 학습 전략 제언</h3>
+        <ol>
+            <li><strong>어휘 기반 독해 지구력 강화:</strong> 전체 단어 수 증가로 인해 지문을 끝까지 안정적으로 처리할 수 있는 어휘 기반 독해 지구력이 필수적이다. 단순 암기를 넘어 문맥 속 의미를 정확히 파악하는 문맥적 어휘 운용 능력이 고득점의 핵심 요인으로 작용한다.</li>
+            <li><strong>논리적 독해(Logical Reading) 역량 강화:</strong> 감(感)에 의존한 문제풀이 방식은 선택지 판별에서 치명적이다. 인과·대조·예시 등 글의 논리 구조를 식별하고 담화 전개 흐름을 분석하는 구조적 독해 훈련이 반드시 필요하다.</li>
+            <li><strong>듣기 영역의 소재 확장 대비:</strong> 2026학년도 듣기 영역은 기술·과학·사회 이슈 등 비일상적 소재 비중이 확대되었다. 다양한 주제를 접하며 정보량이 많은 음성을 빠르게 처리하는 연습이 청취 정확도 향상에 직접적 영향을 미친다.</li>
+            <li><strong>전략적 시간 관리의 중요성:</strong> 1등급 비율이 3.11%로 급감한 것은 상위권조차 시간 압박에 취약했다는 증거다. 문항별 접근 순서, 난이도 판단, 시간 배분 등 전략적 문제풀이 역량을 체계적으로 훈련해야 안정적인 고득점 확보가 가능하다.</li>
+        </ol>
+
+        <h3>5.2. 윤선생 학습 연계 시사점</h3>
+        <ul>
+            <li><strong>YES4.0 학제와의 높은 적합성:</strong> 2026 수능 단어의 98.1%가 YES4.0 학제 단어와 일치하는 것으로 확인되었다. 이는 YES4.0을 기반으로 한 체계적 어휘 학습만으로도 수능 어휘 부담을 상당 부분 해소할 수 있음을 의미하며, 독해 속도와 정확도 향상에도 직접적으로 기여한다.</li>
+            <li><strong>수능형 독해 훈련 체계 구축:</strong> YES4.0 중·고등 커리큘럼은 다양한 주제와 난이도를 포함하도록 설계되어 있어, 수능에서 요구하는 <strong>논리적 사고, 담화 구조 이해, 다양한 분야의 배경지식</strong>을 자연스럽게 체득할 수 있다. 단계별 독해 전략을 지속적으로 적용해 수능형 사고 구조를 학습 과정에 내재화하는 것이 중요하다.</li>
+        </ul>
+    </section>
+
+    <!-- 6. 결론 -->
+    <section>
+        <h2>6. 결론</h2>
+        <p>2026학년도 수능 영어는 텍스트 분량 확대와 선택지의 정교화를 통해 상위권 변별력을 한층 강화한 시험이었다.</p>
+        <p>수능 영어는 본래 <strong>속독(Speed)</strong>과 <strong>정독(Accuracy)</strong>을 동시에 요구해온 평가이지만, 이번 시험에서는 그 요구 수준이 더욱 높아지며 독해 체력·논리적 분석·시간 관리 능력의 중요성이 명확히 드러났다.</p>
+        <p>따라서 YES4.0 학제를 기반으로 한 체계적인 어휘력 강화, 다양한 주제의 글감을 활용한 배경지식 및 논리 구조 학습, 그리고 <strong>윤선생학력평가(YSAT)</strong>를 통한 정기적인 실력 점검 및 취약 유형 보완이 결합될 때, 변화하는 수능 환경에서도 안정적으로 1등급을 확보할 수 있는 실력 기반을 갖출 수 있다.</p>
+    </section>
+</div>
+
+<script>
+    // 차트 플러그인 등록
+    Chart.register(ChartDataLabels);
+
+    // =========================================================
+    // 1. 1등급 비율 차트 (2018~2026)
+    // =========================================================
+    const gradeCtx = document.getElementById('grade1Chart').getContext('2d');
+    const gradeData = [10.03, 5.30, 7.43, 12.66, 6.25, 7.83, 4.71, 6.22, 3.11];
+    const gradeYears = ['2018', '2019', '2020', '2021', '2022', '2023', '2024', '2025', '2026'];
+    const gradeColors = gradeYears.map(year => year === '2026' ? '#c92a2a' : '#1864ab');
+    const gradePointRadius = gradeYears.map(year => year === '2026' ? 6 : 4);
+
+    new Chart(gradeCtx, {
+        type: 'line',
+        data: {
+            labels: gradeYears,
+            datasets: [{
+                label: '1등급 비율(%)',
+                data: gradeData,
+                borderColor: '#1864ab',
+                backgroundColor: gradeColors,
+                pointBackgroundColor: gradeColors,
+                pointRadius: gradePointRadius,
+                borderWidth: 2,
+                tension: 0.3,
+                fill: true,
+                backgroundColor: (context) => {
+                    const ctx = context.chart.ctx;
+                    const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+                    gradient.addColorStop(0, 'rgba(24, 100, 171, 0.2)');
+                    gradient.addColorStop(1, 'rgba(24, 100, 171, 0)');
+                    return gradient;
+                }
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false },
+                title: { display: true, text: '최근 9년 수능 영어 1등급 비율 추이 (단위: %)', font: { size: 14 } },
+                datalabels: {
+                    align: 'top', anchor: 'end',
+                    color: (c) => c.dataIndex === 8 ? '#c92a2a' : '#333',
+                    font: (c) => ({ weight: 'bold', size: c.dataIndex === 8 ? 13 : 11 }),
+                    formatter: (value) => value + '%'
+                },
+                tooltip: { callbacks: { label: (c) => `${c.raw}% (1등급)` } }
+            },
+            scales: { y: { beginAtZero: true, max: 14, title: { display: true, text: '비율 (%)' } } }
+        }
+    });
+
+    // =========================================================
+    // 2. 단어 수 및 증감 차트 (툴팁 중복 제거 Fix)
+    // =========================================================
+    const rawData = {
+        years: ['2022', '2023', '2024', '2025', '2026'],
+        listening: [2170, 2136, 2189, 2130, 2219],
+        reading: [4405, 4447, 4384, 4360, 4535],
+        total: [6575, 6583, 6573, 6490, 6754]
+    };
+
+    function processData(dataArray) {
+        const base = [], increase = [], decrease = [];
+        for (let i = 0; i < dataArray.length; i++) {
+            if (i === 0) {
+                base.push(dataArray[i]); increase.push(0); decrease.push(0);
+            } else {
+                const diff = dataArray[i] - dataArray[i-1];
+                if (diff > 0) {
+                    base.push(dataArray[i-1]); increase.push(diff); decrease.push(0);
+                } else {
+                    base.push(dataArray[i]); increase.push(0); decrease.push(diff);
+                }
+            }
+        }
+        return { base, increase, decrease };
+    }
+
+    const lData = processData(rawData.listening);
+    const rData = processData(rawData.reading);
+    const tData = processData(rawData.total);
+
+    const ctx = document.getElementById('wordCountChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: rawData.years,
+            datasets: [
+                // 듣기 (Index 0, 1, 2)
+                { label: '듣기(기본)', data: lData.base, backgroundColor: (c)=>c.dataIndex===4?'rgba(144, 202, 249, 1)':'rgba(144, 202, 249, 0.4)', stack:'s0', order:2 },
+                { label: '듣기(증가)', data: lData.increase, backgroundColor: '#fa5252', stack:'s0', order:1 },
+                { label: '듣기(감소)', data: lData.decrease, backgroundColor: '#40c057', stack:'s0', order:1 },
+                // 읽기 (Index 3, 4, 5)
+                { label: '독해(기본)', data: rData.base, backgroundColor: (c)=>c.dataIndex===4?'rgba(30, 136, 229, 1)':'rgba(30, 136, 229, 0.4)', stack:'s1', order:2 },
+                { label: '독해(증가)', data: rData.increase, backgroundColor: '#fa5252', stack:'s1', order:1 },
+                { label: '독해(감소)', data: rData.decrease, backgroundColor: '#40c057', stack:'s1', order:1 },
+                // 전체 (Index 6, 7, 8)
+                { label: '전체(기본)', data: tData.base, backgroundColor: (c)=>c.dataIndex===4?'rgba(13, 71, 161, 1)':'rgba(13, 71, 161, 0.4)', stack:'s2', order:2 },
+                { label: '전체(증가)', data: tData.increase, backgroundColor: '#c92a2a', stack:'s2', order:1 },
+                { label: '전체(감소)', data: tData.decrease, backgroundColor: '#2f9e44', stack:'s2', order:1 }
+            ]
+        },
+        options: {
+            responsive: true,
+            layout: { padding: { top: 30, bottom: 20 } },
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+                legend: { 
+                    position: 'bottom',
+                    labels: { 
+                        filter: (item) => item.text.includes('기본') || item.text.includes('전체'),
+                        usePointStyle: true
+                    } 
+                },
+                tooltip: {
+                    // Tooltip Filter: Show only ONE item per stack (Indices 0, 3, 6)
+                    filter: function(tooltipItem) {
+                        return tooltipItem.datasetIndex === 0 || tooltipItem.datasetIndex === 3 || tooltipItem.datasetIndex === 6;
+                    },
+                    callbacks: {
+                        title: (items) => items[0].label + '년 세부 통계',
+                        label: (c) => {
+                            let idx = c.dataIndex;
+                            let cat = '';
+                            let totalVal = 0;
+                            let diff = 0;
+                            
+                            // Check which stack we are in based on datasetIndex
+                            if (c.datasetIndex === 0) {
+                                cat = '듣기/말하기';
+                                totalVal = rawData.listening[idx];
+                                diff = idx > 0 ? totalVal - rawData.listening[idx-1] : 0;
+                            } else if (c.datasetIndex === 3) {
+                                cat = '읽기/쓰기';
+                                totalVal = rawData.reading[idx];
+                                diff = idx > 0 ? totalVal - rawData.reading[idx-1] : 0;
+                            } else if (c.datasetIndex === 6) {
+                                cat = '전체 합계';
+                                totalVal = rawData.total[idx];
+                                diff = idx > 0 ? totalVal - rawData.total[idx-1] : 0;
+                            }
+
+                            let diffStr = diff > 0 ? `(▲${diff})` : (diff < 0 ? `(▼${Math.abs(diff)})` : '(-)');
+                            if (idx === 0) diffStr = '';
+
+                            return `${cat}: ${totalVal.toLocaleString()} ${diffStr}`;
+                        }
+                    }
+                },
+                datalabels: {
+                    display: (c) => {
+                        let isIncreaseYear = false;
+                        let stackName = c.dataset.stack;
+                        let idx = c.dataIndex;
+                        let diff = 0;
+
+                        if (stackName === 's0') diff = idx > 0 ? rawData.listening[idx] - rawData.listening[idx-1] : 0;
+                        else if (stackName === 's1') diff = idx > 0 ? rawData.reading[idx] - rawData.reading[idx-1] : 0;
+                        else diff = idx > 0 ? rawData.total[idx] - rawData.total[idx-1] : 0;
+
+                        isIncreaseYear = diff > 0;
+                        if (c.dataset.label.includes('증가') && isIncreaseYear) return true;
+                        if (c.dataset.label.includes('기본') && !isIncreaseYear) return true;
+                        return false;
+                    },
+                    align: 'end',
+                    anchor: 'end',
+                    color: '#333',
+                    font: { weight: 'bold', size: 11 },
+                    formatter: (v, c) => {
+                        let idx = c.dataIndex;
+                        let stackName = c.dataset.stack;
+                        let totalVal = 0;
+                        let diff = 0;
+
+                        if (stackName === 's0') {
+                            totalVal = rawData.listening[idx];
+                            diff = idx > 0 ? totalVal - rawData.listening[idx-1] : 0;
+                        } else if (stackName === 's1') {
+                            totalVal = rawData.reading[idx];
+                            diff = idx > 0 ? totalVal - rawData.reading[idx-1] : 0;
+                        } else {
+                            totalVal = rawData.total[idx];
+                            diff = idx > 0 ? totalVal - rawData.total[idx-1] : 0;
+                        }
+                        
+                        let diffStr = diff > 0 ? `(▲${diff})` : (diff < 0 ? `(▼${Math.abs(diff)})` : '');
+                        return `${totalVal.toLocaleString()}\n${diffStr}`;
+                    },
+                    textAlign: 'center'
+                }
+            },
+            scales: {
+                x: { stacked: true, grid: { display: false } },
+                y: { 
+                    stacked: true, 
+                    beginAtZero: true, 
+                    title: { display: true, text: '단어 수 (Words)' }
+                }
+            }
+        }
+    });
+
+    // =========================================================
+    // 3. 전년 대비 증감 차트 (복구됨)
+    // =========================================================
+    const changeCtx = document.getElementById('changeChart').getContext('2d');
+    const changeData = [8, -10, -83, 264];
+    const changeLabels = ['2023', '2024', '2025', '2026'];
+    const changeColors = changeData.map(val => val > 0 ? 'rgba(231, 76, 60, 0.7)' : 'rgba(46, 204, 113, 0.7)');
+    const changeBorders = changeData.map(val => val > 0 ? 'rgba(231, 76, 60, 1)' : 'rgba(46, 204, 113, 1)');
+
+    new Chart(changeCtx, {
+        type: 'bar',
+        data: {
+            labels: changeLabels,
+            datasets: [{
+                label: '전년 대비 증감',
+                data: changeData,
+                backgroundColor: changeColors,
+                borderColor: changeBorders,
+                borderWidth: 1,
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false },
+                datalabels: {
+                    anchor: (c) => c.dataset.data[c.dataIndex] >= 0 ? 'end' : 'start',
+                    align: (c) => c.dataset.data[c.dataIndex] >= 0 ? 'top' : 'bottom',
+                    color: (c) => c.dataset.data[c.dataIndex] >= 0 ? '#c92a2a' : '#2f9e44',
+                    font: { weight: 'bold' },
+                    formatter: (v) => v > 0 ? '+'+v : v
+                }
+            },
+            scales: {
+                y: {
+                    grid: { color: (c) => c.tick.value === 0 ? '#333' : '#eee', lineWidth: (c) => c.tick.value === 0 ? 1.5 : 1 },
+                    title: { display: true, text: '증감량 (단어)' }
+                }
+            }
+        }
+    });
+</script>
+
+</body>
+</html>
