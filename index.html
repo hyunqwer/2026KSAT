@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026학년도 수능 영어 심층 분석 보고서</title>
+    <!-- 구글 폰트: Noto Sans KR -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #1a3c6e; /* 신뢰감 있는 네이비 */
+            --accent-color: #d32f2f; /* 경고/강조 레드 */
+            --bg-color: #f4f6f9;
+            --text-color: #333;
+            --light-gray: #e0e0e0;
+            --white: #ffffff;
+            --match-bg: #e8f5e9; /* 매칭 강조 배경색 */
+            --match-border: #4caf50; /* 매칭 강조 테두리 */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            -webkit-print-color-adjust: exact;
+        }
+
+        /* 레이아웃 컨테이너 */
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            background: var(--white);
+            padding: 50px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            border-radius: 8px;
+        }
+
+        /* 헤더 */
+        header {
+            border-bottom: 3px solid var(--primary-color);
+            padding-bottom: 20px;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 32px;
+            color: var(--primary-color);
+            font-weight: 900;
+            margin-bottom: 10px;
+            letter-spacing: -1px;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .report-info {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #777;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* 공통 섹션 스타일 */
+        section {
+            margin-bottom: 50px;
+        }
+
+        h2 {
+            font-size: 22px;
+            color: var(--primary-color);
+            border-left: 5px solid var(--accent-color);
+            padding-left: 15px;
+            margin-bottom: 25px;
+            font-weight: 700;
+        }
+
+        h3 {
+            font-size: 18px;
+            color: #222;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+        }
+
+        p {
+            margin-bottom: 15px;
+            color: #444;
+            text-align: justify;
+        }
+
+        /* 1. Executive Summary 카드 */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .summary-card {
+            background: #fff;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.03);
+            border-top: 4px solid var(--primary-color);
+            transition: transform 0.2s;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .summary-title {
+            font-weight: 700;
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        .summary-card.alert {
+            border-top-color: var(--accent-color);
+        }
+        
+        .summary-card.alert .summary-title {
+            color: var(--accent-color);
+        }
+
+        /* 2. 데이터 분석 (차트) */
+        .chart-box {
+            background: #f9f9f9;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .bar-chart-container {
+            margin: 20px 0;
+        }
+
+        .bar-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .bar-label {
+            width: 80px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .bar-track {
+            flex-grow: 1;
+            background: #e0e0e0;
+            height: 24px;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .bar-fill {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 10px;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            transition: width 1s ease-in-out;
+        }
+
+        .fill-2025 { background-color: #95a5a6; width: 85%; }
+        .fill-2026 { background-color: var(--accent-color); width: 95%; }
+
+        .stat-comparison {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-box {
+            flex: 1;
+            background: white;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 900;
+            color: var(--primary-color);
+        }
+
+        .stat-desc {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .insight-box {
+            background-color: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        .insight-title {
+            font-weight: 700;
+            color: #1565c0;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        /* 3. Case Study */
+        .case-study-box {
+            border: 1px solid #eee;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .case-header {
+            background: #f5f5f5;
+            padding: 15px;
+            font-weight: 700;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .case-content {
+            padding: 20px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .case-visual-placeholder {
+            flex: 1;
+            min-width: 200px;
+            background: #eee;
+            height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            border-radius: 4px;
+            font-size: 12px;
+            border: 2px dashed #ccc;
+        }
+
+        .case-text {
+            flex: 2;
+        }
+
+        .trap-box {
+            background: #fff0f0;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .trap-label {
+            color: var(--accent-color);
+            font-weight: 700;
+            margin-right: 5px;
+        }
+
+        /* 4. Roadmap Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 500;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        /* 5. Yoon's Section (Enhanced) */
+        .yoon-box {
+            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+            padding: 30px;
+            border-radius: 8px;
+            border: 1px solid #dcdcdc;
+        }
+
+        .big-percent {
+            font-size: 60px;
+            font-weight: 900;
+            color: var(--primary-color);
+            line-height: 1;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .big-percent span {
+            font-size: 24px;
+            font-weight: 500;
+            color: #555;
+        }
+        
+        /* New Style: Evidence Match Cards */
+        .match-container {
+            display: grid;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        
+        .match-card {
+            background: white;
+            border-left: 5px solid var(--match-border);
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border-radius: 0 8px 8px 0;
+        }
+
+        .match-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            border-bottom: 1px dashed #eee;
+            padding-bottom: 5px;
+        }
+
+        .match-type {
+            font-weight: 900;
+            color: var(--match-border);
+            font-size: 13px;
+            text-transform: uppercase;
+            background: var(--match-bg);
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .match-q {
+            font-weight: 700;
+            color: #333;
+        }
+        
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            font-size: 13px;
+        }
+        
+        .comp-col strong {
+            display: block;
+            color: #666;
+            margin-bottom: 5px;
+            font-size: 12px;
+        }
+        
+        .comp-box {
+            background: #fafafa;
+            padding: 10px;
+            border-radius: 4px;
+            height: 100%;
+            border: 1px solid #eee;
+            color: #444;
+        }
+        
+        .highlight {
+            background-color: #fff9c4; /* 노란색 형광펜 */
+            font-weight: bold;
+        }
+        
+        .source-tag {
+            display: block;
+            text-align: right;
+            font-size: 11px;
+            color: #888;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        /* 버튼 */
+        .print-btn {
+            display: block;
+            width: 200px;
+            margin: 0 auto 40px;
+            padding: 15px;
+            background-color: var(--primary-color);
+            color: white;
+            text-align: center;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 700;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            cursor: pointer;
+            border: none;
+            font-size: 16px;
+        }
+
+        .print-btn:hover {
+            background-color: #132c50;
+        }
+
+        /* 인쇄 설정 */
+        @media print {
+            body {
+                background-color: white;
+            }
+            .container {
+                box-shadow: none;
+                margin: 0;
+                padding: 0;
+                width: 100%;
+                max-width: 100%;
+            }
+            .print-btn {
+                display: none;
+            }
+            .bar-fill, .match-type, .highlight {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+        
+        /* 모바일 대응 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            .stat-comparison {
+                flex-direction: column;
+            }
+            .case-content {
+                flex-direction: column;
+            }
+            .big-percent {
+                font-size: 48px;
+            }
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <button class="print-btn" onclick="window.print()">🖨️ 보고서 인쇄하기</button>
+
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div style="display:inline-block; background:var(--primary-color); color:white; padding:4px 10px; font-size:12px; border-radius:4px; margin-bottom:10px;">심층 분석 리포트</div>
+            <h1>2026학년도 수능 영어 분석</h1>
+            <div class="subtitle">역대 최다 텍스트, 정교해진 논리… ‘독해 지구력(Stamina)’이 승부를 갈랐다</div>
+            <div class="report-info">
+                <span>발행일: 2025년 12월 8일</span>
+                <span>작성: 상품연구팀</span>
+            </div>
+        </header>
+
+        <!-- 1. Executive Summary -->
+        <section>
+            <h2>1. Executive Summary (3줄 요약)</h2>
+            <div class="summary-grid">
+                <div class="summary-card alert">
+                    <div class="summary-title">① 1등급 3.11% '불수능'</div>
+                    <p style="font-size:14px; margin:0;">킬러문항 배제 기조에도 불구, 1등급 비율이 최근 9년 중 최저치를 기록하며 사실상 상대평가급 변별력 회복.</p>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-title">② 타임 어택(Time Attack)</div>
+                    <p style="font-size:14px; margin:0;">역대 최다 텍스트 분량으로 인해 읽다가 지쳐 시간이 부족해지는 현상 극심. 속독 능력이 필수.</p>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-title">③ 논리 함정(Logic Trap)</div>
+                    <p style="font-size:14px; margin:0;">단순 해석만으로는 풀 수 없는 '매력적 오답' 설계. 문맥 속 숨겨진 연결고리를 찾는 논리력이 관건.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. 데이터 분석 -->
+        <section>
+            <h2>2. 데이터 인사이트: 숫자의 이면을 읽다</h2>
+            <p>단순히 "어려웠다"가 아닙니다. 데이터는 수험생이 겪었을 <strong>‘체력적 한계’</strong>를 명확히 보여줍니다.</p>
+            
+            <div class="chart-box">
+                <h3>[양적 분석] 지문 2개를 더 읽어야 했던 시험</h3>
+                <div class="bar-chart-container">
+                    <div class="bar-row">
+                        <span class="bar-label">2025 수능</span>
+                        <div class="bar-track">
+                            <div class="bar-fill fill-2025">6,490 단어</div>
+                        </div>
+                    </div>
+                    <div class="bar-row">
+                        <span class="bar-label" style="color:var(--accent-color)">2026 수능</span>
+                        <div class="bar-track">
+                            <div class="bar-fill fill-2026">6,754 단어 (+264)</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="insight-box">
+                    <span class="insight-title">💡 Insight: +264단어의 의미는?</span>
+                    수능 장문 독해 한 지문이 약 130~150단어입니다. 즉, 올해 수험생들은 작년 선배들보다 <strong>긴 지문 2개를 더 읽고 풀어야 했다</strong>는 뜻입니다. 이는 단순한 난이도 상승이 아닌, <strong>‘독해 지구력(Reading Stamina)’</strong> 싸움이었습니다.
+                </div>
+            </div>
+
+            <div class="chart-box">
+                <h3>[질적 분석] ‘스타카토(Staccato)’ 독해 능력 요구</h3>
+                <div class="stat-comparison">
+                    <div class="stat-box">
+                        <div class="stat-desc">문장 길이(평균)</div>
+                        <div class="stat-value" style="color:#555">12.1단어 <small style="font-size:0.5em; vertical-align:middle;">▼</small></div>
+                        <div style="font-size:13px; color:#888; margin-bottom:5px;">(2025년: 12.6단어)</div>
+                        <div style="font-size:12px; color:#999; border-top:1px dashed #eee; padding-top:5px;">호흡이 짧아짐</div>
+                    </div>
+                    <div class="stat-box" style="border-color:var(--accent-color); background:#fff5f5;">
+                        <div class="stat-desc">총 문장 개수</div>
+                        <div class="stat-value" style="color:var(--accent-color)">522개 <small style="font-size:0.5em; vertical-align:middle;">▲</small></div>
+                        <div style="font-size:13px; color:#d32f2f; margin-bottom:5px;">(2025년: 482개)</div>
+                        <div style="font-size:12px; color:#d32f2f; border-top:1px dashed #ffcdd2; padding-top:5px; font-weight:bold;">정보량 폭주</div>
+                    </div>
+                </div>
+                <div class="insight-box" style="margin-top:20px;">
+                    <span class="insight-title">💡 Insight: 숨 쉴 틈 없는 정보의 홍수</span>
+                    문장이 짧아졌다는 것은 쉬워졌다는 뜻이 아닙니다. 짧은 호흡으로 정보가 쉴 새 없이 쏟아졌음을 의미합니다. 문장 사이를 빠르게 연결하며 치고 나가는 <strong>‘속독속해(速讀速解)’</strong> 능력이 필수적이었습니다.
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. 고난도 문항 분석 -->
+        <section>
+            <h2>3. 고난도 문항 Case Study: 왜 틀렸는가?</h2>
+            
+            <div class="case-study-box">
+                <div class="case-header">
+                    <span>빈칸 추론 (34번)</span>
+                    <span style="color:var(--accent-color)">오답률 상위</span>
+                </div>
+                <div class="case-content">
+                    <div class="case-visual-placeholder">
+                        [실제 34번 문항/선택지<br>이미지 삽입 영역]
+                    </div>
+                    <div class="case-text">
+                        <strong>주제: 칸트의 법의 지배와 자유(Rule of Law)</strong>
+                        <div class="trap-box">
+                            <span class="trap-label">The Trap (함정):</span>
+                            학생들은 '자유(Freedom)'와 '강제(Force)'를 반대 개념으로 인식합니다. 하지만 지문은 "자유를 누리기 위해 법적 강제가 필요하다"는 역설적 논리를 다루고 있어, 빈칸 추론 시 논리적 혼란을 겪었습니다.
+                        </div>
+                        <p style="margin-top:10px; font-size:14px;">
+                            <strong>분석:</strong> 철학적 배경지식이 부족한 경우, '법 집행'과 '자유 보장'의 인과관계를 파악하는 데 상당한 시간이 소요되었습니다.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="case-study-box">
+                <div class="case-header">
+                    <span>문단 순서 (37번)</span>
+                    <span style="color:var(--accent-color)">1등급 결정 문항</span>
+                </div>
+                <div class="case-content">
+                    <div class="case-visual-placeholder">
+                        [실제 37번 문항<br>이미지 삽입 영역]
+                    </div>
+                    <div class="case-text">
+                        <strong>주제: 철학의 역할과 신경과학(Neuroscience)</strong>
+                        <div class="trap-box">
+                            <span class="trap-label">The Trap (함정):</span>
+                            추상적인 '철학(Philosophy)'과 구체적인 '과학적 뇌 연구(Science)' 사이의 관계를 규명하는 글입니다. 명시적인 연결어가 적고, 내용이 학문적 층위를 오가며 전개되어 흐름을 놓치기 쉬웠습니다.
+                        </div>
+                        <p style="margin-top:10px; font-size:14px;">
+                            <strong>분석:</strong> 좌뇌/우뇌의 기능적 설명과 철학적 개념을 연결하는 고리를 스스로 추론해야 하는 고난도 문항이었습니다.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. 학년별 전략 -->
+        <section>
+            <h2>4. [학년별 전략] 2027 수능 대비 로드맵</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th width="20%">대상</th>
+                        <th width="30%">핵심 전략 키워드</th>
+                        <th>구체적 실행 방안 (Action Plan)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>초등 고학년</strong></td>
+                        <td style="color:var(--primary-color); font-weight:bold;">어휘 인프라 구축</td>
+                        <td>
+                            • <strong>[어휘의 양적 팽창]</strong> 수능 필수 어휘 80% 이상 노출<br>
+                            • 단순 암기가 아닌 예문 속 쓰임새 체득
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>중등부</strong></td>
+                        <td style="color:var(--primary-color); font-weight:bold;">논리 독해 입문</td>
+                        <td>
+                            • <strong>[구조적 독해]</strong> 서론-본론-결론 구조 파악 훈련<br>
+                            • 접속사 없는 문장 간의 관계(인과, 대조) 파악
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>예비 고1~고3</strong></td>
+                        <td style="color:var(--accent-color); font-weight:bold;">실전 지구력 배양</td>
+                        <td>
+                            • <strong>[타임 어택 시뮬레이션]</strong> 70분 풀타임 모의고사<br>
+                            • 킬러 문항(빈칸/순서) 집중 공략 및 매력적 오답 분석
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- 5. 윤선생 연계성 (Updated with New Data) -->
+        <section>
+            <h2>5. 윤선생 학습 연계성 (Why Yoon’s?)</h2>
+            <div class="yoon-box">
+                <h3 style="margin-top:0; justify-content:center;">"수능이 변할수록, 윤선생의 학습 철학은 증명됩니다."</h3>
+                <p style="text-align:center;">2026 수능 데이터가 윤선생 커리큘럼의 우수성을 입증했습니다.</p>
+                
+                <div class="big-percent">98.1<span>%</span></div>
+                <div style="font-size:18px; font-weight:bold; color:#333; text-align:center;">수능 출제 어휘 적중률</div>
+                <p style="text-align:center; font-size:14px; margin-top:5px; color:#666; margin-bottom:30px;">(고유명사 제외, YES4.0 학제 어휘 기준)</p>
+
+                <h4 style="border-bottom:2px solid #ddd; padding-bottom:10px; margin-bottom:15px; color:#333;">🎯 듣기 영역 적중 사례 (Listening Match)</h4>
+                <div class="match-container">
+                    <!-- 듣기 1번 -->
+                    <div class="match-card">
+                        <div class="match-header">
+                            <span class="match-q">1번: 수면 유도 앱 광고</span>
+                            <span class="match-type">소재 적중</span>
+                        </div>
+                        <div class="comparison-grid">
+                            <div class="comp-col">
+                                <strong>수능 출제 패턴</strong>
+                                <div class="comp-box">
+                                    숙면을 돕는 앱 소개 및 권유<br>
+                                    "<span class="highlight">Sleep recharges your brain!</span>"
+                                </div>
+                            </div>
+                            <div class="comp-col">
+                                <strong>윤선생 교재 (POWERUP)</strong>
+                                <div class="comp-box">
+                                    "<span class="highlight">Advice on Good Sleep</span>"<br>
+                                    (숙면에 대한 조언 및 중요성 강조)<br>
+                                    <span class="source-tag">Source: POWERUP 1-1 / SMART 중학영어 2학년</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 듣기 16-17번 -->
+                    <div class="match-card">
+                        <div class="match-header">
+                            <span class="match-q">16-17번: 식물 성장 (과학)</span>
+                            <span class="match-type">내용 일치</span>
+                        </div>
+                        <div class="comparison-grid">
+                            <div class="comp-col">
+                                <strong>수능 출제 패턴</strong>
+                                <div class="comp-box">
+                                    빠르게 자라는 식물들(대나무 등) 소개<br>
+                                    "Bamboo can <span class="highlight">grow almost a meter</span> in just one day!"
+                                </div>
+                            </div>
+                            <div class="comp-col">
+                                <strong>윤선생 교재 (SMART 중학 2)</strong>
+                                <div class="comp-box">
+                                    대나무의 빠른 성장 속도 설명<br>
+                                    (유사한 수치 표현 및 성장 묘사 등장)<br>
+                                    <span class="source-tag">Source: SMART 중학영어 2학년(2학기)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h4 style="border-bottom:2px solid #ddd; padding-bottom:10px; margin-top:40px; margin-bottom:15px; color:#333;">🎯 읽기 영역 적중 사례 (Reading Match)</h4>
+                <div class="match-container">
+                    <!-- 읽기 34번 -->
+                    <div class="match-card">
+                        <div class="match-header">
+                            <span class="match-q">34번: 빈칸 (법과 자유)</span>
+                            <span class="match-type">배경지식 적중</span>
+                        </div>
+                        <div class="comparison-grid">
+                            <div class="comp-col">
+                                <strong>수능 출제 내용</strong>
+                                <div class="comp-box">
+                                    칸트의 법의 지배: 자유를 누리기 위해 <span class="highlight">법 집행(enforce laws)</span>이 필요함
+                                </div>
+                            </div>
+                            <div class="comp-col">
+                                <strong>윤선생 교재 (Biology/Immersion)</strong>
+                                <div class="comp-box">
+                                    "Help <span class="highlight">enforce laws</span> that protect..."<br>
+                                    (법 집행과 사회 질서 유지의 중요성 설명)<br>
+                                    <span class="source-tag">Source: English Immersion Biology 1~2</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 읽기 37번 -->
+                    <div class="match-card">
+                        <div class="match-header">
+                            <span class="match-q">37번: 순서 (뇌과학과 철학)</span>
+                            <span class="match-type">개념 설명 일치</span>
+                        </div>
+                        <div class="comparison-grid">
+                            <div class="comp-col">
+                                <strong>수능 출제 내용</strong>
+                                <div class="comp-box">
+                                    뇌의 기능적 분화(좌뇌/우뇌)와 인간 정신<br>
+                                    "<span class="highlight">The left side... controls language...</span>"
+                                </div>
+                            </div>
+                            <div class="comp-col">
+                                <strong>윤선생 교재 (Reading Solutions)</strong>
+                                <div class="comp-box">
+                                    "<span class="highlight">The left side of the brain controls language...</span>"<br>
+                                    "The right brain is related to feelings."<br>
+                                    <span class="source-tag">Source: Yoon's Reading Solutions C 9b</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 읽기 43-45번 -->
+                    <div class="match-card">
+                        <div class="match-header">
+                            <span class="match-q">43-45번: 장문 (스마트폰 갈등)</span>
+                            <span class="match-type">상황 100% 일치</span>
+                        </div>
+                        <div class="comparison-grid">
+                            <div class="comp-col">
+                                <strong>수능 출제 내용</strong>
+                                <div class="comp-box">
+                                    스마트폰 중독 딸과 부모의 갈등 및 해결<br>
+                                    "Please <span class="highlight">turn off your devices</span>..."
+                                </div>
+                            </div>
+                            <div class="comp-col">
+                                <strong>윤선생 교재 (SMART 중학 2)</strong>
+                                <div class="comp-box">
+                                    Tech-free Camp 이야기<br>
+                                    "You should be in <span class="highlight">control of your devices</span>..."<br>
+                                    <span class="source-tag">Source: SMART 중학영어 2학년(2학기)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <p style="text-align:center; margin-top:20px; font-size:13px; color:#888;">
+                    * 위 내용은 실제 2026학년도 수능 문항과 윤선생 교재 내용을 발췌하여 비교한 것입니다.
+                </p>
+            </div>
+        </section>
+
+        <!-- 6. 결론 -->
+        <section style="margin-bottom:0;">
+            <h2>6. 결론 및 제언</h2>
+            <p>
+                2026학년도 수능 영어는 <strong>"요령은 통하지 않는다"</strong>는 메시지를 명확히 던졌습니다.
+                텍스트의 홍수 속에서 살아남을 수 있는 <strong>‘독해 체력’</strong>, 그리고 함정을 피해 가는 <strong>‘논리적 사고력’</strong>은 단기간에 만들어지지 않습니다.
+            </p>
+            <p style="font-weight:700; color:var(--primary-color); font-size:18px; margin-top:20px;">
+                지금이 바로 골든타임입니다.
+            </p>
+            <p>
+                빅데이터 기반의 맞춤형 학습 <strong>YES4.0</strong>과 정기적인 실력 점검 도구 <strong>YSAT</strong>를 통해, 변화하는 입시 환경에서도 흔들리지 않는 <strong>‘진짜 영어 실력’</strong>을 완성하십시오.
+            </p>
+        </section>
+    </div>
+
+</body>
+</html>
