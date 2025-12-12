@@ -135,7 +135,7 @@
                     </span>를 증명하다
                 </h2>
                 <p class="text-lg text-stone-600 max-w-2xl mx-auto leading-relaxed pt-4">
-                    2026 수능 영어의 모든 영역(듣기 16문항, 읽기 28문항) 소재가 윤선생 교재에 이미 존재했습니다.
+                    2026 수능 영어의 모든 영역 소재가 윤선생 교재에 이미 존재했습니다.
                     데이터로 증명된 윤선생 커리큘럼의 압도적인 적중률을 직접 확인하세요.
                 </p>
                 <div class="pt-8 flex flex-col sm:flex-row justify-center gap-4">
@@ -181,13 +181,13 @@
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-stone-100 flex flex-col">
                     <div class="flex items-center justify-between mb-6">
                         <h4 class="text-lg font-bold text-stone-700 border-l-4 border-amber-500 pl-3">영역별 문항 매칭 현황</h4>
-                        <span class="text-xs font-medium text-stone-400 bg-stone-100 px-2 py-1 rounded">총 45문항 대비</span>
+                        <span class="text-xs font-medium text-stone-400 bg-stone-100 px-2 py-1 rounded" id="dashboardTotalCount">총 45문항 대비</span>
                     </div>
                     <div class="chart-container flex-grow">
                         <canvas id="typeChart"></canvas>
                     </div>
-                    <p class="text-xs text-stone-500 mt-4 text-center bg-stone-50 py-2 rounded">
-                        * 듣기(16) / 읽기(28) 전체 문항에 대해 유사 소재가 확인되었습니다.
+                    <p class="text-xs text-stone-500 mt-4 text-center bg-stone-50 py-2 rounded" id="dashboardBreakdown">
+                        * 듣기(17) / 읽기(28) 전체 문항에 대해 유사 소재가 확인되었습니다.
                     </p>
                 </div>
             </div>
@@ -232,10 +232,10 @@
                 </div>
 
                 <!-- Main Explorer Split View -->
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[800px] lg:h-[700px]">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[600px] lg:h-[700px]">
                     
-                    <!-- Left Column: Item List -->
-                    <div class="lg:col-span-4 bg-white rounded-xl border border-stone-200 shadow-sm flex flex-col overflow-hidden h-full">
+                    <!-- Left Column: Item List (Modified height constraints) -->
+                    <div class="lg:col-span-4 bg-white rounded-xl border border-stone-200 shadow-sm flex flex-col overflow-hidden h-full min-h-[300px]">
                         <div class="p-4 bg-stone-50 border-b border-stone-200 flex justify-between items-center">
                             <span class="font-bold text-stone-700 text-sm"><i class="fa-solid fa-list-ul mr-2"></i>문항 리스트</span>
                             <span id="matchCount" class="text-xs bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full font-bold">0건</span>
@@ -364,7 +364,7 @@
         <div class="max-w-4xl mx-auto px-4 text-center">
             <div class="flex items-center justify-center gap-2 mb-6 text-stone-200">
                 <i class="fa-solid fa-graduation-cap text-2xl"></i>
-                <span class="font-bold text-xl">윤선생</span>
+                <span class="font-bold text-xl">윤선생 영어교실</span>
             </div>
             <p class="mb-6 text-sm leading-relaxed">
                 본 리포트는 2026학년도 대학수학능력시험 영어 영역 문항과<br>윤선생 커리큘럼 교재 내 지문의 소재 유사성을 분석한 결과입니다.
@@ -377,326 +377,359 @@
 
     <!-- Script Logic -->
     <script>
-        // --- 1. Data Source (Consolidated from User's Appendix) ---
-        // 'matches' array contains objects with 'text' (extract) and 'source' (book ref).
+        // --- 1. Data Source (Updated for 2026 CSAT) ---
+        // Category Assignment (Simplified for Charting):
+        // 일상/생활: Daily life, health, shopping, travel, simple tasks
+        // 사회/인문: Psychology, ethics, culture, art, economics, society
+        // 학술/과학: Technology, environment, biology, physics, brain/memory
+        // 정보/안내: Rules, notices, detailed information, graphs
+        // 기타/감정: Emotions, feelings, personal change
         const curriculumData = [
-            // --- Listening ---
+            // --- Listening (17 Questions) ---
             { 
-                id: 'L1', section: 'Listening', type: '1. 짧은 대화', category: '일상/실용', topic: '만남 시간/장소 확인', 
-                context: '약속 시간 정하기, 만날 장소 제안', 
+                id: 'L1', section: 'Listening', type: '1. 목적 파악', category: '일상/생활', topic: '수면 유도 앱 광고', 
+                context: '수면 및 휴식의 중요성 강조', 
                 matches: [
-                    { text: "What time shall we meet? How about five? That's fine with me. And where shall we meet? Let's meet at the bus stop.", source: "s08 POWERUP 1-1 1~2" },
-                    { text: "Shall we meet at the library at 10:00? I'm sorry, but I can't. I have another appointment at 10:30.", source: "s12 POWERUP 3-1 1~2" },
-                    { text: "When should we meet? Let's make it at seven, in front of the library.", source: "s11 SMART 중학영어 3학년(2학기) book5~8" }
-                ]
-            },
-            { 
-                id: 'L2', section: 'Listening', type: '2. 짧은 대화', category: '일상/실용', topic: '물건 위치 묻기', 
-                context: '잃어버린 물건 찾기, 위치 설명(가구 위/아래 등)', 
-                matches: [
-                    { text: "Honey, what are you looking for? My keys. Have you seen them? ... And have you looked in your wallet on the piano?", source: "s15 Yoon's Reading PALS D 10b" },
-                    { text: "Mom, I think I left my cellphone in my room. ... Oh, wait, I found it! Thank God. Where was it? It was under your pillow.", source: "s11 SMART 중학영어 3학년(2학기) book5~8" },
-                    { text: "Where is my bag? It's on the desk.", source: "s08 POWERUP 1-1 1~2" }
+                    { text: "You should rest and sleep more.", source: "s09 SMART 중학영어 1학년(2학기)" },
+                    { text: "Music will help you to sleep.", source: "s09 SMART 중학영어 1학년(2학기)" }
                 ]
             },
             { 
-                id: 'L3', section: 'Listening', type: '3. 목적', category: '정보/공지', topic: '안내 방송: 행사 변경 안내', 
-                context: '날씨나 사정으로 인한 일정/장소 변경 공지', 
+                id: 'L2', section: 'Listening', type: '2. 의견 파악', category: '일상/생활', topic: '실내 암벽 등반의 이점', 
+                context: '스포츠 활동 다양성과 운동의 건강 효과', 
                 matches: [
-                    { text: "Attention, passengers. Flight 216 for Los Angeles departing at 12:30 will be delayed due to bad weather. The new schedule for the flight will be announced later. We apologize for the inconvenience.", source: "s11 Yoon's 4-Skill Up(Fluent)" },
-                    { text: "Attention all hikers. Bayside Canyon has just put out a warning that people should avoid hiking in this area. Due to a recent earthquake, the area has experienced some liquefaction.", source: "s15 English Immersion Weather and Geology 1~2" },
-                    { text: "The picnic was canceled because of rain.", source: "s11 SMART 중학영어 3학년(2학기) book5~8" }
-                ]
-            },
-            {
-                id: 'L4', section: 'Listening', type: '4. 의견', category: '학습/지식', topic: '건강/습관: 디지털 기기 사용',
-                context: '스마트폰/컴퓨터 사용 제한, 건강한 생활 습관 조언',
-                matches: [
-                    { text: "It is bad for you to stare at a computer or a smartphone for a long time. I consider it necessary to only use electronics for less than one hour a day.", source: "s11 SMART 중학영어 3학년(2학기) book5~8" },
-                    { text: "Teens seem to be addicted to using computers... We should pass a law that makes using a computer illegal for anyone under a certain age.", source: "s14 English Immersion American culture 1~2" },
-                    { text: "You should get more sleep. ... Yes, I was on the computer. Every night I stay up too late. ... I think you should organize your time better.", source: "s13 POWERUP 3-2 1~2" }
-                ]
-            },
-            {
-                id: 'L5', section: 'Listening', type: '5. 관계', category: '일상/실용', topic: '서비스/직업: 구체적 서비스 요청',
-                context: '상점 주인과 손님, 도서관 사서와 이용자, 수리 요청',
-                matches: [
-                    { text: "May I help you? Yes, I'm looking for a flower basket. ... Give that special someone flowers to express your gratitude or love.", source: "s11 SMART 중학영어 3학년(2학기) book5~8" },
-                    { text: "Can I help you, ma'am? Yes, please. I'd like some novels. ... Can I check them out? Yes. You can check out novels.", source: "s15 Yoon's Reading PALS D 10b" },
-                    { text: "This is room 502. There is a problem with the bathtub. The drain is clogged. ... Well prepare another room right away.", source: "s11 SMART 중학영어 3학년(2학기) book5~8" }
-                ]
-            },
-            {
-                id: 'L6', section: 'Listening', type: '6. 그림', category: '일상/실용', topic: '묘사: 위치 및 동작 특정',
-                context: '방 안의 물건 배치, 사람들의 동작 묘사',
-                matches: [
-                    { text: "There's a bed on the left side. I have two dolls on my bed. You can see a desk on the right. ... There is a clock on the wall over the desk.", source: "s11 SMART 중학영어 3학년(2학기) book5~8" },
-                    { text: "In picture A, the closet door is open while its closed in picture B. ... Next, in picture A, the cat is sleeping on the bed, but its jumping on the floor in picture B.", source: "s11 SMART 중학영어 3학년(2학기) book5~8" },
-                    { text: "The boy playing the violin is my brother. ... The book lying on the table is Greg's.", source: "s16 윤선생 수능 project(유형편) 1~3" }
-                ]
-            },
-            {
-                id: 'L7', section: 'Listening', type: '7. 할 일', category: '일상/실용', topic: '준비/협업: 부탁하기',
-                context: '행사 준비, 물건 구매 부탁, 가사 분담',
-                matches: [
-                    { text: "Can you do me a favor? ... Will you go to the store and buy me some cookies and milk? ... I need some oranges and onions, too.", source: "s12 POWERUP 3-1 1~2" },
-                    { text: "Mom and Dad's 15th wedding anniversary is coming up. ... Could you help me blow up some balloons? No problem!", source: "s11 SMART 중학영어 3학년(2학기) book5~8" },
-                    { text: "Brad and Victoria are organizing a class party. ... Ill bring paper cups and plates. Dont forget to bring the decorations!", source: "s11 SMART 중학영어 3학년(2학기) book5~8" }
-                ]
-            },
-            {
-                id: 'L8', section: 'Listening', type: '8. 이유', category: '일상/실용', topic: '약속 이행 불가 사유',
-                context: '병원 진료, 다른 일정, 가족 행사 등으로 인한 거절',
-                matches: [
-                    { text: "Sorry I can't come. I have an appointment with the doctor.", source: "s08 POWERUP 1-1 1~2" },
-                    { text: "I'd love to, but I can't. I'm supposed to help my parents in the store that day.", source: "s11 SMART 중학영어 3학년(2학기) book5~8" },
-                    { text: "Hello, Minho, this is Sujin. I'm sorry to change our appointment. My mother had a traffic accident and I have to take care of her.", source: "s13 POWERUP 3-2 1~2" }
-                ]
-            },
-            {
-                id: 'L9', section: 'Listening', type: '9. 계산', category: '일상/실용', topic: '쇼핑/할인: 가격 계산',
-                context: '물건 개수, 가격, 할인율 적용',
-                matches: [
-                    { text: "I bought a backpack here yesterday. It was 60,000 won, but now it's 50% off.", source: "s11 SMART 중학영어 3학년(2학기) book5~8" },
-                    { text: "Let's see, two hairbrushes and three combs, that's $20; plus six pairs of socks for $24. So that comes to $44. ... They are 50% off. Here's $40.", source: "s10 Yoon's Reading PALS B 8a" },
-                    { text: "How much is it? The CD is 12,000 won plus a 10 percent shipping and handling charge.", source: "s15 Yoon's Reading PALS D 10b" }
-                ]
-            },
-            {
-                id: 'L10', section: 'Listening', type: '10. 불일치', category: '정보/공지', topic: '정보 확인: 안내문 내용',
-                context: '동아리/행사 안내(일시, 장소, 대상, 준비물)',
-                matches: [
-                    { text: "Soccer Club... When: Every Monday Morning. Where: The Schools Soccer Field. What: Soccer Practice & Match. Who: Anyone Who Likes Soccer.", source: "s11 SMART 중학영어 3학년(2학기) book5~8" },
-                    { text: "We are holding our 4th English Song Contest next week. ... The winner gets a 32GB media player! You can apply via our school website...", source: "s11 SMART 중학영어 3학년(2학기) book5~8" }
-                ]
-            },
-            {
-                id: 'L11', section: 'Listening', type: '11. 짧은 대화', category: '일상/실용', topic: '제안/요청: 수락/거절',
-                context: '식사 메뉴 제안, 주문 상황',
-                matches: [
-                    { text: "May I take your order? I'd like to have a steak. ... No, thanks. That will be it.", source: "s16 윤선생 수능 project(유형편) 1~3" },
-                    { text: "What would you like to have? ... How about noodles in cold soup? That's fine with me.", source: "s16 윤선생 수능 project(유형편) 1~3" },
-                    { text: "Would you like some more cookies? No, thanks. I've had enough.", source: "s16 윤선생 수능 project(유형편) 1~3" }
-                ]
-            },
-            {
-                id: 'L12', section: 'Listening', type: '12. 짧은 대화', category: '일상/실용', topic: '상황 대처: 길 찾기',
-                context: '길을 잃었을 때, 특정 장소 위치 묻기',
-                matches: [
-                    { text: "Excuse me. How do I get to the bakery? Go straight and turn left. It's next to the hospital. ... Thank you.", source: "s12 POWERUP 3-1 1~2" },
-                    { text: "I'm looking for my younger brother. It's hard to find him in this large park. Let's find him together.", source: "s11 SMART 중학영어 3학년(2학기) book5~8" }
-                ]
-            },
-            {
-                id: 'L13', section: 'Listening', type: '13. 긴 대화', category: '학습/지식', topic: '고민 상담: 진로/학업',
-                context: '발표 불안, 진로 문제, 성적 고민 상담',
-                matches: [
-                    { text: "I want to become an announcer, but I'm nervous in front of people. How can I fix this? ... Speak confidently so as not to seem nervous.", source: "s11 SMART 중학영어 3학년(2학기) book5~8" },
-                    { text: "What do you want to be in the future? I want to be a professional gamer, but my parents want me to be an announcer. ... Ill keep my fingers crossed for you.", source: "s11 SMART 중학영어 3학년(2학기) book5~8" }
-                ]
-            },
-            {
-                id: 'L14', section: 'Listening', type: '14. 긴 대화', category: '학습/지식', topic: '사회적 이슈: 환경 보호',
-                context: '환경 보호 활동, 재활용, 에너지 절약',
-                matches: [
-                    { text: "Lets Save Our Planet! ... Stop using plastic! Use a reusable bottle... Use public transportation! ... Recycle! Make sure to recycle all bottles and cans.", source: "s11 SMART 중학영어 3학년(2학기) book5~8" },
-                    { text: "What can we do to save the Earth from environmental pollution? ... Do not let the water run while you are brushing your teeth. ... Use Less Plastic.", source: "s15 Yoon's Reading Solutions D 10b" }
-                ]
-            },
-            {
-                id: 'L15', section: 'Listening', type: '15. 상황', category: '정보/공지', topic: '메시지 전달: 간접 화법',
-                context: '전화 메시지 남기기, 제3자에게 말 전하기',
-                matches: [
-                    { text: "Could you tell him that Bob called? Okay, I will.", source: "s15 Yoon's Reading Solutions D 10b" },
-                    { text: "Please tell him to meet me in the park at eight tomorrow morning.", source: "s15 Yoon's Reading Solutions D 10b" },
-                    { text: "Please tell her to call Tim back this afternoon.", source: "s15 Yoon's Reading Solutions D 10b" }
-                ]
-            },
-            {
-                id: 'L16', section: 'Listening', type: '16. 담화', category: '학습/지식', topic: '주제: 자연/과학',
-                context: '동식물의 특징, 생존 방식, 과학적 사실',
-                matches: [
-                    { text: "Bears also have a special chemical in their bodies. This chemical helps the bear change the fat in its body to water and protein. This also helps the bear sleep through the winter...", source: "s12 Yoon's Reading Solutions C 9a" },
-                    { text: "Some animals help the physically disabled. Others give mental and emotional support to those in need.", source: "s13 POWERUP 3-2 1~2" },
-                    { text: "The kakapo is a kind of parrot, but it can't fly. ... Why do kakapos sing songs? To find a mate.", source: "s12 Yoon's Reading Solutions C 9a" },
-                    { text: "Trees get water through their leaves. Trees lose their leaves to survive winter.", source: "s11 SMART 중학영어 3학년(2학기) book5~8" }
-                ]
-            },
-
-            // --- Reading ---
-            { 
-                id: 'R18', section: 'Reading', type: '18. 목적', category: '정보/공지', topic: '안내문: 학교 축제/행사', 
-                context: '학교 축제 및 행사 공지, 일정 안내', 
-                matches: [
-                    { text: "School Festival When: September 8 Where: Nova Middle School What: School Band Performances, Various Club Events Our school is having a festival. It is on September 8 at Nova Middle School. There will be school band performances and various club events. Please come!", source: "s11 Yoon's 4-Skill Up(Fluent)" },
-                    { text: "Autumn Festival! Listen to a live band. Dance with your friends. Take pictures inside the photo booth. It will be a fun and special night.", source: "s13 SMART 중학영어 3학년(2학기) book5~8" }
+                    { text: "Activities include whitewater rafting and backpacking, as well as rock climbing, caving, and mountain biking.", source: "s12 Yoon's Word Partners 1~6" },
+                    { text: "Exercise keeps your body strong.", source: "s12 Yoon's Word Partners 1~6" }
                 ]
             },
             { 
-                id: 'R19', section: 'Reading', type: '19. 심경', category: '기타(감정)', topic: '긴장감 → 안도감', 
-                context: '사고나 분실 등 위기 상황 후의 안도', 
+                id: 'L3', section: 'Listening', type: '3. 요지 파악', category: '사회/인문', topic: '큰 포즈와 불안 완화', 
+                context: '신체 언어와 감정 표현의 연관성', 
                 matches: [
-                    { text: "Our teacher, Mr. Frank, was helping us prepare for a test. ... I couldn't concentrate on my task. My mind was full of worried thoughts. Then Mr. Frank came back. His daughter was all right. I was very relieved.", source: "s11 Advanced Readers D 8b 1~3" },
-                    { text: "Later, the farmer's horse came back from the mountains with six wild horses running behind it. ... The neighbors were happy for him. \"You must be relieved!\" they said.", source: "s11 Advanced Readers D 8b 1~3" }
+                    { text: "A person who walks with his or her chin high is confident or proud.", source: "s11 Advanced Readers D 8b 1~3" },
+                    { text: "Most people show their real thoughts and emotions through body language.", source: "s11 Advanced Readers D 8b 1~3" }
                 ]
             },
-            {
-                id: 'R20', section: 'Reading', type: '20. 주장', category: '심리/사회', topic: '타인과의 비교 지양',
-                context: '남과 비교하지 말고 자신의 길을 가라는 교훈',
+            { 
+                id: 'L4', section: 'Listening', type: '4. 그림 내용 일치', category: '일상/생활', topic: '철도 박물관 사진', 
+                context: '플랫폼·기차 내부 묘사', 
                 matches: [
-                    { text: "Most people, however, care so much about what others have that only sadness and sorrow are in their sight. ... However, if you can stop comparing with others, then you can be content and happy.", source: "s11 Advanced Readers D 8b 1~3" },
-                    { text: "Not giving up is more important than being class president.", source: "s13 SMART 중학영어 3학년(2학기) book5~8" }
+                    { text: "His father stood nearby on the railroad loading platform. Erskine climbed the high metal steps into the train car.", source: "s12 Yoon's Chapter Books 1~5" },
+                    { text: "Erskine walked between rows of seats, each wide enough for two people.", source: "s12 Yoon's Chapter Books 1~5" }
                 ]
             },
-            {
-                id: 'R21', section: 'Reading', type: '21. 함축', category: '심층 사고', topic: '미디어 비판/정보 편식',
-                context: '미디어의 영향력, 정보의 선별과 비판적 수용',
+            { 
+                id: 'L5', section: 'Listening', type: '5. 할 일 파악', category: '일상/생활', topic: '홈메이드 파이 가게 준비', 
+                context: '구매해야 할 재료·리스트 점검', 
                 matches: [
-                    { text: "Advertisers use words or sentences which deceive people. Indeed they are often misleading because they don't tell the whole truth. Half truths are even harder to find than lies. ... To spend your money wisely, you must be able to read ads.", source: "s12 Core Grammer 1~3.txt / s14 Yoon's Reading Solutions D 10a" }
+                    { text: "What else do we need to buy? Oh, don't forget milk.", source: "s11 SMART 중학영어 2학년(2학기)" },
+                    { text: "Did you buy everything on the shopping list? I think so. Bacon, bread, and cheese.", source: "s08 POWERUP 1-1 1~2" }
                 ]
             },
-            {
-                id: 'R22', section: 'Reading', type: '22. 요지', category: '과학/기술/경제', topic: '환경/도시 계획: 녹지 공간',
-                context: '습지 보존, 도시 개발과 환경, 자연 공간의 중요성',
+            { 
+                id: 'L6', section: 'Listening', type: '6. 숫자 정보 파악', category: '일상/생활', topic: '전기 히터와 슬리퍼 구매', 
+                context: '가격 비교·할인 계산', 
                 matches: [
-                    { text: "Wetlands are extremely important ecosystems. Many endangered animals live in wetlands. Wetlands also prevent floods.", source: "s11 English Immersion Biology 1~2_업데이트_130218" },
-                    { text: "There used to be a beautiful park in the center of this city. ... Now there are not parks and houses. I Can see only tall office buildings.", source: "s12 POWERUP 3-1 1~2" }
+                    { text: "It was $50 before, but now it's only $25. Is it 50% off?", source: "s08 POWERUP 1-1 1~2" },
+                    { text: "I'll take the bag and the hat... The total price was nine dollars.", source: "s08 POWERUP 1-1 1~2" }
                 ]
             },
-            {
-                id: 'R23', section: 'Reading', type: '23. 주제', category: '과학/기술/경제', topic: 'Attention Economy/마케팅',
-                context: '광고와 주의력(Attention), 사람들의 관심을 끄는 법',
+            { 
+                id: 'L7', section: 'Listening', type: '7. 이유 파악', category: '기타/감정', topic: 'Morning Tea Club 불참', 
+                context: '일정 충돌 또는 건강 문제', 
                 matches: [
-                    { text: "In the world of advertising selling products in the most important goal. It attracts the readers or the viewers' attention. This is done with interesting sentences and pictures that catch your attention.", source: "s12 Core Grammer 1~3" },
-                    { text: "Advertisers use many techniques to sell products. First, they use famous people because people want to buy things that famous people advertise.", source: "s12 POWERUP 3-1 1~2" }
+                    { text: "I have an appointment to see her at two o'clock, but I won't be able to make it.", source: "s12 윤선생 수능 project(전략편) 1~3" },
+                    { text: "I am in bed with the flu.", source: "s12 윤선생 수능 project(전략편) 1~3" }
                 ]
             },
-            {
-                id: 'R24', section: 'Reading', type: '24. 제목', category: '심층 사고', topic: '예술 작품의 해석/가치',
-                context: '예술을 보는 관점, 큐비즘, 예술의 이해',
+            { 
+                id: 'L8', section: 'Listening', type: '8. 언급 유무 파악', category: '정보/안내', topic: 'Autumn Treasure Hunt 행사 정보', 
+                context: '행사 정보(상품·날짜·장소 등)', 
                 matches: [
-                    { text: "Cubism broke away from the traditional ways of thinking about art. Cubists used geometric shapes like cubes and cones in the paintings. ... They wanted to capture the essence of the object in the painting by showing it from different points of view at the same time.", source: "s15 Yoon's Advanced Readers F 10b" },
-                    { text: "We often feel that art is difficult to understand.", source: "s12 Core Grammer 1~3" }
+                    { text: "The winner gets a 32GB media player! You can apply via our school website or talk to Ms. Kim.", source: "s11 Advanced Readers D 8b 1~3" },
+                    { text: "The Warriors will play at the Tigers' school. What day is the basketball game? Friday, November 10", source: "s08 English Immersion P.E. 1-2" }
                 ]
             },
-            {
-                id: 'R29', section: 'Reading', type: '29. 어법', category: '과학/기술/경제', topic: '과학 실험/변인 통제',
-                context: '과학 실험 과정, 관찰과 결과 도출',
+            { 
+                id: 'L9', section: 'Listening', type: '9. 담화 세부 내용 파악', category: '정보/안내', topic: 'Court Visit Program 안내', 
+                context: '이용 시 금지 사항·제한 사항', 
                 matches: [
-                    { text: "The teacher showed us how to make rain in a jar. ... Well, it was an experiment that demonstrated convection and the water cycle.", source: "s14 English Immersion Weather and Geology 1~2" },
-                    { text: "When you see something your eyes and your brain are working together. Light carries a picture or image of an object into each of your eyes. As light enters your eyes, the image of the object is turned upside down.", source: "s11 Powerup 2-2 3~4" },
-                    { text: "First, scientists identify a gene that controls a desirable trait.", source: "s14 Yoon's Reading Solutions D 10a" }
+                    { text: "Children under 140 cm are not allowed to ride.", source: "s11 SMART 중학영어 2학년(2학기)" },
+                    { text: "Do not touch anything. ... Make sure you don't take pictures.", source: "s08 SMART 중학영어 1학년(1학기)" }
                 ]
             },
-            {
-                id: 'R30', section: 'Reading', type: '30. 어휘', category: '과학/기술/경제', topic: '경제: 불확실성/한계효용',
-                context: '경제 원리, 소비 심리, 한계효용 체감',
+            { 
+                id: 'L10', section: 'Listening', type: '10. 표 내용 파악', category: '정보/안내', topic: '버터나이프 세트 선택', 
+                context: '조건 비교 후 선택', 
                 matches: [
-                    { text: "In economics, here is a law of diminishing marginal utility. According to this law, the amount of marginal utility diminishes as additional units of a product are consumed. It describes how the last item consumed will be less satisfying than the one before.", source: "s14 Yoon's Reading Solutions D 10a" },
-                    { text: "Prices go up when many people want to buy the same thing.", source: "s12 Core Grammer 1~3" }
+                    { text: "Which do you prefer, blue or green? I prefer blue. And what size would you like? I'd like a medium, please.", source: "s13 SMART 중학영어 3학년(2학기) book5~8" },
+                    { text: "I'd like one that weighs less than 1.5 kilograms... costs less than 800 dollars.", source: "s12 Yoon's Word Partners 1~6" }
                 ]
             },
-            {
-                id: 'R31', section: 'Reading', type: '31. 빈칸', category: '과학/기술/경제', topic: '디지털 데이터의 영구성',
-                context: '디지털 정보의 저장, 기록, 인터넷의 특성',
+            { 
+                id: 'L11', section: 'Listening', type: '11. 적절한 응답 고르기', category: '일상/생활', topic: '아이 픽업 지연 상황', 
+                context: '늦은 사유 설명·도움 요청', 
                 matches: [
-                    { text: "MP3s are digital data, not physical data like cassettes. Because MP3 files are small, they are accessible through the Internet at any time.", source: "s14 Yoon's Reading PALS D 10a" },
-                    { text: "Computers can work with lots of information at the same time. ... Third, they keep information for a long time.", source: "s11 Reading PALS B 8b 1~2" },
-                    { text: "In a digital society, you will have to study many subjects. ... The proper knowledge of computers is a must in a digital society.", source: "s13 Reading Solutions C 9b" }
+                    { text: "Mom picked me up late from soccer practice. She was stuck in traffic.", source: "s11 Yoon's Writing Solutions A" },
+                    { text: "Can you help me with this math problem? Of course. It's easy. I can help you.", source: "s10 Yoon's Reading PALS B 8a" }
                 ]
             },
-            {
-                id: 'R32', section: 'Reading', type: '32. 빈칸', category: '과학/기술/경제', topic: '생물학: 식물의 생존 전략',
-                context: '식물의 적응, 영양분 섭취 방식',
+            { 
+                id: 'L12', section: 'Listening', type: '12. 적절한 응답 고르기', category: '일상/생활', topic: '수학여행 장소 선택', 
+                context: '장소 제안·교통 비교', 
                 matches: [
-                    { text: "It is difficult to find Venus flytraps in the wild today. Soon, Venus flytraps may only grow in greenhouses. insect-eating plant", source: "s12 Reading Solutions B 8b 1~3_130319 수정" },
-                    { text: "The epiphytes' roots stabilize the epiphyte on its growing surface and trap leaves or other debris washed into the roots by rain.", source: "s15 Yoon's Reading Solutions D 10b" }
+                    { text: "Where would you like to go? How about Jeju-do? We can swim at the beach and climb up Hallasan Mountain.", source: "s10 SMART 중학영어 2학년(1학기)" },
+                    { text: "The bus is a lot faster than the train. Let’s hurry.", source: "s11 SMART 중학영어 2학년(2학기)" }
                 ]
             },
-            {
-                id: 'R33', section: 'Reading', type: '33. 빈칸', category: '심리/사회', topic: 'Attention Economy',
-                context: '미디어 소비, 주의력과 만족감',
+            { 
+                id: 'L13', section: 'Listening', type: '13. 적절한 응답 고르기', category: '일상/생활', topic: 'DIY 의자 키트 부품 손상', 
+                context: '환불·교환 요구', 
                 matches: [
-                    { text: "I think television should be the visual counterpart of the literary essay. It should arouse our dreams, satisfy our hunger for beauty...", source: "s14 English Immersion American culture 1~2" },
-                    { text: "Watching TV is a popular after-school activity for American kids. ... Watching television can also affect how well children can read.", source: "s14 English Immersion American culture 1~2" }
+                    { text: "I bought this bag yesterday, but there is a problem with it. ... I was wondering if I could get a refund.", source: "s08 SMART 중학영어 1학년(1학기)" },
+                    { text: "I have a complaint about this bag. What's the problem? There's a small rip down there.", source: "s13 POWERUP 3-2 1~2" }
                 ]
             },
-            {
-                id: 'R34', section: 'Reading', type: '34. 빈칸', category: '심층 사고', topic: '법/철학: 규칙과 자유',
-                context: '규칙 준수, 자유의 제한과 사회적 합의',
+            { 
+                id: 'L14', section: 'Listening', type: '14. 적절한 응답 고르기', category: '일상/생활', topic: '자녀의 편식 문제 해결 조언', 
+                context: '올바른 식습관에 대한 조언', 
                 matches: [
-                    { text: "To enjoy our freedom, we must allow others to enjoy their liberty also. This demands a lot of self-discipline and self-control.", source: "s11 Powerup 2-2 3~4" },
-                    { text: "Traffic signs help enforce laws on the road.", source: "s11 Yoon's 4-Skill Up(Fluent)" },
-                    { text: "In Korea, wearing seat belts on the road is required by law. Since the law came into effect, the number of accident deaths has been greatly reduced.", source: "s12 POWERUP 3-1 1~2" }
+                    { text: "You should eat healthy foods, like fruits and vegetables. Please stay away from candy and junk food.", source: "s09 SMART 중학영어 1학년(2학기)" },
+                    { text: "You'd better not eat too much fast food. Also you'd better exercise daily.", source: "s10 SMART 중학영어 2학년(1학기)" }
                 ]
             },
-            {
-                id: 'R35', section: 'Reading', type: '35. 무관', category: '과학/기술/경제', topic: '문화: 고대 건축',
-                context: '자금성, 만리장성 등 고대 건축물의 특징',
+            { 
+                id: 'L15', section: 'Listening', type: '15. 상황에 적절한 말', category: '일상/생활', topic: '자전거 경로 지도 제작 방법', 
+                context: '활동 제안 표현', 
                 matches: [
-                    { text: "Many things inside the palace are yellow because yellow is the color for the royal family. ... However, the royal library has a black roof.", source: "s15 Yoon's Reading Solutions D 10b" },
-                    { text: "The Great Wall of China begins in Qinhuangdao... Many people say this wall looks like a sleeping dragon draped over the countryside.", source: "s12 English Immersion Famous Places 1~2" },
-                    { text: "Stonehenge is in England. No one is sure who built Stonehenge. ... It could have been a burial site for very important people.", source: "s12 Reading Solutions B 8b 1~3_130319 수정" }
+                    { text: "Why don't we go to the rock music festival...?", source: "s08 POWERUP 1-1 1~2" },
+                    { text: "How about playing baseball?", source: "s10 POWERUP 2-1 1~2" },
+                    { text: "Why don't we go shopping?", source: "s08 POWERUP 1-1 1~2" }
                 ]
             },
-            {
-                id: 'R36', section: 'Reading', type: '36. 순서', category: '과학/기술/경제', topic: '과학: 기후 변화와 생태계',
-                context: '지구 온난화, 환경 변화가 생물에 미치는 영향',
+            { 
+                id: 'L16', section: 'Listening', type: '16~17. 담화 주제', category: '학술/과학', topic: '과학 실험에 유용한 빠르게 자라는 식물들', 
+                context: '식물 성장 속도·관찰', 
                 matches: [
-                    { text: "Why is the earth getting hotter? The problem is a change in the earth’s atmosphere. ... One of these gases is carbon dioxide (CO2). If the temperature rises even a little, big problems could result. ... if the North or South Pole is a few degrees hotter, glaciers will begin to melt.", source: "s14 English Immersion Weather and Geology 1~2" },
-                    { text: "If there is too much sediment in the water, the coral's feeding mechanisms will clog and the colony may die.", source: "s15 Yoon's Advanced Readers F 10b" }
+                    { text: "Some types of bamboo can grow almost a meter in just one day!", source: "s09 SMART 중학영어 1학년(2학기)" },
+                    { text: "Mom, look at the chicory! The leaves are big.", source: "s11 SMART 중학영어 2학년(2학기)" }
                 ]
             },
-            {
-                id: 'R37', section: 'Reading', type: '37. 순서', category: '과학/기술/경제', topic: '생태학: 새들의 무리 짓기',
-                context: '동물의 집단 행동, 철새의 비행',
+            
+            // --- Reading (28 Questions) ---
+            { 
+                id: 'R18', section: 'Reading', type: '18. 목적 파악', category: '정보/안내', topic: '신규 동아리 개설 제안서 요청', 
+                context: '동아리 가입 권유', 
                 matches: [
-                    { text: "Look, there are a lot of birds in the sky. They're flying in a V formation. That's what geese do.", source: "s11 Powerup 2-2 3~4" },
-                    { text: "Oh, I saw some geese flying in a V shape this morning.", source: "s12 POWERUP 3-1 1~2" },
-                    { text: "Birds of a feather flock together.", source: "s11 Powerup 2-2 3~4" }
+                    { text: "Let's all join the English Drama Club together! Sure, that's a good idea.", source: "s08 SMART 중학영어 1학년(1학기)" },
+                    { text: "The Baking Club Wants You! [...] Come and join us.", source: "s08 SMART 중학영어 1학년(1학기)" }
                 ]
             },
-            {
-                id: 'R38', section: 'Reading', type: '38. 삽입', category: '심층 사고', topic: '언어학: 사회적 상호작용',
-                context: '언어의 사용, 소통, 언어 습득',
+            { 
+                id: 'R19', section: 'Reading', type: '19. 심경 변화 파악', category: '기타/감정', topic: '오랜만에 고향 방문', 
+                context: '혼란·놀람 등 감정 변화', 
                 matches: [
-                    { text: "Language is what we use to say things to each other. Birds sing, dogs bark, cats meow, but they don't use words. We do. We use them to describe what we see, hear, and feel.", source: "s12 Core Grammer 1~3" },
-                    { text: "Social networking services are popular because they combine many forms of communication into one convenient place.", source: "s13 Reading PALS C 9b" }
+                    { text: "I was very confused.", source: "s08 English Immersion P.E. 1-2" },
+                    { text: "She looked surprised. Then, she smiled at Kevin.", source: "s11 Yoon's Word Partners 1~6" }
                 ]
             },
-            {
-                id: 'R39', section: 'Reading', type: '39. 삽입', category: '과학/기술/경제', topic: '환경/경제: 순환 경제',
-                context: '재활용, 업사이클링, 자원 순환',
+            { 
+                id: 'R20', section: 'Reading', type: '20. 필자의 주장 파악', category: '사회/인문', topic: '현대 음악 작사가의 문학적 기여 인정', 
+                context: '음악 가사의 문학적 가치', 
                 matches: [
-                    { text: "Reusing, recycling, and composting are three ways to effectively manage waste.", source: "s14 English Immersion American culture 1~2" },
-                    { text: "Recycling is about giving an old material a new purpose. The process of upcycling transforms a used product into something of higher value.", source: "s13 SMART 중학영어 3학년(2학기) book5~8" },
-                    { text: "One way to deal with our waste is to produce less of it. Source reduction, often called waste prevention, means consuming and throwing away less.", source: "s12 POWERUP 3-1 1~2" },
-                    { text: "We can reuse used desks and chairs.", source: "s11 Powerup 2-2 3~4" }
+                    { text: "Rock lyrics are known for expressing freedom.", source: "s10 Yoon's Advanced Readers D 8a" }
                 ]
             },
-            {
-                id: 'R40', section: 'Reading', type: '40. 요약', category: '심리/사회', topic: '심리: 동조 압력',
-                context: '또래 압력(Peer Pressure), 집단 행동의 영향',
+            { 
+                id: 'R21', section: 'Reading', type: '21. 함축 의미 추론', category: '학술/과학', topic: '디지털 플랫폼과 장소의 연결 약화', 
+                context: '시간·공간 제약 해소', 
                 matches: [
-                    { text: "Teenagers do many things because of peer pressure. If all your friends smoked you would also smoke because you would want to be one of them. If all your friends wore short skirts, you would wear a short skirt too.", source: "s12 POWERUP 3-1 1~2" },
-                    { text: "People don't want to be different from others. If many people are doing the same thing we want to follow.", source: "s12 Core Grammer 1~3" }
+                    { text: "There are no barriers of time and space in cyberspace.", source: "s10 윤선생 완소 단어장 B book1~2" },
+                    { text: "You can buy anything through the Internet. [...] You can buy everything from your own room.", source: "s08 POWERUP 1-1 1~2" }
                 ]
             },
-            {
-                id: 'R41', section: 'Reading', type: '41-42. 장문', category: '심층 사고', topic: '인문/역사: 기록과 해석',
-                context: '역사적 교훈, 사실과 의견 구분',
+            { 
+                id: 'R22', section: 'Reading', type: '22. 요지 파악', category: '사회/인문', topic: '스포츠 생태계의 협조적 경쟁 관리', 
+                context: '스포츠 윤리·팀워크', 
                 matches: [
-                    { text: "A newspaper is like a photo of our times and a time capsule of our history. ... In the end, it is your job to tell fact from opinion. You decide what actually happened.", source: "s14 Yoon's Reading Solutions D 10a" },
-                    { text: "People who don’t learn from history must repeat it.", source: "s11 Yoon's 4-Skill Up(Fluent)" },
-                    { text: "We can also learn from others’ experiences... Ancient leaders started wars for the same reasons as today.", source: "s11 Yoon's 4-Skill Up(Fluent)" }
+                    { text: "It doesn't matter if you win or lose. It's how you play the game.", source: "s08 English Immersion P.E. 1-2" },
+                    { text: "Anne and I were playing especially well. We helped each other. It was great teamwork!", source: "s08 English Immersion P.E. 1-2" }
                 ]
             },
-            {
-                id: 'R43', section: 'Reading', type: '43. 가족애/소통', category: '기타(감정)', topic: '아버지와 아들의 여행/화해',
-                context: '아버지와 아들의 캠핑/여행을 통한 유대감 형성, 하이킹',
+            { 
+                id: 'R23', section: 'Reading', type: '23. 주제 추론', category: '일상/생활', topic: '대중교통에서 빈도의 중요성', 
+                context: '운행 간격의 의미', 
                 matches: [
-                    { text: "My name is Travis. Every year my father and I go on a backpacking trip. We drive up into the mountains, leave the car, and take everything we need in our backpacks. ... We hike far into the wilderness.", source: "s14 Yoon's Reading PALS D 10a" },
-                    { text: "When I was young, my father and I used to go camping together... It was a special time because it was just for Dad and me... I have made sure to give my son the same special camping experiences that I had with Dad.", source: "s15 Yoon's Advanced Readers F 10b" }
+                    { text: "The airport limousines leave at twenty-minute intervals.", source: "s12 윤선생 완소 단어장 C book1~2" }
+                ]
+            },
+            { 
+                id: 'R24', section: 'Reading', type: '24. 제목 추론', category: '사회/인문', topic: '컬처테인먼트의 상업화 위험', 
+                context: '광고의 상업성·영향', 
+                matches: [
+                    { text: "Makers of products spend millions of dollars a year on ads,", source: "s10 POWERUP 2-1 1~2" },
+                    { text: "Television commercials are the best way to advertise things in the United States.", source: "s08 Yoon's Reading Solutions A 7a" }
+                ]
+            },
+            { 
+                id: 'R25', section: 'Reading', type: '25. 도표 내용 일치 파악', category: '정보/안내', topic: '미국 십 대의 친구와 시간 보내기 비율', 
+                context: '청소년 활동·습관 통계', 
+                matches: [
+                    { text: "The graph shows the use of mobile phone by teens.", source: "s11 SMART 중학영어 2학년(2학기)" },
+                    { text: "I am seventeen year old American.", source: "s14 English Immersion American culture 1~2" }
+                ]
+            },
+            { 
+                id: 'R26', section: 'Reading', type: '26. 글의 세부 내용 파악', category: '사회/인문', topic: 'Max Kleiber에 대한 정보', 
+                context: '인물 정보·업적', 
+                matches: [
+                    { text: "Heo Jun was a famous Korean doctor. [...] He was born in Neunggok in 1546.", source: "s10 English Immersion Famous People 1~2" },
+                    { text: "Heo Jun spent fifteen years writing about Eastern medicine.", source: "s300627" }
+                ]
+            },
+            { 
+                id: 'R27', section: 'Reading', type: '27. 안내문 세부 내용 파악', category: '정보/안내', topic: '학교 종소리 경연 대회', 
+                context: '교내 행사 안내·시상', 
+                matches: [
+                    { text: "We are holding our 4th English Song Contest next week. [...] The winner gets a 32GB media player!", source: "s11 SMART 중학영어 2학년(2학기)" },
+                    { text: "The student president votes were counted on Wednesday.", source: "s12 Yoon's Writing Solutions A" }
+                ]
+            },
+            { 
+                id: 'R28', section: 'Reading', type: '28. 안내문 세부 내용 파악', category: '정보/안내', topic: 'Fun Bowling 시즌 패스', 
+                context: '시설 이용료 및 패스 조건', 
+                matches: [
+                    { text: "Tickets are 5.00foroneperson∗∗or∗∗9.00 for a couple.", source: "s09 English Immersion Holidays 1~2" },
+                    { text: "The bowling alley rented shoes to us. It did not cost a lot of money to rent shoes for the day.", source: "s08 English Immersion P.E. 1-2" }
+                ]
+            },
+            { 
+                id: 'R29', section: 'Reading', type: '29. 문법성 판단', category: '학술/과학', topic: '인간 지능과 적응적 정보 축적', 
+                context: '뇌 기능과 기억 구조', 
+                matches: [
+                    { text: "The brain is the most complicated organ of the human body.", source: "s12 Yoon's Reading PALS C 9a" },
+                    { text: "Humans have short-term memory and long-term memory.", source: "s11 SMART 중학영어 2학년(2학기)" }
+                ]
+            },
+            { 
+                id: 'R30', section: 'Reading', type: '30. 어휘의 적절성 파악', category: '사회/인문', topic: '상황 윤리의 적용', 
+                context: '경쟁·정직의 가치 판단', 
+                matches: [
+                    { text: "I wasn't really safe. Why are the boy's teammates so happy? [...] Being honest can be a difficult decision", source: "s08 English Immersion P.E. 1-2" },
+                    { text: "It doesn't matter if you win or lose. It's how you play the game.", source: "s08 English Immersion P.E. 1-2" }
+                ]
+            },
+            { 
+                id: 'R31', section: 'Reading', type: '31. 빈칸 추론', category: '사회/인문', topic: '초기 곡물 무역 회사의 위험 관리', 
+                context: '사업 기회와 전문 지식', 
+                matches: [
+                    { text: "Whatever you enjoy, if you look for practical applications, you could turn your interest into a profitable business opportunity.", source: "s14 Yoon's Reading PALS D 10a" },
+                    { text: "start the way Bill Gates did - by learning everything you can about your area of expertise.", source: "s14 Yoon's Reading PALS D 10a" }
+                ]
+            },
+            { 
+                id: 'R32', section: 'Reading', type: '32. 빈칸 추론', category: '사회/인문', topic: '글쓰기에서의 협력적 문체', 
+                context: '의사소통·오해', 
+                matches: [
+                    { text: "Communication is the overlap between what's intended and what's understood.", source: "s13 Yoon's Reading Solutions C 9b" },
+                    { text: "read it again and imagine you are the person receiving it. Could the words be read by the receiver in the wrong way?", source: "s13 POWERUP 3-2 1~2" }
+                ]
+            },
+            { 
+                id: 'R33', section: 'Reading', type: '33. 빈칸 추론', category: '학술/과학', topic: '건물 설계 시 사용자 참여의 중요성', 
+                context: '사용자 편의를 위한 설계', 
+                matches: [
+                    { text: "Smart houses can also serve much more practical purposes. Disabled or elderly people may be able to live more independently with the aid of a smart house.", source: "s15 Yoon's Advanced Readers F 10b" },
+                    { text: "An architect must be able to design a building that is safe practical and attractive.", source: "s15 Yoon's Reading PALS D 10b" }
+                ]
+            },
+            { 
+                id: 'R34', section: 'Reading', type: '34. 빈칸 추론', category: '사회/인문', topic: '칸트의 법의 지배와 자유', 
+                context: '법과 규칙의 역할 및 보호 기능', 
+                matches: [
+                    { text: "The use of your seat belt is required by law. The seat belt protects the passenger.", source: "s12 Yoon's Advanced Readers E 9a" },
+                    { text: "If you don't obey the laws, you will go to jail.", source: "s09 English Immersion Holidays 1~2" }
+                ]
+            },
+            { 
+                id: 'R35', section: 'Reading', type: '35. 무관한 문장 찾기', category: '일상/생활', topic: '자기관리 활동의 우선순위', 
+                context: '스트레스 관리 및 건강한 습관', 
+                matches: [
+                    { text: "It's easier to handle stress when you do things you like. [...] Just talking about your feeling with friends will help.", source: "s13 SMART 중학영어 3학년(2학기) book5~8" },
+                    { text: "I am so tired. I can’t focus on this work. You should take a rest.", source: "s10 SMART 중학영어 2학년(1학기)" }
+                ]
+            },
+            { 
+                id: 'R36', section: 'Reading', type: '36. 글의 순서 파악', category: '학술/과학', topic: '시계의 본질로서의 반복적 과정', 
+                context: '시간 측정 역사·원리', 
+                matches: [
+                    { text: "The Babylonians used a system of counting based on the number 60. Both the Indian and the Chinese counting systems were based on the number 10.", source: "s14 Yoon's Reading Solutions D 10a" },
+                    { text: "Now we have clocks that can measure time in nanoseconds! They are called atomic clocks.", source: "s11 Reading PALS B 8b 1~2" }
+                ]
+            },
+            { 
+                id: 'R37', section: 'Reading', type: '37. 글의 순서 파악', category: '학술/과학', topic: '철학의 역할과 신경과학과의 협력', 
+                context: '뇌 기능과 학문 간 연관성', 
+                matches: [
+                    { text: "The left side of the body controlled by the left brain... The right brain works with feelings and imagination.", source: "s12 Yoon's Advanced Readers E 9a" },
+                    { text: "Philosophy is the study of general values we have such as existence and truth.", source: "s12 Yoon's Debate Project" }
+                ]
+            },
+            { 
+                id: 'R38', section: 'Reading', type: '38. 주어진 문장 넣기', category: '사회/인문', topic: '내러티브의 형성 및 영향', 
+                context: '이야기의 힘, 구전', 
+                matches: [
+                    { text: "You learned from your experience. Your experience is your own personal history.", source: "s10 Yoon's Advanced Readers D 8a" },
+                    { text: "We can also learn from the history of people who lived before us.", source: "s10 Yoon's Advanced Readers D 8a" }
+                ]
+            },
+            { 
+                id: 'R39', section: 'Reading', type: '39. 주어진 문장 넣기', category: '학술/과학', topic: '비디오 게임에서의 지각과 행동', 
+                context: '게임 중독 및 디지털 활동', 
+                matches: [
+                    { text: "I can't stop playing computer games.", source: "s10 POWERUP 2-1 1~2" },
+                    { text: "Internet game addiction is very dangerous... Internet game addiction destroys human relations.", source: "s13 Yoon's Reading Solutions C 9b" },
+                    { text: "You can play games, watch movies, and read comics on the Internet.", source: "s13 SMART 중학영어 3학년(2학기) book5~8" }
+                ]
+            },
+            { 
+                id: 'R40', section: 'Reading', type: '40. 요약문 완성', category: '사회/인문', topic: '공연 예술의 특성과 경제적 불안정', 
+                context: '라이브 공연의 가치·비용', 
+                matches: [
+                    { text: "Tickets sometimes cost more than a week's wages... People return to the same show time after time because they become involved in the enthusiasm of a live performance.", source: "s14 English Immersion American culture 1~2" },
+                    { text: "The money will be used for a new stage, sound equipment, props, and costumes.", source: "s09 Yoon's Writing Solutions A" }
+                ]
+            },
+            { 
+                id: 'R41', section: 'Reading', type: '41~42. 장문', category: '사회/인문', topic: '복식사 연구에서 시각 자료의 중요성', 
+                context: '복식과 사회적 지위·패션', 
+                matches: [
+                    { text: "The color of the toga also indicated the man's rank in society.", source: "s12 Yoon's Reading PALS C 9a" },
+                    { text: "Some people like to stay up-to-date with today's fashion.", source: "s12 Yoon's Reading PALS C 9a" }
+                ]
+            },
+            { 
+                id: 'R43', section: 'Reading', type: '43~45. 장문', category: '일상/생활', topic: '스마트폰 중독 딸과의 유대감 회복', 
+                context: '기술 통제의 중요성·가족 갈등', 
+                matches: [
+                    { text: "Please turn off your devices and put them in this basket. Just remember, you should be in control of your devices...", source: "s12 SMART 중학영어 3학년(1학기)" },
+                    { text: "My mom took my cellphone. [...] And that made her upset?", source: "s12 POWERUP 3-1 1~2" }
+                ]
+            },
+            { 
+                id: 'R44', section: 'Reading', type: '43~45. 장문 (지칭)', category: '일상/생활', topic: '스마트폰 중독 딸과의 유대감 회복', 
+                context: '규칙 준수·관계 회복 필요성', 
+                matches: [
+                    { text: "You shouldn't use your cellphone during class.", source: "s10 SMART 중학영어 2학년(1학기)" },
+                    { text: "My brother always does the same thing. I'm still upset. I don't know what I should do.", source: "s10 SMART 중학영어 2학년(1학기)" }
+                ]
+            },
+            { 
+                id: 'R45', section: 'Reading', type: '43~45. 장문 (세부 사실)', category: '일상/생활', topic: '스마트폰 중독 딸과의 유대감 회복', 
+                context: '독서를 통한 학습·가족의 염려', 
+                matches: [
+                    { text: "Reading helps you build better and more logical thinking skills.", source: "s2661" },
+                    { text: "My parents were concerned about me and tried many different things, but nothing really worked.", source: "s13 Yoon's Reading PALS C 9b" }
                 ]
             }
         ];
@@ -705,6 +738,17 @@
         let currentMode = 'Listening'; // 'Listening' or 'Reading'
         let currentFilter = 'All';
         let selectedItemId = null;
+        
+        // --- Core Utility Function for Question Counting ---
+        function getQuestionCount(type) {
+            // Updated to handle split long questions R43, R44, R45
+            if (type.includes('43~45')) return 1;
+            const match = type.match(/(\d+)~?(\d*)/);
+            if (!match) return 1; 
+            const start = parseInt(match[1]);
+            const end = parseInt(match[2] || match[1]);
+            return end - start + 1;
+        }
 
         function init() {
             renderCharts();
@@ -782,7 +826,13 @@
                 return modeMatch && filterMatch;
             });
 
-            document.getElementById('matchCount').textContent = `${filtered.length}건`;
+            // Calculate total matched questions for the current filter/mode
+            let totalMatchedQuestions = 0;
+            filtered.forEach(item => {
+                totalMatchedQuestions += getQuestionCount(item.type);
+            });
+
+            document.getElementById('matchCount').textContent = `${totalMatchedQuestions} 문항 (${filtered.length} 유형)`;
 
             if (filtered.length === 0) {
                 listContainer.innerHTML = '<div class="p-8 text-center text-stone-400 text-sm flex flex-col items-center"><i class="fa-regular fa-folder-open text-2xl mb-2"></i>해당 조건의 데이터가 없습니다.</div>';
@@ -803,11 +853,19 @@
 
                 el.className = baseClass;
                 el.onclick = () => selectItem(item.id);
+                
+                // Question count for list item
+                const qCount = getQuestionCount(item.type);
 
                 // Multiple matches indicator
                 const matchCountBadge = item.matches.length > 1 
                     ? `<span class="ml-2 text-[10px] bg-stone-100 text-stone-500 px-1.5 rounded border border-stone-200" title="${item.matches.length}개의 교재 지문 매칭">+${item.matches.length} Sources</span>` 
                     : '';
+                    
+                const qCountDisplay = qCount > 1 
+                    ? `<span class="text-[10px] bg-stone-100 text-stone-600 px-1.5 rounded border border-stone-200">${qCount}Q</span>` 
+                    : '';
+
 
                 el.innerHTML = `
                     <div class="flex justify-between items-start mb-1">
@@ -815,8 +873,8 @@
                         <span class="text-[10px] px-2 py-0.5 rounded-full bg-stone-100 text-stone-500 border border-stone-100">${item.category}</span>
                     </div>
                     <div class="font-bold text-sm text-stone-800 line-clamp-1 group-hover:text-amber-600 transition-colors">${item.topic}</div>
-                    <div class="mt-1 flex items-center">
-                         ${matchCountBadge}
+                    <div class="mt-1 flex items-center gap-1">
+                         ${qCountDisplay} ${matchCountBadge}
                     </div>
                     ${isSelected ? '<div class="absolute left-0 top-0 bottom-0 w-1 bg-amber-500"></div>' : ''}
                 `;
@@ -855,6 +913,9 @@
                 const card = document.createElement('div');
                 card.className = "bg-amber-50 p-5 rounded-lg border border-amber-200 shadow-sm relative group hover:shadow-md transition-shadow";
                 
+                // Strip redundant Korean descriptions in parentheses for clean display
+                const cleanText = match.text.replace(/\s*\([^)]*\)/g, '').trim();
+
                 card.innerHTML = `
                     <div class="flex justify-between items-center mb-3">
                         <span class="text-xs font-bold text-white bg-amber-500 px-2 py-0.5 rounded uppercase tracking-wider">Proof ${index + 1}</span>
@@ -863,7 +924,7 @@
                         </span>
                     </div>
                     <p class="font-serif text-lg text-stone-800 leading-relaxed italic relative z-10 pl-4 border-l-2 border-amber-300">
-                        "${match.text}"
+                        "${cleanText}"
                     </p>
                     <i class="fa-solid fa-quote-right absolute bottom-4 right-4 text-4xl text-amber-200/50 -z-0"></i>
                 `;
@@ -884,25 +945,44 @@
         function renderCharts() {
             // Data Prep
             const categoryCounts = {};
+            
+            // Calculate total matched questions by category (individual questions)
+            let totalListeningQuestions = 0;
+            let totalReadingQuestions = 0;
+
             curriculumData.forEach(item => {
-                categoryCounts[item.category] = (categoryCounts[item.category] || 0) + 1;
+                const questionCount = getQuestionCount(item.type);
+                const category = item.category;
+                
+                categoryCounts[category] = (categoryCounts[category] || 0) + questionCount;
+                
+                if (item.section === 'Listening') {
+                    totalListeningQuestions += questionCount;
+                } else if (item.section === 'Reading') {
+                    totalReadingQuestions += questionCount;
+                }
             });
+            
+            const totalQuestionCount = totalListeningQuestions + totalReadingQuestions;
 
             // 1. Topic Distribution (Doughnut)
             const ctxTopic = document.getElementById('topicChart').getContext('2d');
-            new Chart(ctxTopic, {
+            
+            // Destroy existing chart if it exists
+            if (window.topicChartInstance) window.topicChartInstance.destroy();
+
+            window.topicChartInstance = new Chart(ctxTopic, {
                 type: 'doughnut',
                 data: {
                     labels: Object.keys(categoryCounts),
                     datasets: [{
                         data: Object.values(categoryCounts),
                         backgroundColor: [
-                            '#f59e0b', // Amber 500
-                            '#3b82f6', // Blue 500
-                            '#10b981', // Emerald 500
-                            '#8b5cf6', // Violet 500
-                            '#ef4444', // Red 500
-                            '#6366f1', // Indigo 500
+                            '#f59e0b', // Amber 500 (일상/생활)
+                            '#3b82f6', // Blue 500 (사회/인문)
+                            '#10b981', // Emerald 500 (학술/과학)
+                            '#8b5cf6', // Violet 500 (정보/안내)
+                            '#ef4444', // Red 500 (기타/감정)
                         ],
                         borderWidth: 0,
                         hoverOffset: 4
@@ -922,7 +1002,7 @@
                                     return ` ${context.label}: ${context.raw}문항`;
                                 }
                             },
-                            backgroundColor: 'rgba(68, 64, 60, 0.9)', // Stone 700
+                            backgroundColor: 'rgba(68, 64, 60, 0.9)', 
                             padding: 12
                         }
                     },
@@ -931,17 +1011,18 @@
             });
 
             // 2. Type Count (Bar)
-            const listeningCount = curriculumData.filter(i => i.section === 'Listening').length;
-            const readingCount = curriculumData.filter(i => i.section === 'Reading').length;
-
             const ctxType = document.getElementById('typeChart').getContext('2d');
-            new Chart(ctxType, {
+            
+            // Destroy existing chart if it exists
+            if (window.typeChartInstance) window.typeChartInstance.destroy();
+
+            window.typeChartInstance = new Chart(ctxType, {
                 type: 'bar',
                 data: {
-                    labels: ['듣기 (Listening)', '읽기 (Reading)'],
+                    labels: [`듣기 (${totalListeningQuestions}문항)`, `읽기 (${totalReadingQuestions}문항)`],
                     datasets: [{
                         label: '적중 문항 수',
-                        data: [listeningCount, readingCount],
+                        data: [totalListeningQuestions, totalReadingQuestions],
                         backgroundColor: ['#d97706', '#57534e'], // Amber 600, Stone 600
                         borderRadius: 6,
                         barThickness: 50
@@ -971,6 +1052,10 @@
                     }
                 }
             });
+            
+            // Update static counts in dashboard text
+            document.getElementById('dashboardTotalCount').textContent = `총 ${totalQuestionCount}문항 대비`;
+            document.getElementById('dashboardBreakdown').textContent = `* 듣기(${totalListeningQuestions}) / 읽기(${totalReadingQuestions}) 전체 문항에 대해 유사 소재가 확인되었습니다.`;
         }
 
         // Initialize on load
