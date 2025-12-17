@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>미니 수능 체험 | 수능 역량 체감 사이트</title>
+  <style>
+    :root{
+      --bg:#0b1020;
+      --panel:#101a33;
+      --text:#e9eefc;
+      --muted:#b7c3e6;
+      --muted2:#8fa1d6;
+      --line:rgba(255,255,255,.10);
+      --accent:#7aa2ff;
+      --accent2:#59e3c2;
+      --shadow:0 18px 55px rgba(0,0,0,.45);
+      --radius:16px;
+      --radius2:22px;
+      --max:1080px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:var(--sans);
+      background: radial-gradient(1200px 700px at 20% -10%, rgba(122,162,255,.35), transparent 55%),
+                  radial-gradient(900px 600px at 90% 20%, rgba(89,227,194,.22), transparent 55%),
+                  linear-gradient(180deg, #070b16, var(--bg));
+      color:var(--text);
+    }
+    a{color:inherit; text-decoration:none}
+    button{font-family:inherit}
+
+    .topbar{
+      position:sticky; top:0; z-index:50;
+      backdrop-filter: blur(10px);
+      background:rgba(7,11,22,.65);
+      border-bottom:1px solid var(--line);
+    }
+    .topbar-inner{
+      max-width:var(--max);
+      margin:0 auto;
+      padding:14px 18px;
+      display:flex;
+      gap:14px;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .brand{display:flex; align-items:center; gap:10px; letter-spacing:-.2px;}
+    .logo{
+      width:36px; height:36px; border-radius:12px;
+      background: linear-gradient(135deg, rgba(122,162,255,.95), rgba(89,227,194,.95));
+      box-shadow: 0 12px 28px rgba(0,0,0,.28);
+      display:grid; place-items:center;
+      color:#081028; font-weight:900;
+    }
+    .brand-title{font-weight:800}
+    .brand-sub{font-size:12px; color:var(--muted2)}
+    .nav{display:flex; gap:10px; align-items:center; flex-wrap:wrap;}
+    .pill{
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.04);
+      color:var(--muted);
+      padding:8px 10px;
+      border-radius:999px;
+      font-size:13px;
+    }
+    .pill strong{color:var(--text)}
+
+    .container{max-width:var(--max); margin:0 auto; padding:22px 18px 60px}
+
+    .hero{
+      padding:26px 0 10px;
+      display:grid;
+      grid-template-columns: 1.3fr .7fr;
+      gap:18px;
+      align-items:stretch;
+    }
+    @media (max-width: 920px){ .hero{grid-template-columns: 1fr;} }
+
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--line);
+      border-radius:var(--radius2);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .card-pad{padding:18px}
+
+    .hero h1{
+      margin:0;
+      font-size:38px;
+      line-height:1.12;
+      letter-spacing:-.8px;
+    }
+    .hero p{color:var(--muted); margin:12px 0 0; font-size:16px; line-height:1.6}
+
+    .cta-row{display:flex; gap:10px; flex-wrap:wrap; margin-top:16px}
+    .btn{
+      cursor:pointer;
+      border:none;
+      padding:12px 14px;
+      border-radius:14px;
+      font-weight:800;
+      letter-spacing:-.2px;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      box-shadow: 0 18px 40px rgba(0,0,0,.28);
+      transition: transform .12s ease, filter .12s ease;
+      user-select:none;
+    }
+    .btn:hover{transform: translateY(-1px)}
+    .btn:active{transform: translateY(0)}
+    .btn-primary{
+      background: linear-gradient(135deg, rgba(122,162,255,1), rgba(89,227,194,1));
+      color:#071024;
+    }
+    .btn-ghost{
+      background:rgba(255,255,255,.05);
+      color:var(--text);
+      border:1px solid var(--line);
+      box-shadow:none;
+    }
+
+    .notice{
+      border-top:1px solid var(--line);
+      padding:14px 18px;
+      background:linear-gradient(180deg, rgba(255,211,110,.12), rgba(255,255,255,.02));
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.55;
+    }
+    .notice b{color:var(--text)}
+
+    .sidebox{display:flex; flex-direction:column; gap:12px; height:100%;}
+    .mini{
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      background:rgba(255,255,255,.04);
+      padding:14px;
+    }
+    .mini h3{margin:0 0 8px; font-size:14px}
+    .mini p{margin:0; color:var(--muted); font-size:13px; line-height:1.55}
+
+    .section{margin-top:18px}
+    .section h2{margin:0 0 10px; font-size:20px; letter-spacing:-.3px}
+    .section .lead{margin:0; color:var(--muted); line-height:1.6}
+
+    .grid{
+      margin-top:12px;
+      display:grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap:12px;
+    }
+    .col-6{grid-column: span 6}
+    .col-12{grid-column: span 12}
+    @media (max-width: 920px){ .col-6{grid-column: span 12} }
+
+    .badge{
+      display:inline-flex; align-items:center; gap:8px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.04);
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:12px;
+      color:var(--muted);
+    }
+    .divider{height:1px; background:var(--line); margin:14px 0}
+
+    .tabs{display:flex; gap:8px; flex-wrap:wrap;}
+    .tab{
+      cursor:pointer;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.04);
+      color:var(--muted);
+      padding:10px 12px;
+      border-radius:14px;
+      font-weight:800;
+      letter-spacing:-.2px;
+      user-select:none;
+    }
+    .tab.active{
+      background:rgba(122,162,255,.18);
+      color:var(--text);
+      border-color: rgba(122,162,255,.35);
+    }
+
+    .panel-title{display:flex; align-items:center; justify-content:space-between; gap:10px}
+    .panel-title h3{margin:0; font-size:16px}
+    .small{font-size:12px; color:var(--muted2)}
+
+    .stepper{display:flex; gap:8px; flex-wrap:wrap}
+    .step{
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.04);
+      color:var(--muted);
+      font-size:12px;
+    }
+    .step.on{
+      background:rgba(89,227,194,.14);
+      border-color: rgba(89,227,194,.28);
+      color:var(--text);
+    }
+
+    .textarea{
+      width:100%;
+      min-height:160px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:rgba(7,11,22,.35);
+      color:var(--text);
+      padding:12px;
+      line-height:1.65;
+      resize:vertical;
+      outline:none;
+    }
+
+    .q{
+      margin-top:12px;
+      padding:12px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.03);
+    }
+    .q h4{margin:0 0 8px; font-size:14px}
+
+    .choices{display:grid; gap:8px}
+    .choice{
+      display:flex; align-items:flex-start; gap:10px;
+      padding:10px 10px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.03);
+      cursor:pointer;
+      user-select:none;
+    }
+    .choice input{margin-top:3px}
+    .choice:hover{background:rgba(255,255,255,.06)}
+    .choice small{color:var(--muted)}
+
+    .checkgrid{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap:10px;
+      margin-top:10px;
+    }
+    @media (max-width: 720px){ .checkgrid{grid-template-columns: 1fr} }
+
+    .kitem{
+      padding:10px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.03);
+    }
+    .kitem label{display:block; font-weight:800; font-size:13px; margin-bottom:8px}
+    .kitem .opts{display:flex; gap:8px; flex-wrap:wrap}
+    .chip{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.03);
+      cursor:pointer;
+      user-select:none;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+    }
+    .chip.on{
+      background:rgba(122,162,255,.18);
+      border-color: rgba(122,162,255,.35);
+      color:var(--text);
+    }
+
+    .row{
+      display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap;
+      margin-top:12px;
+    }
+
+    .result{
+      padding:14px;
+      border-radius:var(--radius2);
+      border:1px solid var(--line);
+      background:linear-gradient(180deg, rgba(89,227,194,.10), rgba(255,255,255,.02));
+    }
+    .result h3{margin:0 0 6px; font-size:16px}
+    .result p{margin:0; color:var(--muted); line-height:1.6}
+
+    .meter{display:grid; gap:8px; margin-top:10px;}
+    .mrow{
+      display:grid;
+      grid-template-columns: 170px 1fr;
+      gap:10px;
+      align-items:center;
+    }
+    @media (max-width: 720px){ .mrow{grid-template-columns: 1fr} }
+    .mrow .name{color:var(--muted); font-size:13px; font-weight:800}
+    .bar{
+      height:10px;
+      border-radius:999px;
+      background:rgba(255,255,255,.06);
+      border:1px solid var(--line);
+      overflow:hidden;
+    }
+    .bar > i{display:block; height:100%; width:40%; background:linear-gradient(90deg, rgba(122,162,255,.85), rgba(89,227,194,.85))}
+
+    details{
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:rgba(255,255,255,.03);
+      padding:10px 12px;
+      margin-top:12px;
+    }
+    summary{cursor:pointer; font-weight:900; color:var(--text)}
+    details p{color:var(--muted); line-height:1.6; margin:10px 0 0}
+
+    .footer{
+      margin-top:26px;
+      color:var(--muted2);
+      font-size:12px;
+      line-height:1.6;
+      text-align:center;
+    }
+
+    .hidden{display:none !important}
+    .mono{font-family:var(--mono)}
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="logo">S</div>
+        <div>
+          <div class="brand-title">미니 수능 체험</div>
+          <div class="brand-sub">수능 역량 체감 · 초·중등 상담용</div>
+        </div>
+      </div>
+      <div class="nav">
+        <a class="pill" href="#about"><strong>무엇을</strong> 체험하나요</a>
+        <a class="pill" href="#real"><strong>실제 수능</strong>과의 관계</a>
+        <a class="pill" href="#try"><strong>체험</strong> 시작</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- HERO -->
+    <div class="hero">
+      <div class="card">
+        <div class="card-pad">
+          <span class="badge">점수·등급 없음 · 평가 아님</span>
+          <h1>수능 영어,<br/>지금 풀 필요는 없습니다.</h1>
+          <p>
+            대신, 수능 수준의 영어를 <b>이해할 수 있는 사람</b>이 되려면 어떤 능력이 필요한지 먼저 알아보세요.
+            이 체험은 <b>문제풀이 요령</b>이 아니라 <b>언어 역량의 구조</b>를 체감하는 데 목적이 있습니다.
+          </p>
+          <div class="cta-row">
+            <button class="btn btn-primary" id="btnStart">체험 시작하기</button>
+            <button class="btn btn-ghost" id="btnScrollReal">실제 수능 문항 설명 보기</button>
+          </div>
+        </div>
+        <div class="notice" id="about">
+          <b>중요 안내</b><br/>
+          • 체험 문항은 <b>2026학년도 수능 영어 21번(읽기)·16번(듣기)</b>의 <b>구조와 기능</b>을 모델로 재구성한 <b>교육용 변형 지문</b>입니다.<br/>
+          • 실제 수능 원문은 <b>비교·설명용</b>으로만 제시되며, 체험 문항은 학년 수준에 맞게 재작성되었습니다.<br/>
+          • 이 체험은 <b>진단평가/레벨테스트</b>가 아니며, 결과는 <b>학습 방향</b>을 돕기 위한 참고 정보입니다.
+        </div>
+      </div>
+
+      <div class="sidebox">
+        <div class="mini">
+          <h3>이 체험에서 확인하는 것</h3>
+          <p>
+            긴 영어를 끝까지 따라가는 힘(지구력), 핵심을 붙잡는 힘(의미 통합),
+            낯선 소재에서도 이해를 유지하는 힘(소재 익숙함),
+            그리고 스스로 막힌 지점을 인식하는 힘(메타인지).
+          </p>
+        </div>
+        <div class="mini">
+          <h3>체험 구성</h3>
+          <p>
+            • 읽기 1문항(요지 파악) + 듣기 1문항(긴 담화 요지)<br/>
+            • 총 10~15분 내 완료<br/>
+            • 원하면 하단에서 <b>풀이/근거</b>를 선택적으로 확인
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- REAL QUESTION SECTION -->
+    <div class="section" id="real">
+      <h2>실제 2026 수능 문항과의 관계</h2>
+      <p class="lead">
+        이 사이트는 실제 수능 문항(21번·16번)의 <b>구조와 기능</b>을 기준으로 체험을 설계합니다.
+        아래는 ‘왜 이 두 유형이 수능 역량을 잘 보여주는지’를 간단히 정리한 화면입니다.
+      </p>
+      <div class="grid">
+        <div class="card col-6">
+          <div class="card-pad">
+            <div class="panel-title">
+              <h3>읽기 21번 · 요지 파악</h3>
+              <span class="small">(원문은 비교·설명용)</span>
+            </div>
+            <div class="divider"></div>
+            <p style="margin:0; color:var(--muted); line-height:1.65">
+              요지 문항은 ‘요령’보다 <b>긴 글을 끝까지 읽고</b> 여러 문장을 <b>하나의 생각으로 묶는 힘</b>을 보여줍니다.
+              초·중등에게는 ‘지금 맞히기’가 아니라 ‘어떤 능력이 필요해지는지’를 체감시키기 좋은 유형입니다.
+            </p>
+            <div class="divider"></div>
+            <div class="badge">체험에서 보는 역량: 읽기 지구력 · 의미 통합 · 문장 안정성</div>
+          </div>
+        </div>
+        <div class="card col-6">
+          <div class="card-pad">
+            <div class="panel-title">
+              <h3>듣기 16번 · 긴 담화 요지</h3>
+              <span class="small">(원문은 비교·설명용)</span>
+            </div>
+            <div class="divider"></div>
+            <p style="margin:0; color:var(--muted); line-height:1.65">
+              16번은 짧은 응답형 듣기에서 벗어나 <b>끝까지 의미를 유지</b>해야 풀 수 있는 유형입니다.
+              발음/단어보다 <b>집중 지속</b>과 <b>정보 통합</b>이 핵심이어서 초·중등 체험에 적합합니다.
+            </p>
+            <div class="divider"></div>
+            <div class="badge">체험에서 보는 역량: 청취 지구력 · 의미 유지 · 메타인지</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXPERIENCE SECTION -->
+    <div class="section" id="try">
+      <h2>미니 수능 체험</h2>
+      <p class="lead">학년군을 선택하면, 같은 구조의 문항을 <b>수준에 맞게 재작성한 체험 지문</b>으로 진행합니다.</p>
+
+      <div class="grid">
+        <div class="card col-12">
+          <div class="card-pad">
+            <div class="panel-title">
+              <h3>학년군 선택</h3>
+              <span class="small">(예시 콘텐츠 · 운영 시 학년군 확장 가능)</span>
+            </div>
+            <div class="divider"></div>
+            <div class="tabs" role="tablist" aria-label="학년군">
+              <div class="tab active" data-level="A" role="tab" aria-selected="true">초등 고학년(4–6)</div>
+              <div class="tab" data-level="B" role="tab" aria-selected="false">중1–2</div>
+              <div class="tab" data-level="C" role="tab" aria-selected="false">중3–고1</div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="stepper" aria-label="진행 단계">
+              <div class="step on" id="step1">1) 읽기</div>
+              <div class="step" id="step2">2) 듣기</div>
+              <div class="step" id="step3">3) 결과</div>
+            </div>
+
+            <!-- Reading Panel -->
+            <div id="panelReading" class="section" style="margin-top:14px">
+              <div class="panel-title">
+                <h3>읽기 체험 (요지 파악)</h3>
+                <span class="small">점수 대신 ‘느낌’을 기록합니다</span>
+              </div>
+              <p class="small" style="margin-top:8px">
+                아래 글을 읽고, <b>글이 말하고자 하는 중심 생각</b>이 무엇인지 가장 가까운 선택지를 고르세요.
+              </p>
+
+              <textarea class="textarea" id="readingText" readonly></textarea>
+
+              <div class="q">
+                <h4>Q1. 이 글의 중심 생각으로 가장 알맞은 것은?</h4>
+                <div class="choices" id="readingChoices"></div>
+              </div>
+
+              <div class="checkgrid">
+                <div class="kitem">
+                  <label>읽고 난 뒤, 핵심이 얼마나 분명했나요?</label>
+                  <div class="opts" data-group="read_clarity">
+                    <span class="chip" data-value="clear">분명했다</span>
+                    <span class="chip" data-value="some">대충 알겠는데 설명은 어려움</span>
+                    <span class="chip" data-value="unclear">잘 이해되지 않음</span>
+                  </div>
+                </div>
+                <div class="kitem">
+                  <label>모르는 단어(체감)는?</label>
+                  <div class="opts" data-group="read_vocab">
+                    <span class="chip" data-value="low">거의 없음</span>
+                    <span class="chip" data-value="mid">조금</span>
+                    <span class="chip" data-value="high">많음</span>
+                  </div>
+                </div>
+                <div class="kitem">
+                  <label>주제(소재)가 얼마나 익숙했나요? <span class="small">(선택)</span></label>
+                  <div class="opts" data-group="read_topic">
+                    <span class="chip" data-value="familiar">익숙함</span>
+                    <span class="chip" data-value="heard">들어본 적은 있음</span>
+                    <span class="chip" data-value="new">거의 처음</span>
+                  </div>
+                </div>
+                <div class="kitem">
+                  <label>가장 중요하다고 느낀 문장은?</label>
+                  <div class="opts" data-group="read_key">
+                    <span class="chip" data-value="s1">1문장</span>
+                    <span class="chip" data-value="s2">2문장</span>
+                    <span class="chip" data-value="s3">3문장</span>
+                    <span class="chip" data-value="s4">4문장</span>
+                    <span class="chip" data-value="s5">5문장</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <button class="btn btn-ghost" id="btnReadingStartTimer">읽기 시작</button>
+                <button class="btn btn-ghost" id="btnReadingStopTimer">읽기 완료</button>
+                <span class="pill">읽기 시간: <strong id="readTime">-</strong></span>
+                <button class="btn btn-primary" id="btnNextToListening">다음: 듣기</button>
+              </div>
+
+              <details>
+                <summary>풀이/근거 보기 (선택)</summary>
+                <p>
+                  이 섹션은 ‘요령 학습’이 아니라, 한 번의 예시로 <b>근거를 확인하는 방식</b>을 보여주는 참고 자료입니다.
+                  실제 운영 시에는 선생님이 상담 상황에 맞춰 선택적으로 열람하도록 권장합니다.
+                </p>
+                <p class="mono" style="margin-top:10px">
+                  (예시) 힌트: 마지막 문장은 앞 내용을 ‘정리’하는 기능을 합니다. 정리 문장의 의미와 가장 가까운 선택지가 요지일 가능성이 큽니다.
+                </p>
+              </details>
+            </div>
+
+            <!-- Listening Panel -->
+            <div id="panelListening" class="section hidden" style="margin-top:14px">
+              <div class="panel-title">
+                <h3>듣기 체험 (긴 담화 요지)</h3>
+                <span class="small">현재는 ‘대본 보기’ 예시 · 운영 시 오디오로 대체</span>
+              </div>
+              <p class="small" style="margin-top:8px">
+                실제 수능은 정해진 횟수로 듣습니다. 이 체험은 <b>끝까지 의미를 유지하는 감각</b>에 초점을 둡니다.
+              </p>
+
+              <textarea class="textarea" id="listeningScript" readonly></textarea>
+
+              <div class="q">
+                <h4>Q2. 이 담화의 전체 요지로 가장 알맞은 것은?</h4>
+                <div class="choices" id="listeningChoices"></div>
+              </div>
+
+              <div class="checkgrid">
+                <div class="kitem">
+                  <label>듣는 동안, 흐름을 끝까지 유지했나요?</label>
+                  <div class="opts" data-group="listen_flow">
+                    <span class="chip" data-value="kept">끝까지 따라감</span>
+                    <span class="chip" data-value="lost">중간에 놓침</span>
+                    <span class="chip" data-value="none">거의 기억 안 남</span>
+                  </div>
+                </div>
+                <div class="kitem">
+                  <label>놓친 느낌이 든 지점은? <span class="small">(선택)</span></label>
+                  <div class="opts" data-group="listen_where">
+                    <span class="chip" data-value="front">앞</span>
+                    <span class="chip" data-value="mid">중간</span>
+                    <span class="chip" data-value="back">뒤</span>
+                  </div>
+                </div>
+                <div class="kitem">
+                  <label>주제(소재)가 얼마나 익숙했나요? <span class="small">(선택)</span></label>
+                  <div class="opts" data-group="listen_topic">
+                    <span class="chip" data-value="familiar">익숙함</span>
+                    <span class="chip" data-value="heard">들어본 적은 있음</span>
+                    <span class="chip" data-value="new">거의 처음</span>
+                  </div>
+                </div>
+                <div class="kitem">
+                  <label>듣고 난 뒤, 한 문장으로 요약할 수 있나요?</label>
+                  <div class="opts" data-group="listen_summary">
+                    <span class="chip" data-value="yes">가능</span>
+                    <span class="chip" data-value="maybe">느낌만</span>
+                    <span class="chip" data-value="no">어려움</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <button class="btn btn-ghost" id="btnBackToReading">이전: 읽기</button>
+                <button class="btn btn-primary" id="btnFinish">결과 보기</button>
+              </div>
+
+              <details>
+                <summary>풀이/근거 보기 (선택)</summary>
+                <p>
+                  이 섹션은 전략 강의가 아니라, ‘전체 요지’를 잡을 때 어떤 부분이 핵심이 되는지 참고로 제공합니다.
+                </p>
+                <p class="mono" style="margin-top:10px">
+                  (예시) 핵심은 결론 문장(마지막 문장)의 메시지로 전체 내용을 한 줄로 정리하는 것입니다.
+                </p>
+              </details>
+            </div>
+
+            <!-- Results Panel -->
+            <div id="panelResult" class="section hidden" style="margin-top:14px">
+              <div class="panel-title">
+                <h3>결과 리포트</h3>
+                <span class="small">점수 대신 ‘필요 역량’을 정리합니다</span>
+              </div>
+              <div class="result" style="margin-top:10px">
+                <h3>오늘 체험에서 느낀 것</h3>
+                <p id="resultSummary">-</p>
+
+                <div class="meter">
+                  <div class="mrow">
+                    <div class="name">읽기 지구력(끝까지 읽기)</div>
+                    <div class="bar"><i id="barStamina"></i></div>
+                  </div>
+                  <div class="mrow">
+                    <div class="name">의미 통합(핵심 잡기)</div>
+                    <div class="bar"><i id="barMeaning"></i></div>
+                  </div>
+                  <div class="mrow">
+                    <div class="name">소재 익숙함(이해 촉진 요인)</div>
+                    <div class="bar"><i id="barTopic"></i></div>
+                  </div>
+                  <div class="mrow">
+                    <div class="name">메타인지(막힌 지점 인식)</div>
+                    <div class="bar"><i id="barMeta"></i></div>
+                  </div>
+                </div>
+
+                <details>
+                  <summary>상담 연결 코멘트(예시)</summary>
+                  <p>
+                    수능은 ‘특별한 문제풀이 기술’보다 <b>긴 영어를 끝까지 이해하는 힘</b>이 핵심입니다.
+                    오늘 체크 결과를 바탕으로, (1) 다양한 소재의 글을 꾸준히 접해 ‘낯섦’을 줄이고,
+                    (2) 문장 단위 이해를 안정화하며, (3) 읽기·듣기 지구력을 단계적으로 확장하는 학습이 필요합니다.
+                    (윤선생) 커리큘럼은 학년별로 텍스트 길이·소재·어휘를 누적 확장하는 구조로 이러한 역량 성장에 적합합니다.
+                  </p>
+                </details>
+              </div>
+
+              <div class="row">
+                <button class="btn btn-ghost" id="btnReset">다시 체험하기</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      본 페이지는 MVP용 프로토타입 HTML입니다. 운영 버전에서는 오디오 재생, 저장/출력, 문항 뱅크, 상담 리포트 자동 생성 기능을 추가할 수 있습니다.
+    </div>
+  </div>
+
+  <script>
+    // -------------------------------
+    // Data: level-based educational rewrites
+    // -------------------------------
+    const DATA = {
+      A: {
+        reading: {
+          text: [
+            "Many students think studying longer always leads to better results.",
+            "However, studying for too long without breaks can make learning harder.",
+            "When students get tired, they lose focus and remember less.",
+            "For example, students who take short breaks often understand their lessons better.",
+            "This shows that how you study can be more important than how long you study."
+          ],
+          choices: [
+            "Taking short breaks can help you learn better than studying for a long time without breaks.",
+            "Studying longer always leads to better results.",
+            "Short breaks are unnecessary if you focus hard.",
+            "The best way to learn is to study very slowly."
+          ]
+        },
+        listening: {
+          script: [
+            "Today, I want to talk about reading habits.",
+            "Some students think reading slowly is always the best way to understand a book.",
+            "Reading carefully is important, but reading too slowly can make it hard to follow the story.",
+            "When you practice reading often, you begin to read more smoothly.",
+            "Most importantly, try to enjoy reading instead of worrying too much about speed."
+          ],
+          choices: [
+            "Enjoy reading and practice regularly so you can understand better over time.",
+            "Reading slowly is the only way to understand a book.",
+            "You should avoid reading because it takes too much time.",
+            "Speed is more important than understanding."
+          ]
+        }
+      },
+      B: {
+        reading: {
+          text: [
+            "Many students believe that studying for a long time will naturally improve their performance.",
+            "However, research suggests that studying without breaks can reduce concentration and memory.",
+            "When mental fatigue builds up, learners often struggle to understand new information.",
+            "For instance, students who include short breaks in their study routine tend to learn more effectively.",
+            "Therefore, effective studying depends not only on time spent but also on how that time is managed."
+          ],
+          choices: [
+            "Studying effectively depends on how you manage your time, including taking breaks.",
+            "The longer you study, the better your performance will be.",
+            "Taking breaks makes students forget everything.",
+            "Only difficult materials improve concentration."
+          ]
+        },
+        listening: {
+          script: [
+            "Today, I’d like to discuss how reading habits affect understanding.",
+            "Many students believe that reading very slowly helps them understand everything clearly.",
+            "While careful reading is helpful, reading too slowly can interrupt the flow of the text.",
+            "With regular reading practice, students often improve both their speed and comprehension.",
+            "In the long run, enjoying reading is more important than focusing only on speed."
+          ],
+          choices: [
+            "Regular practice and enjoyment help improve reading and understanding over time.",
+            "Reading as slowly as possible guarantees perfect comprehension.",
+            "Speed is the only goal of reading.",
+            "You should stop reading when the text feels difficult."
+          ]
+        }
+      },
+      C: {
+        reading: {
+          text: [
+            "Many students assume that increasing study time will automatically lead to academic success.",
+            "However, cognitive research indicates that prolonged study sessions without breaks may negatively affect attention and memory.",
+            "As mental fatigue accumulates, learners are more likely to misinterpret or overlook important information.",
+            "For example, studies show that learners who take regular short breaks are better able to process and retain new knowledge.",
+            "This suggests that effective learning is determined not simply by duration, but by the quality and structure of study time."
+          ],
+          choices: [
+            "The quality and structure of study time, including breaks, matter more than study duration alone.",
+            "Academic success depends only on studying for longer hours.",
+            "Breaks reduce the ability to remember new knowledge.",
+            "Mental fatigue has no effect on learning outcomes."
+          ]
+        },
+        listening: {
+          script: [
+            "Today, I want to talk about the relationship between reading speed and comprehension.",
+            "Some students assume that reading slowly guarantees a full understanding of the text.",
+            "However, excessively slow reading can disrupt the overall flow and make it difficult to grasp the main idea.",
+            "Research shows that consistent reading practice helps learners develop both speed and deeper comprehension.",
+            "Ultimately, students who enjoy reading tend to make greater long-term progress."
+          ],
+          choices: [
+            "Consistent practice and enjoyment support both reading speed and comprehension in the long run.",
+            "Reading slowly always guarantees complete understanding.",
+            "The best readers never practice regularly.",
+            "Main ideas are less important than reading as fast as possible."
+          ]
+        }
+      }
+    };
+
+    // -------------------------------
+    // State
+    // -------------------------------
+    let level = 'A';
+    let readingStartAt = null;
+    let readingElapsed = null;
+
+    const state = {
+      readingChoice: null,
+      listeningChoice: null,
+      checks: {
+        read_clarity: null,
+        read_vocab: null,
+        read_topic: null,
+        read_key: null,
+        listen_flow: null,
+        listen_where: null,
+        listen_topic: null,
+        listen_summary: null,
+      }
+    };
+
+    // Elements
+    const tabs = Array.from(document.querySelectorAll('.tab'));
+    const readingText = document.getElementById('readingText');
+    const listeningScript = document.getElementById('listeningScript');
+    const readingChoices = document.getElementById('readingChoices');
+    const listeningChoices = document.getElementById('listeningChoices');
+
+    const step1 = document.getElementById('step1');
+    const step2 = document.getElementById('step2');
+    const step3 = document.getElementById('step3');
+
+    const panelReading = document.getElementById('panelReading');
+    const panelListening = document.getElementById('panelListening');
+    const panelResult = document.getElementById('panelResult');
+
+    const readTime = document.getElementById('readTime');
+
+    const btnStart = document.getElementById('btnStart');
+    const btnScrollReal = document.getElementById('btnScrollReal');
+
+    const btnReadingStartTimer = document.getElementById('btnReadingStartTimer');
+    const btnReadingStopTimer = document.getElementById('btnReadingStopTimer');
+    const btnNextToListening = document.getElementById('btnNextToListening');
+    const btnBackToReading = document.getElementById('btnBackToReading');
+    const btnFinish = document.getElementById('btnFinish');
+    const btnReset = document.getElementById('btnReset');
+
+    const resultSummary = document.getElementById('resultSummary');
+    const barStamina = document.getElementById('barStamina');
+    const barMeaning = document.getElementById('barMeaning');
+    const barTopic = document.getElementById('barTopic');
+    const barMeta = document.getElementById('barMeta');
+
+    // Helpers
+    function setActiveStep(n){
+      [step1,step2,step3].forEach(s=>s.classList.remove('on'));
+      if(n===1) step1.classList.add('on');
+      if(n===2) step2.classList.add('on');
+      if(n===3) step3.classList.add('on');
+    }
+
+    function showPanel(which){
+      panelReading.classList.add('hidden');
+      panelListening.classList.add('hidden');
+      panelResult.classList.add('hidden');
+      if(which==='reading'){panelReading.classList.remove('hidden'); setActiveStep(1);}
+      if(which==='listening'){panelListening.classList.remove('hidden'); setActiveStep(2);}
+      if(which==='result'){panelResult.classList.remove('hidden'); setActiveStep(3);}
+    }
+
+    function renderReading(){
+      const d = DATA[level].reading;
+      readingText.value = d.text.map((s,i)=>`${i+1}. ${s}`).join('\n');
+      readingChoices.innerHTML = '';
+      d.choices.forEach((c, idx)=>{
+        const div = document.createElement('label');
+        div.className = 'choice';
+        div.innerHTML = `
+          <input type="radio" name="reading" value="${idx}" ${state.readingChoice===idx? 'checked':''} />
+          <div>
+            <div><b>${String.fromCharCode(65+idx)}.</b> ${c}</div>
+            <small>※ 정답 여부가 핵심이 아닙니다. ‘중심 생각’을 한 문장으로 잡아보는 경험이 핵심입니다.</small>
+          </div>
+        `;
+        div.querySelector('input').addEventListener('change', ()=>{state.readingChoice = idx;});
+        readingChoices.appendChild(div);
+      });
+    }
+
+    function renderListening(){
+      const d = DATA[level].listening;
+      listeningScript.value = d.script.map((s,i)=>`${i+1}. ${s}`).join('\n');
+      listeningChoices.innerHTML = '';
+      d.choices.forEach((c, idx)=>{
+        const div = document.createElement('label');
+        div.className = 'choice';
+        div.innerHTML = `
+          <input type="radio" name="listening" value="${idx}" ${state.listeningChoice===idx? 'checked':''} />
+          <div>
+            <div><b>${String.fromCharCode(65+idx)}.</b> ${c}</div>
+            <small>※ ‘끝까지 의미를 유지했는지’에 집중해 주세요.</small>
+          </div>
+        `;
+        div.querySelector('input').addEventListener('change', ()=>{state.listeningChoice = idx;});
+        listeningChoices.appendChild(div);
+      });
+    }
+
+    function bindChips(){
+      document.querySelectorAll('.opts').forEach(group=>{
+        const key = group.dataset.group;
+        group.querySelectorAll('.chip').forEach(chip=>{
+          chip.addEventListener('click', ()=>{
+            group.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));
+            chip.classList.add('on');
+            state.checks[key] = chip.dataset.value;
+          });
+        });
+      });
+    }
+
+    function resetChecksUI(){
+      document.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));
+      Object.keys(state.checks).forEach(k=>state.checks[k]=null);
+    }
+
+    function fmtMs(ms){
+      const s = Math.max(0, Math.round(ms/1000));
+      const m = Math.floor(s/60);
+      const r = s%60;
+      return (m>0? `${m}분 ${r}초` : `${r}초`);
+    }
+
+    function widthFor(n){ return Math.max(8, Math.min(92, n)); }
+
+    function computeBars(){
+      // Heuristic visualization. Not a score.
+      let stamina = 40;
+      if(readingElapsed !== null) stamina += 20;
+      if(state.checks.listen_flow === 'kept') stamina += 25;
+      if(state.checks.listen_flow === 'lost') stamina += 10;
+
+      let meaning = 35;
+      if(state.checks.read_clarity === 'clear') meaning += 25;
+      if(state.checks.read_clarity === 'some') meaning += 15;
+      if(state.checks.read_clarity === 'unclear') meaning += 5;
+      if(state.checks.listen_summary === 'yes') meaning += 20;
+      if(state.checks.listen_summary === 'maybe') meaning += 10;
+
+      const map = v => (v==='familiar'? 65 : v==='heard'? 45 : v==='new'? 25 : 35);
+      let topic = Math.round((map(state.checks.read_topic) + map(state.checks.listen_topic))/2);
+
+      let meta = 25;
+      const reflectiveKeys = ['read_clarity','read_vocab','read_key','listen_flow','listen_where','listen_summary'];
+      reflectiveKeys.forEach(k=>{ if(state.checks[k]) meta += 10; });
+
+      stamina = Math.min(90, stamina);
+      meaning = Math.min(90, meaning);
+      topic = Math.min(90, topic);
+      meta = Math.min(90, meta);
+
+      barStamina.style.width = widthFor(stamina) + '%';
+      barMeaning.style.width = widthFor(meaning) + '%';
+      barTopic.style.width = widthFor(topic) + '%';
+      barMeta.style.width = widthFor(meta) + '%';
+
+      const lines = [];
+      if(readingElapsed !== null) lines.push(`읽기: ${fmtMs(readingElapsed)} 동안 글을 읽고 ‘중심 생각’을 한 문장으로 잡아보았습니다.`);
+      else lines.push(`읽기: 글을 읽고 ‘중심 생각’을 잡는 경험을 했습니다.`);
+
+      if(state.checks.read_vocab) {
+        const v = state.checks.read_vocab;
+        lines.push(`어휘 체감: ${v==='low'?'모르는 단어가 거의 없었다': v==='mid'?'모르는 단어가 조금 있었다':'모르는 단어가 많았다'}고 느꼈습니다.`);
+      }
+      if(state.checks.read_topic || state.checks.listen_topic){
+        const label = (x)=> x==='familiar'?'익숙한 주제': x==='heard'?'들어본 적은 있는 주제': x==='new'?'낯선 주제':'(선택 없음)';
+        lines.push(`소재(익숙함): 읽기(${label(state.checks.read_topic)}), 듣기(${label(state.checks.listen_topic)}).`);
+      }
+      if(state.checks.listen_flow){
+        lines.push(`듣기: ${state.checks.listen_flow==='kept'?'끝까지 의미를 유지하며 따라갔다': state.checks.listen_flow==='lost'?'중간에 흐름을 놓친 느낌이 있었다':'의미가 잘 남지 않았다'}고 체크했습니다.`);
+      }
+      lines.push(`이 결과는 점수가 아니라, ‘수능 수준의 영어를 이해하기 위해 앞으로 쌓아야 할 역량’의 방향을 정리하기 위한 참고입니다.`);
+      resultSummary.textContent = lines.join(' ');
+    }
+
+    function setLevel(newLevel){
+      level = newLevel;
+      readingStartAt = null;
+      readingElapsed = null;
+      readTime.textContent = '-';
+      state.readingChoice = null;
+      state.listeningChoice = null;
+      resetChecksUI();
+      renderReading();
+      renderListening();
+      showPanel('reading');
+      window.scrollTo({top: document.getElementById('try').offsetTop - 80, behavior:'smooth'});
+    }
+
+    // Events
+    tabs.forEach(t=>{
+      t.addEventListener('click', ()=>{
+        tabs.forEach(x=>{x.classList.remove('active'); x.setAttribute('aria-selected','false')});
+        t.classList.add('active');
+        t.setAttribute('aria-selected','true');
+        setLevel(t.dataset.level);
+      });
+    });
+
+    btnStart.addEventListener('click', ()=>{
+      document.getElementById('try').scrollIntoView({behavior:'smooth', block:'start'});
+    });
+
+    btnScrollReal.addEventListener('click', ()=>{
+      document.getElementById('real').scrollIntoView({behavior:'smooth', block:'start'});
+    });
+
+    btnReadingStartTimer.addEventListener('click', ()=>{
+      readingStartAt = Date.now();
+      readTime.textContent = '측정 중…';
+    });
+
+    btnReadingStopTimer.addEventListener('click', ()=>{
+      if(!readingStartAt){
+        readTime.textContent = '먼저 “읽기 시작”을 눌러주세요';
+        return;
+      }
+      readingElapsed = Date.now() - readingStartAt;
+      readTime.textContent = fmtMs(readingElapsed);
+    });
+
+    btnNextToListening.addEventListener('click', ()=>{ showPanel('listening'); });
+    btnBackToReading.addEventListener('click', ()=>{ showPanel('reading'); });
+
+    btnFinish.addEventListener('click', ()=>{
+      showPanel('result');
+      computeBars();
+    });
+
+    btnReset.addEventListener('click', ()=>{ setLevel(level); });
+
+    // init
+    renderReading();
+    renderListening();
+    bindChips();
+  </script>
+</body>
+</html>
