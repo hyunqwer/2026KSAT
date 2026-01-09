@@ -1,0 +1,428 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { Play, Pause, RotateCcw, FastForward, CheckCircle, XCircle, Eye, Search, MousePointer2, ChevronRight } from 'lucide-react';
+
+const ReplayApp = () => {
+  const [mode, setMode] = useState('intro'); // intro, solving, replay, result
+  const [userSelection, setUserSelection] = useState(null);
+  const [solveTime, setSolveTime] = useState(0);
+  
+  // Replay State
+  const [currentTime, setCurrentTime] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [playbackSpeed, setPlaybackSpeed] = useState(1);
+  const [showEyeTracker, setShowEyeTracker] = useState(true);
+
+  // Constants
+  const TOTAL_DURATION = 40; // Increased to 40s for full linear reading
+  
+  // Text Segmentation (Granular for linear eye-tracking)
+  const passageSentences = [
+    { id: 1, text: "Digital platforms have ", type: "intro" },
+    { id: 2, text: "made a lot of work less sticky", type: "target_phrase", underline: true }, 
+    { id: 3, text: ". ", type: "text" },
+    { id: 4, text: "As work becomes ever more modularised, commoditised and standardised, and as markets for digital work are created, ", type: "context" },
+    { id: 5, text: "ties between service work and particular places ", type: "definition" },
+    { id: 6, text: "can be disconnected", type: "definition_highlight", highlight: true }, 
+    { id: 7, text: ". ", type: "text" },
+    { id: 8, text: "While the business process of outsourcing that emerged in the 1990s allowed large companies to take advantage of a ‘global reserve army’ by moving their call centres to cheap and distant labour markets, ", type: "contrast" },
+    { id: 9, text: "cloudwork changes the volume and granularity at which ", type: "contrast_focus" },
+    { id: 10, text: "geographically non-proximate work", type: "keyword" }, 
+    { id: 11, text: " can take place. ", type: "text" },
+    { id: 12, text: "A small business in New York can hire a freelance transcriber in ", type: "example" },
+    { id: 13, text: "Nairobi one day and New Delhi the next", type: "example_highlight" }, 
+    { id: 14, text: ". ", type: "text" },
+    { id: 15, text: "No offices or factories need to be built, no local regulations are observed, and ― in most cases ― no local taxes are paid. ", type: "detail" }, 
+    { id: 16, text: "The switch in the production network of work happens by simply sending some emails or clicking some buttons on a digital work platform. ", type: "detail" },
+    { id: 17, text: "And, in this way, the employer leaves behind ", type: "conclusion" },
+    { id: 18, text: "no material traces", type: "conclusion_highlight", highlight: true }, 
+    { id: 19, text: " in the places where it was once an employer.", type: "text" }
+  ];
+
+  const options = [
+    { id: 1, text: "settled the locational dilemma of the global markets", tag: "딜레마 해결(X)", isAnswer: false },
+    { id: 2, text: "elevated the spatial flexibility in conducting business", tag: "정답", isAnswer: true },
+    { id: 3, text: "weakened the geographical expansion of local business", tag: "확장 약화(반대)", isAnswer: false },
+    { id: 4, text: "relieved the strict legal processes of regional outsourcing", tag: "법적 절차(지엽)", isAnswer: false },
+    { id: 5, text: "allowed business to be less complicated in its hiring process", tag: "단순 채용(협소)", isAnswer: false },
+  ];
+
+  // Refined Timeline: Full Linear Reading (No Jumping)
+  const timelineEvents = [
+    { 
+      start: 0, end: 3.5, 
+      focusIds: [1, 2, 3], 
+      thought: "첫 문장: 'Digital platforms... less sticky'. 덜 끈적해졌다? 장소 구속력 감소 예측.",
+      phase: "타겟 포착",
+      action: "critical"
+    },
+    { 
+      start: 3.5, end: 6.0, 
+      focusIds: [4], 
+      thought: "배경: 일이 모듈화되고 상품화되면서...",
+      phase: "배경 독해",
+      action: "read"
+    },
+    { 
+      start: 6.0, end: 9.0, 
+      focusIds: [5, 6, 7], 
+      thought: "정의: 'ties... disconnected'. 일과 장소의 연결이 끊어졌다. (주제 확신)",
+      phase: "의미 확정",
+      action: "critical"
+    },
+    { 
+      start: 9.0, end: 13.0, 
+      focusIds: [8], 
+      thought: "대조: 1990년대 아웃소싱(콜센터 이동)과 비교...",
+      phase: "문맥 파악",
+      action: "read"
+    },
+    { 
+      start: 13.0, end: 16.0, 
+      focusIds: [9, 10, 11], 
+      thought: "현재: Cloudwork는 'volume and granularity'가 다르다. 핵심은 '비인접성(non-proximate)'.",
+      phase: "핵심 대조",
+      action: "critical"
+    },
+    { 
+      start: 16.0, end: 19.0, 
+      focusIds: [12, 13, 14], 
+      thought: "예시: 뉴욕 회사가 나이로비, 뉴델리 고용. 매일 바뀜.",
+      phase: "예시 확인",
+      action: "read"
+    },
+    { 
+      start: 19.0, end: 22.0, 
+      focusIds: [15], 
+      thought: "상세1: 사무실 X, 규제 X, 세금 X. (물리적 제약 없음)",
+      phase: "상세 독해",
+      action: "read"
+    },
+    { 
+      start: 22.0, end: 25.0, 
+      focusIds: [16], 
+      thought: "상세2: 이메일, 클릭 몇 번으로 생산망 전환. (디지털의 특징)",
+      phase: "상세 독해",
+      action: "read"
+    },
+    { 
+      start: 25.0, end: 28.0, 
+      focusIds: [17, 18, 19], 
+      thought: "결론: 'leaves behind no material traces'. 물리적 흔적조차 없다. → 공간성 소멸.",
+      phase: "결론 도출",
+      action: "critical"
+    },
+    // --- OPTION SCANNING ---
+    { 
+      start: 28.0, end: 29.5, 
+      focusIds: [], 
+      focusOption: 1, 
+      thought: "① 위치적 딜레마 해결? 딜레마 X.",
+      phase: "보기 소거",
+      action: "scan_option"
+    },
+    { 
+      start: 29.5, end: 32.5, 
+      focusIds: [], 
+      focusOption: 2, 
+      thought: "② '공간적 유연성(Spatial Flexibility)'? Less sticky, Disconnected, No traces와 일치. (★)",
+      phase: "정답 후보",
+      action: "critical_option"
+    },
+    { 
+      start: 32.5, end: 33.5, 
+      focusIds: [], 
+      focusOption: 3, 
+      thought: "③ 지리적 확장 약화? 오히려 확장됨.",
+      phase: "보기 소거",
+      action: "scan_option"
+    },
+    { 
+      start: 33.5, end: 34.5, 
+      focusIds: [], 
+      focusOption: 4, 
+      thought: "④ 법적 절차? 세금 얘기는 있지만 핵심 아님.",
+      phase: "보기 소거",
+      action: "scan_option"
+    },
+    { 
+      start: 34.5, end: 35.5, 
+      focusIds: [], 
+      focusOption: 5, 
+      thought: "⑤ 채용 절차 단순화? 너무 지엽적.",
+      phase: "보기 소거",
+      action: "scan_option"
+    },
+    { 
+      start: 35.5, end: 40.0, 
+      focusIds: [], 
+      focusOption: 2, 
+      thought: "2번 확정 마킹.",
+      phase: "마킹",
+      action: "mark"
+    }
+  ];
+
+  const currentEvent = timelineEvents.find(e => currentTime >= e.start && currentTime < e.end) || timelineEvents[timelineEvents.length - 1];
+  
+  // Timer & Auto-Scroll Logic
+  useEffect(() => {
+    let interval;
+    if (isPlaying && currentTime < TOTAL_DURATION) {
+      interval = setInterval(() => {
+        setCurrentTime(prev => {
+          const next = prev + 0.1 * playbackSpeed;
+          if (next >= TOTAL_DURATION) {
+            setIsPlaying(false);
+            return TOTAL_DURATION;
+          }
+          return next;
+        });
+      }, 100);
+    } else if (mode === 'solving') {
+      interval = setInterval(() => {
+        setSolveTime(prev => prev + 0.1);
+      }, 100);
+    }
+    return () => clearInterval(interval);
+  }, [isPlaying, playbackSpeed, mode, currentTime]);
+
+  const handleStartSolving = () => {
+    setMode('solving');
+    setSolveTime(0);
+    setUserSelection(null);
+  };
+
+  const handleOptionClick = (id) => {
+    if (mode === 'solving') {
+      setUserSelection(id);
+      setMode('result');
+    }
+  };
+
+  const startReplay = () => {
+    setMode('replay');
+    setCurrentTime(0);
+    setIsPlaying(true);
+  };
+
+  const isFocused = (id) => {
+    if (mode !== 'replay') return true; 
+    if (!currentEvent) return true;
+    if (currentEvent.phase.includes("보기") || currentEvent.phase === "정답 후보" || currentEvent.phase === "마킹") return false; 
+    return currentEvent.focusIds.includes(id);
+  };
+
+  const getOptionStyle = (opt) => {
+    if (mode === 'replay') {
+      if (currentTime < 28) return "opacity-40 blur-[1px] grayscale";
+
+      if (currentEvent?.phase === "마킹") {
+         if (opt.id === 2) return "bg-blue-600 text-white border-blue-600 scale-105 shadow-lg font-bold transform transition-all duration-500";
+         return "opacity-20 grayscale scale-95 transition-all duration-500";
+      }
+
+      if (currentEvent?.focusOption === opt.id) {
+         if (opt.id === 2) return "bg-blue-50 border-blue-500 scale-105 shadow-md font-bold ring-2 ring-blue-200 text-blue-900 transition-all duration-200";
+         return "bg-slate-100 border-slate-400 text-slate-700 scale-100 ring-1 ring-slate-300 transition-all duration-200";
+      }
+      
+      return "opacity-50 grayscale scale-95 border-slate-100 transition-all duration-200";
+    }
+    return "";
+  };
+
+  // Improved highlighting for reading mode
+  const getHighlightClass = (segment, focused) => {
+    if (mode !== 'replay') return segment.underline ? 'border-b-4 border-slate-800' : '';
+    
+    // Default state: slightly dimmed but readable
+    if (!focused) return 'opacity-40 grayscale transition-all duration-300'; 
+
+    const action = currentEvent?.action;
+    
+    if (action === 'critical' || action === 'critical_option') {
+      // Critical Evidence: Strong emphasis
+      return 'bg-red-100 text-slate-900 font-bold px-1 rounded ring-2 ring-red-200 transition-all duration-300';
+    } else if (action === 'read') {
+      // Normal Reading: Soft highlight
+      return 'bg-yellow-50 text-slate-900 px-0 rounded transition-all duration-300 shadow-sm';
+    }
+    
+    return '';
+  };
+
+  if (mode === 'intro') {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50 p-4 font-sans">
+        <div className="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full text-center space-y-6">
+          <div className="bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full w-fit mx-auto">2026 수능 영어</div>
+          <h1 className="text-2xl font-bold text-slate-800">21번 만점자 리플레이</h1>
+          <p className="text-slate-500">
+            만점자의 <span className="font-bold text-slate-800">시선 흐름</span>을 그대로 따라가보세요.<br/>
+            <span className="text-xs text-slate-400 mt-2 block">소요 시간: 40초 | 모든 문장 정독</span>
+          </p>
+          
+          <div className="space-y-3 pt-4">
+            <button 
+              onClick={handleStartSolving}
+              className="w-full py-3 bg-white border-2 border-slate-200 text-slate-700 font-bold rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-colors flex items-center justify-center gap-2"
+            >
+              <MousePointer2 size={18} />
+              직접 먼저 풀어보기
+            </button>
+            <button 
+              onClick={startReplay}
+              className="w-full py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200 flex items-center justify-center gap-2"
+            >
+              <Play size={18} />
+              만점자 시선 체험하기
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (mode === 'result') {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50 p-4 font-sans">
+        <div className="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full text-center space-y-6">
+          <div className={`w-16 h-16 mx-auto rounded-full flex items-center justify-center ${userSelection === 2 ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
+            {userSelection === 2 ? <CheckCircle size={32} /> : <XCircle size={32} />}
+          </div>
+          <h2 className="text-xl font-bold text-slate-800">{userSelection === 2 ? "정답입니다!" : "아쉽네요!"}</h2>
+          <p className="text-slate-500">나의 시간: <span className="font-mono font-bold text-slate-700">{solveTime.toFixed(1)}초</span></p>
+          <button onClick={startReplay} className="w-full py-4 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200 flex items-center justify-center gap-2 animate-pulse">
+            <Play size={20} />
+            만점자의 풀이 과정 보기 (Replay)
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-slate-100 text-slate-800 font-sans flex flex-col md:flex-row max-w-6xl mx-auto shadow-2xl overflow-hidden">
+      
+      {/* LEFT PANEL: Passage */}
+      <div className="flex-1 bg-white p-6 md:p-10 flex flex-col relative overflow-y-auto">
+        <div className="mb-6 flex justify-between items-center border-b pb-4">
+          <div className="text-sm font-bold text-slate-500 tracking-wider">2026 ACADEMIC YEAR ENGLISH</div>
+          <div className={`text-xl font-mono font-bold ${mode === 'replay' ? 'text-blue-600' : 'text-slate-800'}`}>
+            {mode === 'replay' ? currentTime.toFixed(1) : solveTime.toFixed(1)}s
+          </div>
+        </div>
+
+        <h3 className="text-lg font-bold mb-6 text-slate-800">
+          21. 밑줄 친 <span className="border-b-2 border-slate-900">made a lot of work less sticky</span>가 다음 글에서 의미하는 바로 가장 적절한 것은?
+        </h3>
+
+        {/* Changed layout to single paragraph block */}
+        <div className="text-lg leading-loose font-serif relative transition-all duration-500 text-justify">
+          {passageSentences.map((segment, index) => {
+            const focused = isFocused(segment.id);
+            return (
+              <span 
+                key={index}
+                className={`transition-all duration-300 ease-out inline decoration-clone ${getHighlightClass(segment, focused)}`}
+              >
+                {segment.text}
+                {/* Visual Cursor */}
+                {mode === 'replay' && focused && showEyeTracker && (
+                    <span className="inline-block w-2 h-2 bg-red-500 rounded-full ml-0.5 align-baseline opacity-60"></span>
+                )}
+              </span>
+            );
+          })}
+        </div>
+
+        {/* Options Section */}
+        <div className="mt-8 space-y-3">
+          {options.map((opt) => (
+            <div 
+              key={opt.id}
+              onClick={() => handleOptionClick(opt.id)}
+              className={`p-4 border-2 rounded-xl flex justify-between items-center cursor-pointer transition-all relative ${mode === 'solving' ? 'hover:border-blue-400 hover:bg-blue-50' : ''} ${mode === 'replay' ? getOptionStyle(opt) : 'border-slate-200'}`}
+            >
+              <div className="flex items-center gap-3">
+                <span className={`w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold ${opt.isAnswer && mode === 'replay' && currentEvent?.phase === '마킹' ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-600'}`}>{opt.id}</span>
+                <span className="text-sm md:text-base font-medium">{opt.text}</span>
+              </div>
+              
+              {/* Eye icon */}
+              {mode === 'replay' && currentEvent?.focusOption === opt.id && (
+                  <div className="absolute -left-8 text-slate-400 animate-pulse hidden md:block">
+                      <Eye size={20} />
+                  </div>
+              )}
+
+              {/* Tags */}
+              {mode === 'replay' && currentTime > 28 && opt.id < (currentEvent?.focusOption || 99) && currentEvent?.focusOption !== opt.id && (
+                <span className={`text-xs font-bold px-2 py-1 rounded ml-2 whitespace-nowrap ${opt.isAnswer ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-500'}`}>
+                  {opt.tag}
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* RIGHT PANEL: Thought Process */}
+      {mode === 'replay' && (
+        <div className="md:w-96 bg-slate-900 text-white flex flex-col shadow-2xl z-10">
+          <div className="h-2 bg-slate-800 w-full relative">
+            <div className="h-full bg-blue-500 transition-all duration-100 ease-linear" style={{ width: `${(currentTime / TOTAL_DURATION) * 100}%` }} />
+            <div className="absolute top-0 left-[8%] w-0.5 h-2 bg-white/30" title="Start" />
+            <div className="absolute top-0 left-[15%] w-0.5 h-2 bg-red-500" title="Definition" />
+            <div className="absolute top-0 left-[40%] w-0.5 h-2 bg-red-500" title="Example" />
+            <div className="absolute top-0 left-[70%] w-0.5 h-2 bg-white/30" title="Options" />
+          </div>
+
+          <div className="flex-1 p-6 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center gap-2 text-blue-400 text-sm font-bold uppercase tracking-widest mb-2">
+                <Search size={14} /> {currentEvent?.phase}
+              </div>
+              <div className={`bg-slate-800 p-5 rounded-2xl border border-slate-700 shadow-inner relative mt-4 transition-all duration-500 ${currentEvent?.action === 'critical' || currentEvent?.action === 'critical_option' ? 'ring-2 ring-red-500/50 bg-slate-800/80' : ''}`}>
+                <div className="absolute -top-3 left-6 w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-b-[10px] border-b-slate-700"></div>
+                <p className="text-xl font-bold leading-relaxed text-white">"{currentEvent?.thought}"</p>
+              </div>
+
+              <div className="mt-6 space-y-3 opacity-80">
+                <p className="text-xs text-slate-500 mb-2 font-bold uppercase">Current Focus Strategy</p>
+                <div className="flex items-center gap-3 transition-opacity duration-300">
+                  <div className={`w-2 h-2 rounded-full ${currentEvent?.action?.includes('critical') ? 'bg-red-500 animate-ping' : currentEvent?.action === 'read' ? 'bg-yellow-400' : 'bg-slate-600'}`}></div>
+                  <span className={`text-sm ${currentEvent?.action?.includes('critical') ? 'text-red-300 font-bold' : currentEvent?.action === 'read' ? 'text-yellow-200' : 'text-slate-400'}`}>
+                    {currentEvent?.action?.includes('critical') ? '⚡ 핵심 단서/정답 집중' : currentEvent?.action === 'read' ? '📖 지문 정독 (Reading)' : '→ 빠른 스캐닝'}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-slate-800 rounded-xl p-4 mt-8">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-xs text-slate-400 font-bold uppercase">Controls</span>
+                <button onClick={() => setShowEyeTracker(!showEyeTracker)} className={`text-xs flex items-center gap-1 ${showEyeTracker ? 'text-blue-400' : 'text-slate-500'}`}>
+                  <Eye size={12} /> {showEyeTracker ? 'Tracker ON' : 'OFF'}
+                </button>
+              </div>
+              <div className="flex items-center justify-between">
+                <button onClick={() => {setCurrentTime(0); setIsPlaying(true);}} className="p-2 hover:bg-slate-700 rounded-full text-slate-400 hover:text-white transition"><RotateCcw size={20} /></button>
+                <button onClick={() => setIsPlaying(!isPlaying)} className="w-14 h-14 bg-blue-600 rounded-full flex items-center justify-center text-white hover:bg-blue-500 hover:scale-105 transition shadow-lg shadow-blue-900/50">
+                  {isPlaying ? <Pause size={24} fill="currentColor" /> : <Play size={24} fill="currentColor" className="ml-1" />}
+                </button>
+                <div className="flex bg-slate-700 rounded-lg p-1">
+                  {[0.5, 1, 2].map(speed => (
+                    <button key={speed} onClick={() => setPlaybackSpeed(speed)} className={`px-2 py-1 text-xs font-bold rounded ${playbackSpeed === speed ? 'bg-slate-500 text-white' : 'text-slate-400 hover:text-white'}`}>{speed}x</button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default ReplayApp;
