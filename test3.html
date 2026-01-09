@@ -1,0 +1,477 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { Clock, CheckCircle, AlertTriangle, Play, BarChart2, BookOpen, Brain, MousePointer, Search, ArrowRight, XCircle, List, HelpCircle, FileText } from 'lucide-react';
+
+// --- Data & Content ---
+
+// 4가지 유형 데이터셋
+const QUESTION_SET = [
+  {
+    id: 1,
+    type: "문장 삽입",
+    layout: "insertion",
+    difficulty: "Level 2 (Training)",
+    timeLimit: 90,
+    boxSentence: "Because of this, people just read titles and do not read carefully.",
+    boxClue: "this",
+    passage: [
+      { id: 1, text: "Technology has grown very fast in recent years." },
+      { id: 2, text: "So, we have too much information available to us right now." },
+      { id: 3, text: "As a result, they are losing their ability to think deeply about complex issues." },
+      { id: 4, text: "This shallow reading habit prevents true understanding." },
+      { id: 5, text: "Therefore, we must practice reading slowly to regain our critical thinking skills." }
+    ],
+    answerIndex: 2, // 2번 문장 뒤
+    clues: [
+      { type: "directive", label: "지시어 (This/It)", keywords: ["this", "it", "that", "they", "such"] },
+      { type: "connector", label: "연결어 (So/However)", keywords: ["so", "therefore", "as a result", "however", "but"] }
+    ]
+  },
+  {
+    id: 2,
+    type: "순서 배열",
+    layout: "ordering",
+    difficulty: "Level 2 (Training)",
+    timeLimit: 100,
+    boxSentence: "When you want to start a new habit, consistency is key.",
+    passageParts: [
+      { id: 'A', text: "Eventually, the behavior becomes automatic, and you don't have to think about it anymore." },
+      { id: 'B', text: "For example, if you want to read more, try reading for just 10 minutes every night." },
+      { id: 'C', text: "However, doing this every single day is hard at first because your brain prefers old routines." }
+    ],
+    correctOrder: ['B', 'C', 'A'], // 예시(B) -> 역접/어려움(C) -> 결과/자동화(A)
+    clues: [
+      { type: "connector", label: "연결어 (For example/However)", keywords: ["for example", "however", "eventually", "but"] },
+      { type: "logic", label: "시간/인과", keywords: ["first", "then", "automatic"] }
+    ]
+  },
+  {
+    id: 3,
+    type: "빈칸 추론",
+    layout: "choice",
+    difficulty: "Level 3 (Advanced)",
+    timeLimit: 120,
+    passage: [
+      { id: 1, text: "Many nocturnal animals have special eyes that allow them to see in the dark." },
+      { id: 2, text: "They are active at night to avoid the heat of the day and predators." },
+      { id: 3, text: "However, this lifestyle comes with a trade-off." },
+      { id: 4, text: "Since they are awake at night, they must __________ during the daylight hours to conserve energy." },
+      { id: 5, text: "This pattern of rest is essential for their survival." }
+    ],
+    options: ["hunt for food", "remain inactive", "build new homes", "find a mate", "migrate south"],
+    correctOption: 1, // remain inactive
+    evidenceSentenceId: 2, // "active at night" -> 반대니까 낮에는 inactive
+    clues: [
+      { type: "logic", label: "반의어/대조", keywords: ["however", "avoid", "night", "day"] },
+      { type: "rephrase", label: "재진술 (Paraphrasing)", keywords: ["rest", "energy", "active"] }
+    ]
+  },
+  {
+    id: 4,
+    type: "함의 추론",
+    layout: "choice",
+    difficulty: "Level 3 (Advanced)",
+    timeLimit: 110,
+    passage: [
+      { id: 1, text: "In the meeting, John suggested a plan that was too expensive and risky." },
+      { id: 2, text: "Everyone was excited about the new project until John spoke." },
+      { id: 3, text: "His comments were a <u>wet blanket</u> on the team's enthusiasm." },
+      { id: 4, text: "The room went silent, and the energy disappeared immediately." }
+    ],
+    question: "밑줄 친 'wet blanket'이 의미하는 바로 가장 적절한 것은?",
+    options: ["a source of funding", "a hidden danger", "something that ruins the mood", "a necessary safety measure", "a warm welcome"],
+    correctOption: 2,
+    evidenceSentenceId: 4, // "energy disappeared"
+    clues: [
+      { type: "context", label: "문맥 (Context)", keywords: ["silent", "disappeared", "excited", "until"] },
+      { type: "directive", label: "지시어/인물", keywords: ["his", "john"] }
+    ]
+  }
+];
+
+const Card = ({ children, className = "" }) => (
+  <div className={`bg-white rounded-xl shadow-lg overflow-hidden border border-slate-200 ${className}`}>
+    {children}
+  </div>
+);
+
+const Button = ({ children, onClick, variant = "primary", className = "", disabled = false }) => {
+  const baseStyle = "px-6 py-3 rounded-lg font-bold transition-all duration-200 flex items-center justify-center gap-2";
+  const variants = {
+    primary: "bg-blue-600 text-white hover:bg-blue-700 shadow-md hover:shadow-lg disabled:bg-slate-300",
+    secondary: "bg-white text-slate-700 border-2 border-slate-200 hover:border-blue-500 hover:text-blue-600",
+    outline: "border-2 border-slate-300 text-slate-600 hover:bg-slate-50",
+    ghost: "text-slate-500 hover:bg-slate-100",
+    danger: "bg-red-50 text-red-600 border border-red-200 hover:bg-red-100",
+    option: "w-full text-left justify-start border border-slate-200 hover:border-blue-500 hover:bg-blue-50 text-slate-700"
+  };
+  return (
+    <button onClick={onClick} className={`${baseStyle} ${variants[variant]} ${className}`} disabled={disabled}>
+      {children}
+    </button>
+  );
+};
+
+export default function App() {
+  const [currentQIndex, setCurrentQIndex] = useState(0);
+  const [stage, setStage] = useState('intro'); // intro, test, analyzing, result
+  const [timer, setTimer] = useState(0);
+  const [activeClueMode, setActiveClueMode] = useState(null); 
+  const [foundClues, setFoundClues] = useState([]);
+  const [selectedAnswer, setSelectedAnswer] = useState(null); // For insertion/choice
+  const [orderAnswer, setOrderAnswer] = useState([]); // For ordering
+  const [isTimerRunning, setIsTimerRunning] = useState(false);
+  const [analysisData, setAnalysisData] = useState(null);
+
+  const currentData = QUESTION_SET[currentQIndex];
+
+  // Timer Logic
+  useEffect(() => {
+    let interval;
+    if (isTimerRunning) {
+      interval = setInterval(() => {
+        setTimer((prev) => prev + 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [isTimerRunning]);
+
+  // Handlers
+  const startTest = (index = 0) => {
+    setCurrentQIndex(index);
+    setStage('test');
+    setIsTimerRunning(true);
+    setTimer(0);
+    setFoundClues([]);
+    setSelectedAnswer(null);
+    setOrderAnswer([]);
+    setActiveClueMode(null);
+  };
+
+  const handleClueToggle = (clueType) => {
+    setActiveClueMode(prev => prev === clueType ? null : clueType);
+  };
+
+  const handleWordClick = (word, idPrefix) => {
+    if (!activeClueMode) return;
+
+    const cleanWord = word.replace(/[^a-zA-Z]/g, "").toLowerCase();
+    const currentClueDef = currentData.clues.find(c => c.type === activeClueMode);
+    
+    if (currentClueDef && currentClueDef.keywords.includes(cleanWord)) {
+      const newClueId = `${idPrefix}-${cleanWord}`;
+      if (!foundClues.includes(newClueId)) {
+        setFoundClues([...foundClues, newClueId]);
+      }
+    }
+  };
+
+  const submitAnswer = (answer) => {
+    setIsTimerRunning(false);
+    setSelectedAnswer(answer); // For insertion: index, Ordering: array, Choice: index
+    setStage('analyzing');
+    
+    // Logic Assessment
+    let isCorrect = false;
+    if (currentData.layout === 'insertion') {
+      isCorrect = answer === currentData.answerIndex;
+    } else if (currentData.layout === 'ordering') {
+      isCorrect = JSON.stringify(answer) === JSON.stringify(currentData.correctOrder);
+    } else if (currentData.layout === 'choice') {
+      isCorrect = answer === currentData.correctOption;
+    }
+
+    setTimeout(() => {
+      setAnalysisData({
+        isCorrect,
+        score: isCorrect ? 100 : 0,
+        timeTaken: timer,
+        clueDiscoveryRate: Math.min(100, Math.round((foundClues.length / 3) * 100)), // Approx target
+        logicType: foundClues.length > 1 ? "근거 기반(Evidence-Based)" : "감각 의존(Intuition-Based)",
+      });
+      setStage('result');
+    }, 2000);
+  };
+
+  const handleOrderClick = (partId) => {
+    if (orderAnswer.includes(partId)) {
+      setOrderAnswer(orderAnswer.filter(id => id !== partId));
+    } else {
+      setOrderAnswer([...orderAnswer, partId]);
+    }
+  };
+
+  // --- Render Helpers ---
+
+  const renderInteractiveText = (text, idPrefix) => {
+    return text.split(" ").map((word, idx) => {
+      const cleanWord = word.replace(/[^a-zA-Z]/g, "").toLowerCase();
+      const clueId = `${idPrefix}-${cleanWord}`;
+      const isFound = foundClues.includes(clueId);
+      
+      let isTarget = false;
+      if (activeClueMode) {
+          const mode = currentData.clues.find(c => c.type === activeClueMode);
+          if (mode && mode.keywords.includes(cleanWord)) isTarget = true;
+      }
+
+      // Handle <u> tag roughly
+      if (word.includes('<u>') || word.includes('</u>')) {
+          // simple strip for demo
+      }
+
+      return (
+        <span 
+          key={idx}
+          onClick={() => handleWordClick(word, idPrefix)}
+          className={`
+            inline-block mr-1.5 cursor-pointer rounded px-0.5 transition-all
+            ${isFound ? "bg-yellow-200 font-bold text-slate-900 ring-2 ring-yellow-400" : ""}
+            ${!isFound && activeClueMode && isTarget ? "bg-blue-100 hover:bg-blue-200 animate-pulse" : ""}
+            ${!isFound && !activeClueMode ? "hover:text-blue-600" : ""}
+            ${word.includes("_______") ? "font-bold text-blue-600 tracking-widest" : ""} 
+            ${word.includes("wet") || word.includes("blanket") ? "border-b-2 border-slate-800 font-bold" : ""} 
+          `}
+          dangerouslySetInnerHTML={{__html: word}} // For <u> tags if needed, though simple logic used above
+        />
+      );
+    });
+  };
+
+  // --- Screens ---
+
+  const IntroScreen = () => (
+    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
+      <div className="max-w-4xl w-full text-center space-y-8">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-blue-100 text-blue-800 rounded-full font-bold text-sm">
+          <Brain size={16} />
+          2026 수능 대비 풀이 모델 체험
+        </div>
+        <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 leading-tight">
+          수능이 왜 어려운지,<br />
+          <span className="text-blue-600">유형별 논리</span>로 확인하세요.
+        </h1>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-left my-8">
+          {QUESTION_SET.map((q, idx) => (
+            <div key={idx} onClick={() => startTest(idx)} className="bg-white p-5 rounded-xl shadow-sm border border-slate-100 hover:border-blue-500 hover:shadow-md cursor-pointer transition-all group">
+              <div className="flex justify-between items-start mb-3">
+                 <div className="w-10 h-10 bg-slate-50 text-slate-600 group-hover:bg-blue-50 group-hover:text-blue-600 rounded-lg flex items-center justify-center">
+                    {q.type === '문장 삽입' && <ArrowRight size={20} />}
+                    {q.type === '순서 배열' && <List size={20} />}
+                    {q.type === '빈칸 추론' && <FileText size={20} />}
+                    {q.type === '함의 추론' && <HelpCircle size={20} />}
+                 </div>
+                 <span className="text-xs font-bold bg-slate-100 px-2 py-1 rounded text-slate-500">{q.difficulty.split(' ')[1]}</span>
+              </div>
+              <h3 className="font-bold text-slate-900 mb-1">{q.type}</h3>
+              <p className="text-xs text-slate-500">
+                {q.type === '문장 삽입' && "지시어/연결어 추적"}
+                {q.type === '순서 배열' && "논리적 흐름 연결"}
+                {q.type === '빈칸 추론' && "핵심 근거(Evidence) 찾기"}
+                {q.type === '함의 추론' && "문맥적 의미 파악"}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  const TestScreen = () => {
+    return (
+      <div className="min-h-screen bg-slate-100 flex flex-col">
+        {/* Header */}
+        <header className="bg-white border-b px-4 py-3 flex justify-between items-center sticky top-0 z-10 shadow-sm">
+          <div className="flex items-center gap-2 font-bold text-slate-800">
+            <span className="w-8 h-8 bg-slate-900 text-white flex items-center justify-center rounded-lg text-sm">{30 + currentQIndex}</span>
+            <span>{currentData.type}</span>
+          </div>
+          <div className={`flex items-center gap-2 px-3 py-1 rounded-full ${timer > currentData.timeLimit ? "bg-red-100 text-red-600" : "bg-slate-100 text-slate-600"}`}>
+             <Clock size={16} />
+             <span className="font-mono font-bold text-lg">{Math.floor(timer / 60)}:{(timer % 60).toString().padStart(2, '0')}</span>
+          </div>
+        </header>
+
+        {/* Main Content */}
+        <main className="flex-1 max-w-4xl mx-auto w-full p-4 md:p-6 pb-32">
+          
+          {/* Layout: Insertion */}
+          {currentData.layout === 'insertion' && (
+            <>
+              <Card className="mb-6 border-l-4 border-l-blue-600">
+                <div className="p-5 bg-blue-50/50">
+                  <h3 className="text-sm font-bold text-blue-600 mb-2 flex items-center gap-2">
+                    <BookOpen size={16} /> 다음 문장이 들어가기에 가장 적절한 곳은?
+                  </h3>
+                  <div className="bg-white border border-blue-200 p-4 rounded-lg text-lg font-serif text-slate-800">
+                     {renderInteractiveText(currentData.boxSentence, 'box')}
+                  </div>
+                </div>
+              </Card>
+              <Card className="p-6 md:p-10 leading-loose text-lg font-serif">
+                {currentData.passage.map((sentence, idx) => (
+                  <React.Fragment key={sentence.id}>
+                    {idx > 0 && (
+                      <button onClick={() => submitAnswer(idx)} className="mx-2 w-8 h-8 inline-flex items-center justify-center rounded-full border-2 border-slate-300 text-slate-400 font-sans text-sm hover:border-blue-500 hover:bg-blue-600 hover:text-white transition-all transform hover:scale-110">
+                        {idx}
+                      </button>
+                    )}
+                    {renderInteractiveText(sentence.text, sentence.id)}
+                  </React.Fragment>
+                ))}
+                <button onClick={() => submitAnswer(5)} className="mx-2 w-8 h-8 inline-flex items-center justify-center rounded-full border-2 border-slate-300 text-slate-400 font-sans text-sm hover:border-blue-500 hover:bg-blue-600 hover:text-white transition-all transform hover:scale-110">5</button>
+              </Card>
+            </>
+          )}
+
+          {/* Layout: Ordering */}
+          {currentData.layout === 'ordering' && (
+            <>
+               <Card className="mb-6">
+                <div className="p-5">
+                  <h3 className="text-sm font-bold text-slate-500 mb-2">주어진 글</h3>
+                  <div className="bg-slate-50 p-4 rounded-lg text-lg font-serif text-slate-800 border border-slate-200">
+                     {renderInteractiveText(currentData.boxSentence, 'box')}
+                  </div>
+                </div>
+              </Card>
+              <div className="space-y-3">
+                 {currentData.passageParts.map((part) => {
+                    const orderIdx = orderAnswer.indexOf(part.id);
+                    return (
+                        <Card key={part.id} className={`p-4 cursor-pointer transition-all border-2 ${orderIdx > -1 ? "border-blue-500 bg-blue-50" : "border-transparent hover:border-slate-300"}`} >
+                            <div className="flex gap-4" onClick={() => handleOrderClick(part.id)}>
+                                <div className={`w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full font-bold ${orderIdx > -1 ? "bg-blue-600 text-white" : "bg-slate-200 text-slate-500"}`}>
+                                    {orderIdx > -1 ? orderIdx + 1 : part.id}
+                                </div>
+                                <div className="text-lg font-serif text-slate-800 pt-0.5">
+                                    {renderInteractiveText(part.text, part.id)}
+                                </div>
+                            </div>
+                        </Card>
+                    )
+                 })}
+              </div>
+              <div className="mt-6 flex justify-center">
+                 <Button onClick={() => submitAnswer(orderAnswer)} disabled={orderAnswer.length < 3}>
+                    정답 제출하기 ({orderAnswer.join(' - ')})
+                 </Button>
+              </div>
+            </>
+          )}
+
+          {/* Layout: Choice (Blank / Implied) */}
+          {currentData.layout === 'choice' && (
+            <>
+               <Card className="p-6 md:p-10 mb-6">
+                  <div className="font-serif text-xl leading-loose text-slate-800">
+                    {currentData.passage.map((sentence) => (
+                        <span key={sentence.id} className="mr-1">
+                            {renderInteractiveText(sentence.text, sentence.id)}
+                        </span>
+                    ))}
+                  </div>
+               </Card>
+               <div className="grid grid-cols-1 gap-3">
+                   {currentData.options.map((opt, idx) => (
+                       <Button key={idx} variant="option" onClick={() => submitAnswer(idx + 1)}>
+                           <span className="font-bold text-slate-400 mr-3">{idx + 1}</span>
+                           {opt}
+                       </Button>
+                   ))}
+               </div>
+            </>
+          )}
+
+        </main>
+
+        {/* Proof Layer */}
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-xl p-4 z-20">
+          <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-2 text-sm font-semibold text-slate-500">
+               <Search size={16} /> <span>Proof Layer</span>
+            </div>
+            <div className="flex flex-wrap justify-center gap-2">
+              {currentData.clues.map((clue) => (
+                <button
+                  key={clue.type}
+                  onClick={() => handleClueToggle(clue.type)}
+                  className={`
+                    px-4 py-2 rounded-full text-sm font-bold border transition-all flex items-center gap-2
+                    ${activeClueMode === clue.type 
+                      ? "bg-slate-800 text-white border-slate-800 shadow-md transform -translate-y-1" 
+                      : "bg-white text-slate-600 border-slate-300 hover:bg-slate-50"}
+                  `}
+                >
+                  {activeClueMode === clue.type && <CheckCircle size={14} className="text-green-400"/>}
+                  {clue.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const AnalysisScreen = () => (
+    <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center text-white">
+      <div className="relative w-24 h-24 mb-8">
+        <div className="absolute inset-0 border-4 border-slate-700 rounded-full"></div>
+        <div className="absolute inset-0 border-t-4 border-blue-500 rounded-full animate-spin"></div>
+        <Brain className="absolute inset-0 m-auto text-blue-500 animate-pulse" size={40} />
+      </div>
+      <h2 className="text-2xl font-bold mb-2">풀이 모델 분석 중...</h2>
+    </div>
+  );
+
+  const ResultScreen = () => {
+    return (
+      <div className="min-h-screen bg-slate-50 p-4 md:p-8">
+        <div className="max-w-3xl mx-auto space-y-6">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-slate-900">진단 결과: {currentData.type}</h1>
+          </div>
+
+          <Card className="p-6 md:p-8">
+             <div className="flex flex-col items-center gap-6 mb-8 text-center">
+                <div className={`inline-flex items-center justify-center w-24 h-24 rounded-full border-8 ${analysisData.isCorrect ? "border-blue-100 bg-blue-50" : "border-red-100 bg-red-50"}`}>
+                    <span className={`text-3xl font-extrabold ${analysisData.isCorrect ? "text-blue-600" : "text-red-500"}`}>
+                        {analysisData.isCorrect ? "정답" : "오답"}
+                    </span>
+                </div>
+                
+                <div className="bg-slate-50 p-4 rounded-lg border border-slate-200 text-slate-700 max-w-xl">
+                    {analysisData.isCorrect && analysisData.clueDiscoveryRate > 50 ? (
+                        <p>"훌륭합니다! <strong>단서({currentData.clues.map(c=>c.label.split(' ')[0]).join(', ')})</strong>를 정확히 활용했습니다."</p>
+                    ) : analysisData.isCorrect ? (
+                        <p>"정답은 맞혔지만 <strong>단서 활용</strong>이 부족합니다. 감으로 풀 경우 고난도 문항에서 오답률이 높아질 수 있습니다."</p>
+                    ) : (
+                        <p>"오답입니다. 이 유형은 해석보다 <strong>{currentData.clues[0].label}</strong>을 찾는 것이 핵심입니다."</p>
+                    )}
+                </div>
+             </div>
+
+             <div className="flex gap-4 justify-center">
+                <Button onClick={() => setStage('intro')} variant="outline">홈으로</Button>
+                {currentQIndex < QUESTION_SET.length - 1 && (
+                    <Button onClick={() => startTest(currentQIndex + 1)} variant="primary">
+                        다음 유형 체험 <ArrowRight size={16}/>
+                    </Button>
+                )}
+             </div>
+          </Card>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="font-sans text-slate-900 bg-slate-50 min-h-screen">
+      {stage === 'intro' && <IntroScreen />}
+      {stage === 'test' && <TestScreen />}
+      {stage === 'analyzing' && <AnalysisScreen />}
+      {stage === 'result' && <ResultScreen />}
+    </div>
+  );
+}
