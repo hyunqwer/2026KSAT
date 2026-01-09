@@ -1,1013 +1,745 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>미니 수능 체험 | 수능 역량 체감 사이트</title>
-  <style>
-    :root{
-      --bg:#0b1020;
-      --panel:#101a33;
-      --text:#e9eefc;
-      --muted:#b7c3e6;
-      --muted2:#8fa1d6;
-      --line:rgba(255,255,255,.10);
-      --accent:#7aa2ff;
-      --accent2:#59e3c2;
-      --shadow:0 18px 55px rgba(0,0,0,.45);
-      --radius:16px;
-      --radius2:22px;
-      --max:1080px;
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+import React, { useState, useEffect } from 'react';
+import { Play, Pause, ChevronRight, ChevronLeft, CheckCircle, XCircle, RefreshCw, BookOpen, Volume2, HelpCircle, X, Award, BarChart } from 'lucide-react';
+
+/**
+ * ==================================================================================
+ * 1. MOCK DATA & CONFIGURATION
+ * 2026 수능 시험지를 기반으로 초3~고3 수준별로 변형한 전체 문항 데이터입니다.
+ * ==================================================================================
+ */
+
+const GRADES = [
+  "초3", "초4", "초5", "초6",
+  "중1", "중2", "중3",
+  "고1", "고2", "고3"
+];
+
+const MOCK_DB = {
+  // ========================================================================
+  // [초등] 4지 선다, 직관적 지문, 친절한 해설
+  // ========================================================================
+  "초3": [
+    {
+      id: "E3_L_01",
+      origin: "2026 수능 1번 변형",
+      type: "listening",
+      audioUrl: "mock-audio-e3-l-01.mp3",
+      prompt: "[1~2] 다음을 듣고, 남자가 하는 말의 목적으로 알맞은 것을 고르시오.",
+      script: "M: Hello, students. Tomorrow is our school picnic. Please bring your lunch box and water. Let's meet at 9.",
+      options: ["소풍 준비물을 알리려고", "생일 파티에 초대하려고", "학교 청소를 하려고", "숙제를 내려고"],
+      answer: 0,
+      explanation: "남자가 'Please bring your lunch box'(점심 도시락을 가져오세요)라고 말하며 소풍 준비물을 안내하고 있어요."
+    },
+    {
+      id: "E3_R_18",
+      origin: "2026 수능 18번 변형",
+      type: "reading",
+      prompt: "다음 글의 목적으로 알맞은 것을 고르시오.",
+      passage: "Dear Minji,\nHappy Birthday! Come to my house this Saturday. Let's eat cake and play games together.\nFrom, Sujin",
+      options: ["초대하려고", "사과하려고", "빌려주려고", "질문하려고"],
+      answer: 0,
+      explanation: "수진이가 민지에게 'Come to my house'(우리 집에 와)라고 말하며 생일 파티에 초대하고 있습니다."
     }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;
-      font-family:var(--sans);
-      background: radial-gradient(1200px 700px at 20% -10%, rgba(122,162,255,.35), transparent 55%),
-                  radial-gradient(900px 600px at 90% 20%, rgba(89,227,194,.22), transparent 55%),
-                  linear-gradient(180deg, #070b16, var(--bg));
-      color:var(--text);
+  ],
+  "초4": [
+    {
+      id: "E4_L_04",
+      origin: "2026 수능 4번 변형",
+      type: "listening",
+      audioUrl: "mock-audio-e4-l-04.mp3",
+      prompt: "대화를 듣고, 그림 속 고양이의 위치로 알맞은 것을 고르시오.",
+      script: "W: Look at the cat! It is so cute.\nM: Where is it?\nW: It is sleeping under the bench.",
+      options: ["벤치 아래", "벤치 위", "나무 뒤", "지붕 위"],
+      answer: 0,
+      explanation: "여자가 고양이가 'under the bench'(벤치 아래)에서 자고 있다고 말했습니다."
+    },
+    {
+      id: "E4_R_26",
+      origin: "2026 수능 26번 변형",
+      type: "reading",
+      prompt: "다음 글을 읽고, 펭귄에 대한 내용과 일치하는 것을 고르시오.",
+      passage: "Penguins are birds, but they cannot fly. They are very good swimmers. They live in cold places like Antarctica.",
+      options: ["하늘을 잘 난다.", "수영을 잘한다.", "더운 곳에 산다.", "물고기가 아니다."],
+      answer: 1,
+      explanation: "지문에서 'They are very good swimmers'(그들은 매우 훌륭한 수영 선수입니다)라고 했습니다."
     }
-    a{color:inherit; text-decoration:none}
-    button{font-family:inherit}
-
-    .topbar{
-      position:sticky; top:0; z-index:50;
-      backdrop-filter: blur(10px);
-      background:rgba(7,11,22,.65);
-      border-bottom:1px solid var(--line);
+  ],
+  "초5": [
+    {
+      id: "E5_L_06",
+      origin: "2026 수능 6번 변형",
+      type: "listening",
+      audioUrl: "mock-audio-e5-l-06.mp3",
+      prompt: "대화를 듣고, 여자가 지불할 금액을 고르시오.",
+      script: "M: Can I help you?\nW: Yes, I want to buy this notebook.\nM: It is 1,000 won.\nW: Okay. I will buy two notebooks.",
+      options: ["1,000원", "2,000원", "3,000원", "4,000원"],
+      answer: 1,
+      explanation: "1,000원짜리 공책을 2권 산다고 했으므로, 1,000 x 2 = 2,000원입니다."
+    },
+    {
+      id: "E5_R_19",
+      origin: "2026 수능 19번 변형",
+      type: "reading",
+      prompt: "다음 글에 드러난 'I'의 심정으로 알맞은 것은?",
+      passage: "I lost my favorite toy car in the park. I looked everywhere, but I couldn't find it. Tears came out of my eyes.",
+      options: ["슬픈", "기쁜", "신난", "자랑스러운"],
+      answer: 0,
+      explanation: "아끼던 장난감을 잃어버려서 눈물이 났으므로(Tears came out), 심정은 '슬픈(sad)'이 맞습니다."
     }
-    .topbar-inner{
-      max-width:var(--max);
-      margin:0 auto;
-      padding:14px 18px;
-      display:flex;
-      gap:14px;
-      align-items:center;
-      justify-content:space-between;
+  ],
+  "초6": [
+    {
+      id: "E6_L_07",
+      origin: "2026 수능 7번 변형",
+      type: "listening",
+      audioUrl: "mock-audio-e6-l-07.mp3",
+      prompt: "대화를 듣고, 남자가 축구를 할 수 없는 이유를 고르시오.",
+      script: "W: Do you want to play soccer with us?\nM: I'd love to, but I can't.\nW: Why not?\nM: I hurt my leg yesterday.",
+      options: ["다리를 다쳐서", "숙제가 많아서", "비가 와서", "학원에 가야 해서"],
+      answer: 0,
+      explanation: "남자가 'I hurt my leg'(나 다리를 다쳤어)라고 이유를 설명했습니다."
+    },
+    {
+      id: "E6_R_25",
+      origin: "2026 수능 25번 변형",
+      type: "reading",
+      prompt: "다음 도표의 내용과 일치하지 않는 것은?",
+      passage: "[Favorite Fruit]\n1. Apple: 50%\n2. Banana: 30%\n3. Grape: 20%\n\nThe text says apples are the most popular fruit. Half of the students like apples. Bananas are more popular than grapes.",
+      options: ["사과가 가장 인기가 많다.", "학생 절반이 사과를 좋아한다.", "포도가 바나나보다 인기가 많다.", "바나나는 2위이다."],
+      answer: 2,
+      explanation: "도표에서 바나나(30%)가 포도(20%)보다 더 높습니다. 따라서 포도가 더 인기 있다는 ③번은 틀린 내용입니다."
     }
-    .brand{display:flex; align-items:center; gap:10px; letter-spacing:-.2px;}
-    .logo{
-      width:36px; height:36px; border-radius:12px;
-      background: linear-gradient(135deg, rgba(122,162,255,.95), rgba(89,227,194,.95));
-      box-shadow: 0 12px 28px rgba(0,0,0,.28);
-      display:grid; place-items:center;
-      color:#081028; font-weight:900;
+  ],
+
+  // ========================================================================
+  // [중등] 5지 선다, 논리적 흐름, 기본 문법 및 독해
+  // ========================================================================
+  "중1": [
+    {
+      id: "M1_L_02",
+      origin: "2026 수능 2번 변형",
+      type: "listening",
+      audioUrl: "mock-audio-m1-l-02.mp3",
+      prompt: "대화를 듣고, 여자의 의견으로 가장 적절한 것을 고르시오.",
+      script: "M: You look healthy. What is your secret?\nW: I go jogging every morning. It gives me energy for the day.\nM: Is it hard to wake up early?\nW: A little, but morning exercise is great for your health.",
+      options: ["아침 운동은 건강에 유익하다.", "일찍 일어나는 것은 피곤하다.", "친구와 함께 운동해야 한다.", "저녁 식사를 가볍게 해야 한다.", "물은 많이 마실수록 좋다."],
+      answer: 0,
+      explanation: "여자는 아침 운동이 건강에 좋고(great for health), 하루의 에너지를 준다고 말하고 있습니다."
+    },
+    {
+      id: "M1_R_20",
+      origin: "2026 수능 20번 변형",
+      type: "reading",
+      prompt: "다음 글에서 필자가 주장하는 바로 가장 적절한 것은?",
+      passage: "Many students stay up late to play games. However, sleep is very important for your brain. If you sleep well, you can study better the next day. You should go to bed early for your health.",
+      options: ["건강을 위해 일찍 잠자리에 들어야 한다.", "게임은 스트레스 해소에 도움이 된다.", "공부 계획을 철저히 세워야 한다.", "아침 식사를 거르지 말아야 한다.", "잠자기 전에 독서를 해야 한다."],
+      answer: 0,
+      explanation: "필자는 잠이 뇌에 중요하며, 건강을 위해 일찍 자야 한다(You should go to bed early)고 주장합니다."
     }
-    .brand-title{font-weight:800}
-    .brand-sub{font-size:12px; color:var(--muted2)}
-    .nav{display:flex; gap:10px; align-items:center; flex-wrap:wrap;}
-    .pill{
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.04);
-      color:var(--muted);
-      padding:8px 10px;
-      border-radius:999px;
-      font-size:13px;
+  ],
+  "중2": [
+    {
+      id: "M2_L_03",
+      origin: "2026 수능 3번 변형",
+      type: "listening",
+      audioUrl: "mock-audio-m2-l-03.mp3",
+      prompt: "다음을 듣고, 남자가 하는 말의 요지로 가장 적절한 것을 고르시오.",
+      script: "M: Today, I'll talk about recycling. We use too much paper and plastic. Recycling saves trees and keeps the earth clean. Please separate your trash correctly.",
+      options: ["재활용을 생활화해야 한다.", "일회용품 사용을 늘려야 한다.", "쓰레기통을 자주 비워야 한다.", "종이보다 플라스틱이 낫다.", "나무를 많이 심어야 한다."],
+      answer: 0,
+      explanation: "남자는 재활용이 지구를 깨끗하게 하므로 쓰레기를 잘 분리해서 재활용하자고 말하고 있습니다."
+    },
+    {
+      id: "M2_R_22",
+      origin: "2026 수능 22번 변형",
+      type: "reading",
+      prompt: "다음 글의 요지로 가장 적절한 것은?",
+      passage: "Teamwork is essential in sports. A star player cannot win the game alone. To win, you must pass the ball and trust your teammates. Cooperation brings the best results.",
+      options: ["스포츠에서는 팀워크가 승리의 열쇠다.", "꾸준한 연습만이 실력을 향상시킨다.", "경쟁보다는 즐기는 것이 중요하다.", "훌륭한 리더가 팀을 승리로 이끈다.", "규칙을 준수하는 태도가 필요하다."],
+      answer: 0,
+      explanation: "혼자서는 이길 수 없으며 협력(cooperation)이 최고의 결과를 가져온다는 내용이므로 '팀워크가 승리의 열쇠다'가 요지입니다."
     }
-    .pill strong{color:var(--text)}
-
-    .container{max-width:var(--max); margin:0 auto; padding:22px 18px 60px}
-
-    .hero{
-      padding:26px 0 10px;
-      display:grid;
-      grid-template-columns: 1.3fr .7fr;
-      gap:18px;
-      align-items:stretch;
+  ],
+  "중3": [
+    {
+      id: "M3_L_11",
+      origin: "2026 수능 11번 변형",
+      type: "listening",
+      audioUrl: "mock-audio-m3-l-11.mp3",
+      prompt: "대화를 듣고, 여자의 마지막 말에 대한 남자의 응답으로 가장 적절한 것을 고르시오.",
+      script: "W: Hey, look at the time! We are going to be late for the movie.\nM: Don't worry. The bus is coming soon.\nW: But there is heavy traffic. What if we miss the beginning?",
+      options: [
+        "Don't worry. It's not a big deal.",
+        "Then, let's take the subway instead.",
+        "I think the movie was boring.",
+        "You should buy the tickets now.",
+        "The bus stop is over there."
+      ],
+      answer: 1,
+      explanation: "차가 막혀서(heavy traffic) 늦을까 봐 걱정하는 상황이므로, 대안으로 '지하철을 타자'고 제안하는 것이 자연스럽습니다."
+    },
+    {
+      id: "M3_R_31",
+      origin: "2026 수능 31번 변형",
+      type: "reading",
+      prompt: "다음 빈칸에 들어갈 말로 가장 적절한 것을 고르시오.",
+      passage: "Reading books opens new worlds for us. It allows us to travel to different countries without moving our feet. Through books, we can experience ______ lives and cultures.",
+      options: ["boring", "similar", "different", "expensive", "heavy"],
+      answer: 2,
+      explanation: "책을 통해 새로운 세상을 보고 움직이지 않고도 여행한다고 했으므로, '다른(different)' 삶과 문화를 경험한다는 것이 문맥상 적절합니다."
     }
-    @media (max-width: 920px){ .hero{grid-template-columns: 1fr;} }
+  ],
 
-    .card{
-      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
-      border:1px solid var(--line);
-      border-radius:var(--radius2);
-      box-shadow:var(--shadow);
-      overflow:hidden;
+  // ========================================================================
+  // [고등] 5지 선다, 수능형 논리, 추상적 개념, 복합적 사고
+  // ========================================================================
+  "고1": [
+    {
+      id: "H1_L_03",
+      origin: "2026 수능 3번 변형",
+      type: "listening",
+      audioUrl: "mock-audio-h1-l-03.mp3",
+      prompt: "다음을 듣고, 남자가 하는 말의 요지로 가장 적절한 것을 고르시오.",
+      script: "M: Do you get nervous before a presentation? Here is a tip. Make a 'big pose' like a superhero. Stretch your arms out wide. This signals to your brain that you are powerful. It effectively reduces your anxiety.",
+      options: ["큰 자세를 취하면 불안감을 줄일 수 있다.", "발표 준비는 철저히 하는 것이 중요하다.", "적당한 긴장감은 집중력을 높여준다.", "자신감은 성공적인 발표의 핵심이다.", "규칙적인 스트레칭은 건강에 필수적이다."],
+      answer: 0,
+      explanation: "발표 전 긴장될 때 'big pose'를 취하면 뇌에 신호를 보내 불안감을 줄여준다는 것이 요지입니다."
+    },
+    {
+      id: "H1_R_21",
+      origin: "2026 수능 21번 변형",
+      type: "reading",
+      prompt: "밑줄 친 'make work less sticky'가 다음 글에서 의미하는 바로 가장 적절한 것은?",
+      passage: "Digital platforms have changed how we work. In the past, work was tied to a specific place. But now, digital platforms have made work less sticky. A company in New York can hire a worker in Seoul instantly. Location matters less now.",
+      options: ["일자리의 지역적 제약을 없애주었다.", "업무 처리 속도를 획기적으로 높였다.", "직장 내 인간관계를 끈끈하게 만들었다.", "복잡한 업무 절차를 단순화시켰다.", "고용주와 근로자의 관계를 강화했다."],
+      answer: 0,
+      explanation: "'Sticky'는 장소에 고착된 것을 의미합니다. 디지털 플랫폼이 이를 덜하게 만들었다는 것은 장소에 구애받지 않게 되었다는 의미입니다."
     }
-    .card-pad{padding:18px}
-
-    .hero h1{
-      margin:0;
-      font-size:38px;
-      line-height:1.12;
-      letter-spacing:-.8px;
+  ],
+  "고2": [
+    {
+      id: "H2_L_13",
+      origin: "2026 수능 13번 변형",
+      type: "listening",
+      audioUrl: "mock-audio-h2-l-13.mp3",
+      prompt: "대화를 듣고, 여자의 마지막 말에 대한 남자의 응답으로 가장 적절한 것을 고르시오.",
+      script: "W: I ordered a DIY chair, but one of the legs is scratched.\nM: I'm sorry. Is the rest of the chair okay?\nW: Yes, only the left front leg is damaged. I don't need a whole new set.",
+      options: [
+        "Then, we'll send you a replacement part right away.",
+        "You can buy a new chair at the store.",
+        "Please return the whole set for a refund.",
+        "It takes a long time to assemble the chair.",
+        "The scratch is not a big problem."
+      ],
+      answer: 0,
+      explanation: "여자가 전체 세트는 필요 없고 다리 하나만 문제라고 했으므로, '그럼 교체 부품만 바로 보내드리겠습니다'가 가장 적절한 응답입니다."
+    },
+    {
+      id: "H2_R_33",
+      origin: "2026 수능 33번 변형",
+      type: "reading",
+      prompt: "다음 빈칸에 들어갈 말로 가장 적절한 것을 고르시오.",
+      passage: "Designing a building requires more than just the architect's idea. It is crucial to listen to the people who will use the building. Users like doctors or patients know what they need best. People are likely to be more satisfied with a new building if they ______.",
+      options: [
+        "have been consulted in the design process",
+        "pay for the construction costs",
+        "design the building by themselves",
+        "are ignored by the architects",
+        "visit the building only once"
+      ],
+      answer: 0,
+      explanation: "건물을 실제로 사용할 사람들의 의견을 듣는 것이 중요하다고 했으므로, 그들이 '설계 과정에서 상담(의견 청취)을 받았다면' 더 만족할 것입니다."
     }
-    .hero p{color:var(--muted); margin:12px 0 0; font-size:16px; line-height:1.6}
-
-    .cta-row{display:flex; gap:10px; flex-wrap:wrap; margin-top:16px}
-    .btn{
-      cursor:pointer;
-      border:none;
-      padding:12px 14px;
-      border-radius:14px;
-      font-weight:800;
-      letter-spacing:-.2px;
-      display:inline-flex;
-      align-items:center;
-      gap:10px;
-      box-shadow: 0 18px 40px rgba(0,0,0,.28);
-      transition: transform .12s ease, filter .12s ease;
-      user-select:none;
+  ],
+  "고3": [
+    {
+      id: "H3_L_16",
+      origin: "2026 수능 16번 변형",
+      type: "listening",
+      audioUrl: "mock-audio-h3-l-16.mp3",
+      prompt: "다음을 듣고, 여자가 하는 말의 주제로 가장 적절한 것을 고르시오.",
+      script: "W: Today, let's talk about plants used in science. Bamboo grows very fast, so it helps study climate change. Peas grow quickly too, which helped Mendel study genetics. These fast-growing plants are perfect for experiments.",
+      options: [
+        "fast growing plants used for science experiments",
+        "how to grow bamboo in your garden",
+        "the history of genetic engineering",
+        "effects of climate change on plants",
+        "nutritional benefits of eating peas"
+      ],
+      answer: 0,
+      explanation: "여자는 대나무, 완두콩 등 빨리 자라는 식물들이 과학 실험에 어떻게 활용되는지 설명하고 있으므로 주제는 ①번입니다."
+    },
+    {
+      id: "H3_R_34",
+      origin: "2026 수능 34번 변형",
+      type: "reading",
+      prompt: "다음 빈칸에 들어갈 말로 가장 적절한 것을 고르시오.",
+      passage: "Kant believed that the rule of law guarantees freedom. However, this is not because people are naturally good. Even 'a nation of devils' can live in peace if the laws are effective. The law forces us to act correctly. Therefore, the law cannot be ______.",
+      options: [
+        "regarded as reasonably confining human liberty",
+        "seen as unnecessary for modern society",
+        "created without the consent of the people",
+        "changed easily by the government",
+        "ignored by the judges in the court"
+      ],
+      answer: 0,
+      explanation: "칸트는 법이 자유를 보장한다고 보았습니다. 비록 법이 강제성을 띠더라도 그것은 평화와 공존을 위한 것이므로, 법이 '합리적으로 인간의 자유를 구속한다고 간주될 수 없다(자유를 침해하는 것이 아니다)'는 논리입니다. (수능 원문의 핵심 논리 변형)"
     }
-    .btn:hover{transform: translateY(-1px)}
-    .btn:active{transform: translateY(0)}
-    .btn-primary{
-      background: linear-gradient(135deg, rgba(122,162,255,1), rgba(89,227,194,1));
-      color:#071024;
-    }
-    .btn-ghost{
-      background:rgba(255,255,255,.05);
-      color:var(--text);
-      border:1px solid var(--line);
-      box-shadow:none;
-    }
+  ]
+};
 
-    .notice{
-      border-top:1px solid var(--line);
-      padding:14px 18px;
-      background:linear-gradient(180deg, rgba(255,211,110,.12), rgba(255,255,255,.02));
-      color:var(--muted);
-      font-size:13px;
-      line-height:1.55;
-    }
-    .notice b{color:var(--text)}
+/**
+ * ==================================================================================
+ * 2. MOCK API SERVICE
+ * ==================================================================================
+ */
+const apiService = {
+  fetchQuestions: async (grade) => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        // 데이터가 없는 경우를 대비한 방어 코드
+        const data = MOCK_DB[grade] || MOCK_DB["고1"];
+        resolve(data);
+      }, 600); // 약간 더 빠른 반응 속도
+    });
+  },
+  
+  generateAudio: async (script) => {
+    console.log(`[API] Generating TTS for: "${script}"`);
+    return new Promise((resolve) => setTimeout(() => resolve(true), 1000));
+  }
+};
 
-    .sidebox{display:flex; flex-direction:column; gap:12px; height:100%;}
-    .mini{
-      border:1px solid var(--line);
-      border-radius:var(--radius);
-      background:rgba(255,255,255,.04);
-      padding:14px;
-    }
-    .mini h3{margin:0 0 8px; font-size:14px}
-    .mini p{margin:0; color:var(--muted); font-size:13px; line-height:1.55}
+/**
+ * ==================================================================================
+ * 3. COMPONENTS
+ * ==================================================================================
+ */
 
-    .section{margin-top:18px}
-    .section h2{margin:0 0 10px; font-size:20px; letter-spacing:-.3px}
-    .section .lead{margin:0; color:var(--muted); line-height:1.6}
+const AudioPlayer = ({ script, onPlay }) => {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
 
-    .grid{
-      margin-top:12px;
-      display:grid;
-      grid-template-columns: repeat(12, 1fr);
-      gap:12px;
-    }
-    .col-6{grid-column: span 6}
-    .col-12{grid-column: span 12}
-    @media (max-width: 920px){ .col-6{grid-column: span 12} }
-
-    .badge{
-      display:inline-flex; align-items:center; gap:8px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.04);
-      padding:6px 10px;
-      border-radius:999px;
-      font-size:12px;
-      color:var(--muted);
-    }
-    .divider{height:1px; background:var(--line); margin:14px 0}
-
-    .tabs{display:flex; gap:8px; flex-wrap:wrap;}
-    .tab{
-      cursor:pointer;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.04);
-      color:var(--muted);
-      padding:10px 12px;
-      border-radius:14px;
-      font-weight:800;
-      letter-spacing:-.2px;
-      user-select:none;
-    }
-    .tab.active{
-      background:rgba(122,162,255,.18);
-      color:var(--text);
-      border-color: rgba(122,162,255,.35);
-    }
-
-    .panel-title{display:flex; align-items:center; justify-content:space-between; gap:10px}
-    .panel-title h3{margin:0; font-size:16px}
-    .small{font-size:12px; color:var(--muted2)}
-
-    .stepper{display:flex; gap:8px; flex-wrap:wrap}
-    .step{
-      padding:8px 10px;
-      border-radius:999px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.04);
-      color:var(--muted);
-      font-size:12px;
-    }
-    .step.on{
-      background:rgba(89,227,194,.14);
-      border-color: rgba(89,227,194,.28);
-      color:var(--text);
-    }
-
-    .textarea{
-      width:100%;
-      min-height:160px;
-      border:1px solid var(--line);
-      border-radius:14px;
-      background:rgba(7,11,22,.35);
-      color:var(--text);
-      padding:12px;
-      line-height:1.65;
-      resize:vertical;
-      outline:none;
-    }
-
-    .q{
-      margin-top:12px;
-      padding:12px;
-      border-radius:14px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.03);
-    }
-    .q h4{margin:0 0 8px; font-size:14px}
-
-    .choices{display:grid; gap:8px}
-    .choice{
-      display:flex; align-items:flex-start; gap:10px;
-      padding:10px 10px;
-      border-radius:14px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.03);
-      cursor:pointer;
-      user-select:none;
-    }
-    .choice input{margin-top:3px}
-    .choice:hover{background:rgba(255,255,255,.06)}
-    .choice small{color:var(--muted)}
-
-    .checkgrid{
-      display:grid;
-      grid-template-columns: repeat(2, minmax(0,1fr));
-      gap:10px;
-      margin-top:10px;
-    }
-    @media (max-width: 720px){ .checkgrid{grid-template-columns: 1fr} }
-
-    .kitem{
-      padding:10px;
-      border-radius:14px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.03);
-    }
-    .kitem label{display:block; font-weight:800; font-size:13px; margin-bottom:8px}
-    .kitem .opts{display:flex; gap:8px; flex-wrap:wrap}
-    .chip{
-      display:inline-flex; align-items:center; gap:8px;
-      padding:8px 10px;
-      border-radius:999px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.03);
-      cursor:pointer;
-      user-select:none;
-      color:var(--muted);
-      font-size:12px;
-      font-weight:800;
-    }
-    .chip.on{
-      background:rgba(122,162,255,.18);
-      border-color: rgba(122,162,255,.35);
-      color:var(--text);
-    }
-
-    .row{
-      display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap;
-      margin-top:12px;
-    }
-
-    .result{
-      padding:14px;
-      border-radius:var(--radius2);
-      border:1px solid var(--line);
-      background:linear-gradient(180deg, rgba(89,227,194,.10), rgba(255,255,255,.02));
-    }
-    .result h3{margin:0 0 6px; font-size:16px}
-    .result p{margin:0; color:var(--muted); line-height:1.6}
-
-    .meter{display:grid; gap:8px; margin-top:10px;}
-    .mrow{
-      display:grid;
-      grid-template-columns: 170px 1fr;
-      gap:10px;
-      align-items:center;
-    }
-    @media (max-width: 720px){ .mrow{grid-template-columns: 1fr} }
-    .mrow .name{color:var(--muted); font-size:13px; font-weight:800}
-    .bar{
-      height:10px;
-      border-radius:999px;
-      background:rgba(255,255,255,.06);
-      border:1px solid var(--line);
-      overflow:hidden;
-    }
-    .bar > i{display:block; height:100%; width:40%; background:linear-gradient(90deg, rgba(122,162,255,.85), rgba(89,227,194,.85))}
-
-    details{
-      border:1px solid var(--line);
-      border-radius:14px;
-      background:rgba(255,255,255,.03);
-      padding:10px 12px;
-      margin-top:12px;
-    }
-    summary{cursor:pointer; font-weight:900; color:var(--text)}
-    details p{color:var(--muted); line-height:1.6; margin:10px 0 0}
-
-    .footer{
-      margin-top:26px;
-      color:var(--muted2);
-      font-size:12px;
-      line-height:1.6;
-      text-align:center;
-    }
-
-    .hidden{display:none !important}
-    .mono{font-family:var(--mono)}
-  </style>
-</head>
-<body>
-  <div class="topbar">
-    <div class="topbar-inner">
-      <div class="brand">
-        <div class="logo">S</div>
-        <div>
-          <div class="brand-title">미니 수능 체험</div>
-          <div class="brand-sub">수능 역량 체감 · 초·중등 상담용</div>
-        </div>
-      </div>
-      <div class="nav">
-        <a class="pill" href="#about"><strong>무엇을</strong> 체험하나요</a>
-        <a class="pill" href="#real"><strong>실제 수능</strong>과의 관계</a>
-        <a class="pill" href="#try"><strong>체험</strong> 시작</a>
-      </div>
-    </div>
-  </div>
-
-  <div class="container">
-    <!-- HERO -->
-    <div class="hero">
-      <div class="card">
-        <div class="card-pad">
-          <span class="badge">점수·등급 없음 · 평가 아님</span>
-          <h1>수능 영어,<br/>지금 풀 필요는 없습니다.</h1>
-          <p>
-            대신, 수능 수준의 영어를 <b>이해할 수 있는 사람</b>이 되려면 어떤 능력이 필요한지 먼저 알아보세요.
-            이 체험은 <b>문제풀이 요령</b>이 아니라 <b>언어 역량의 구조</b>를 체감하는 데 목적이 있습니다.
-          </p>
-          <div class="cta-row">
-            <button class="btn btn-primary" id="btnStart">체험 시작하기</button>
-            <button class="btn btn-ghost" id="btnScrollReal">실제 수능 문항 설명 보기</button>
-          </div>
-        </div>
-        <div class="notice" id="about">
-          <b>중요 안내</b><br/>
-          • 체험 문항은 <b>2026학년도 수능 영어 21번(읽기)·16번(듣기)</b>의 <b>구조와 기능</b>을 모델로 재구성한 <b>교육용 변형 지문</b>입니다.<br/>
-          • 실제 수능 원문은 <b>비교·설명용</b>으로만 제시되며, 체험 문항은 학년 수준에 맞게 재작성되었습니다.<br/>
-          • 이 체험은 <b>진단평가/레벨테스트</b>가 아니며, 결과는 <b>학습 방향</b>을 돕기 위한 참고 정보입니다.
-        </div>
-      </div>
-
-      <div class="sidebox">
-        <div class="mini">
-          <h3>이 체험에서 확인하는 것</h3>
-          <p>
-            긴 영어를 끝까지 따라가는 힘(지구력), 핵심을 붙잡는 힘(의미 통합),
-            낯선 소재에서도 이해를 유지하는 힘(소재 익숙함),
-            그리고 스스로 막힌 지점을 인식하는 힘(메타인지).
-          </p>
-        </div>
-        <div class="mini">
-          <h3>체험 구성</h3>
-          <p>
-            • 읽기 1문항(요지 파악) + 듣기 1문항(긴 담화 요지)<br/>
-            • 총 10~15분 내 완료<br/>
-            • 원하면 하단에서 <b>풀이/근거</b>를 선택적으로 확인
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <!-- REAL QUESTION SECTION -->
-    <div class="section" id="real">
-      <h2>실제 2026 수능 문항과의 관계</h2>
-      <p class="lead">
-        이 사이트는 실제 수능 문항(21번·16번)의 <b>구조와 기능</b>을 기준으로 체험을 설계합니다.
-        아래는 ‘왜 이 두 유형이 수능 역량을 잘 보여주는지’를 간단히 정리한 화면입니다.
-      </p>
-      <div class="grid">
-        <div class="card col-6">
-          <div class="card-pad">
-            <div class="panel-title">
-              <h3>읽기 21번 · 요지 파악</h3>
-              <span class="small">(원문은 비교·설명용)</span>
-            </div>
-            <div class="divider"></div>
-            <p style="margin:0; color:var(--muted); line-height:1.65">
-              요지 문항은 ‘요령’보다 <b>긴 글을 끝까지 읽고</b> 여러 문장을 <b>하나의 생각으로 묶는 힘</b>을 보여줍니다.
-              초·중등에게는 ‘지금 맞히기’가 아니라 ‘어떤 능력이 필요해지는지’를 체감시키기 좋은 유형입니다.
-            </p>
-            <div class="divider"></div>
-            <div class="badge">체험에서 보는 역량: 읽기 지구력 · 의미 통합 · 문장 안정성</div>
-          </div>
-        </div>
-        <div class="card col-6">
-          <div class="card-pad">
-            <div class="panel-title">
-              <h3>듣기 16번 · 긴 담화 요지</h3>
-              <span class="small">(원문은 비교·설명용)</span>
-            </div>
-            <div class="divider"></div>
-            <p style="margin:0; color:var(--muted); line-height:1.65">
-              16번은 짧은 응답형 듣기에서 벗어나 <b>끝까지 의미를 유지</b>해야 풀 수 있는 유형입니다.
-              발음/단어보다 <b>집중 지속</b>과 <b>정보 통합</b>이 핵심이어서 초·중등 체험에 적합합니다.
-            </p>
-            <div class="divider"></div>
-            <div class="badge">체험에서 보는 역량: 청취 지구력 · 의미 유지 · 메타인지</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- EXPERIENCE SECTION -->
-    <div class="section" id="try">
-      <h2>미니 수능 체험</h2>
-      <p class="lead">학년군을 선택하면, 같은 구조의 문항을 <b>수준에 맞게 재작성한 체험 지문</b>으로 진행합니다.</p>
-
-      <div class="grid">
-        <div class="card col-12">
-          <div class="card-pad">
-            <div class="panel-title">
-              <h3>학년군 선택</h3>
-              <span class="small">(예시 콘텐츠 · 운영 시 학년군 확장 가능)</span>
-            </div>
-            <div class="divider"></div>
-            <div class="tabs" role="tablist" aria-label="학년군">
-              <div class="tab active" data-level="A" role="tab" aria-selected="true">초등 고학년(4–6)</div>
-              <div class="tab" data-level="B" role="tab" aria-selected="false">중1–2</div>
-              <div class="tab" data-level="C" role="tab" aria-selected="false">중3–고1</div>
-            </div>
-
-            <div class="divider"></div>
-
-            <div class="stepper" aria-label="진행 단계">
-              <div class="step on" id="step1">1) 읽기</div>
-              <div class="step" id="step2">2) 듣기</div>
-              <div class="step" id="step3">3) 결과</div>
-            </div>
-
-            <!-- Reading Panel -->
-            <div id="panelReading" class="section" style="margin-top:14px">
-              <div class="panel-title">
-                <h3>읽기 체험 (요지 파악)</h3>
-                <span class="small">점수 대신 ‘느낌’을 기록합니다</span>
-              </div>
-              <p class="small" style="margin-top:8px">
-                아래 글을 읽고, <b>글이 말하고자 하는 중심 생각</b>이 무엇인지 가장 가까운 선택지를 고르세요.
-              </p>
-
-              <textarea class="textarea" id="readingText" readonly></textarea>
-
-              <div class="q">
-                <h4>Q1. 이 글의 중심 생각으로 가장 알맞은 것은?</h4>
-                <div class="choices" id="readingChoices"></div>
-              </div>
-
-              <div class="checkgrid">
-                <div class="kitem">
-                  <label>읽고 난 뒤, 핵심이 얼마나 분명했나요?</label>
-                  <div class="opts" data-group="read_clarity">
-                    <span class="chip" data-value="clear">분명했다</span>
-                    <span class="chip" data-value="some">대충 알겠는데 설명은 어려움</span>
-                    <span class="chip" data-value="unclear">잘 이해되지 않음</span>
-                  </div>
-                </div>
-                <div class="kitem">
-                  <label>모르는 단어(체감)는?</label>
-                  <div class="opts" data-group="read_vocab">
-                    <span class="chip" data-value="low">거의 없음</span>
-                    <span class="chip" data-value="mid">조금</span>
-                    <span class="chip" data-value="high">많음</span>
-                  </div>
-                </div>
-                <div class="kitem">
-                  <label>주제(소재)가 얼마나 익숙했나요? <span class="small">(선택)</span></label>
-                  <div class="opts" data-group="read_topic">
-                    <span class="chip" data-value="familiar">익숙함</span>
-                    <span class="chip" data-value="heard">들어본 적은 있음</span>
-                    <span class="chip" data-value="new">거의 처음</span>
-                  </div>
-                </div>
-                <div class="kitem">
-                  <label>가장 중요하다고 느낀 문장은?</label>
-                  <div class="opts" data-group="read_key">
-                    <span class="chip" data-value="s1">1문장</span>
-                    <span class="chip" data-value="s2">2문장</span>
-                    <span class="chip" data-value="s3">3문장</span>
-                    <span class="chip" data-value="s4">4문장</span>
-                    <span class="chip" data-value="s5">5문장</span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="row">
-                <button class="btn btn-ghost" id="btnReadingStartTimer">읽기 시작</button>
-                <button class="btn btn-ghost" id="btnReadingStopTimer">읽기 완료</button>
-                <span class="pill">읽기 시간: <strong id="readTime">-</strong></span>
-                <button class="btn btn-primary" id="btnNextToListening">다음: 듣기</button>
-              </div>
-
-              <details>
-                <summary>풀이/근거 보기 (선택)</summary>
-                <p>
-                  이 섹션은 ‘요령 학습’이 아니라, 한 번의 예시로 <b>근거를 확인하는 방식</b>을 보여주는 참고 자료입니다.
-                  실제 운영 시에는 선생님이 상담 상황에 맞춰 선택적으로 열람하도록 권장합니다.
-                </p>
-                <p class="mono" style="margin-top:10px">
-                  (예시) 힌트: 마지막 문장은 앞 내용을 ‘정리’하는 기능을 합니다. 정리 문장의 의미와 가장 가까운 선택지가 요지일 가능성이 큽니다.
-                </p>
-              </details>
-            </div>
-
-            <!-- Listening Panel -->
-            <div id="panelListening" class="section hidden" style="margin-top:14px">
-              <div class="panel-title">
-                <h3>듣기 체험 (긴 담화 요지)</h3>
-                <span class="small">현재는 ‘대본 보기’ 예시 · 운영 시 오디오로 대체</span>
-              </div>
-              <p class="small" style="margin-top:8px">
-                실제 수능은 정해진 횟수로 듣습니다. 이 체험은 <b>끝까지 의미를 유지하는 감각</b>에 초점을 둡니다.
-              </p>
-
-              <textarea class="textarea" id="listeningScript" readonly></textarea>
-
-              <div class="q">
-                <h4>Q2. 이 담화의 전체 요지로 가장 알맞은 것은?</h4>
-                <div class="choices" id="listeningChoices"></div>
-              </div>
-
-              <div class="checkgrid">
-                <div class="kitem">
-                  <label>듣는 동안, 흐름을 끝까지 유지했나요?</label>
-                  <div class="opts" data-group="listen_flow">
-                    <span class="chip" data-value="kept">끝까지 따라감</span>
-                    <span class="chip" data-value="lost">중간에 놓침</span>
-                    <span class="chip" data-value="none">거의 기억 안 남</span>
-                  </div>
-                </div>
-                <div class="kitem">
-                  <label>놓친 느낌이 든 지점은? <span class="small">(선택)</span></label>
-                  <div class="opts" data-group="listen_where">
-                    <span class="chip" data-value="front">앞</span>
-                    <span class="chip" data-value="mid">중간</span>
-                    <span class="chip" data-value="back">뒤</span>
-                  </div>
-                </div>
-                <div class="kitem">
-                  <label>주제(소재)가 얼마나 익숙했나요? <span class="small">(선택)</span></label>
-                  <div class="opts" data-group="listen_topic">
-                    <span class="chip" data-value="familiar">익숙함</span>
-                    <span class="chip" data-value="heard">들어본 적은 있음</span>
-                    <span class="chip" data-value="new">거의 처음</span>
-                  </div>
-                </div>
-                <div class="kitem">
-                  <label>듣고 난 뒤, 한 문장으로 요약할 수 있나요?</label>
-                  <div class="opts" data-group="listen_summary">
-                    <span class="chip" data-value="yes">가능</span>
-                    <span class="chip" data-value="maybe">느낌만</span>
-                    <span class="chip" data-value="no">어려움</span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="row">
-                <button class="btn btn-ghost" id="btnBackToReading">이전: 읽기</button>
-                <button class="btn btn-primary" id="btnFinish">결과 보기</button>
-              </div>
-
-              <details>
-                <summary>풀이/근거 보기 (선택)</summary>
-                <p>
-                  이 섹션은 전략 강의가 아니라, ‘전체 요지’를 잡을 때 어떤 부분이 핵심이 되는지 참고로 제공합니다.
-                </p>
-                <p class="mono" style="margin-top:10px">
-                  (예시) 핵심은 결론 문장(마지막 문장)의 메시지로 전체 내용을 한 줄로 정리하는 것입니다.
-                </p>
-              </details>
-            </div>
-
-            <!-- Results Panel -->
-            <div id="panelResult" class="section hidden" style="margin-top:14px">
-              <div class="panel-title">
-                <h3>결과 리포트</h3>
-                <span class="small">점수 대신 ‘필요 역량’을 정리합니다</span>
-              </div>
-              <div class="result" style="margin-top:10px">
-                <h3>오늘 체험에서 느낀 것</h3>
-                <p id="resultSummary">-</p>
-
-                <div class="meter">
-                  <div class="mrow">
-                    <div class="name">읽기 지구력(끝까지 읽기)</div>
-                    <div class="bar"><i id="barStamina"></i></div>
-                  </div>
-                  <div class="mrow">
-                    <div class="name">의미 통합(핵심 잡기)</div>
-                    <div class="bar"><i id="barMeaning"></i></div>
-                  </div>
-                  <div class="mrow">
-                    <div class="name">소재 익숙함(이해 촉진 요인)</div>
-                    <div class="bar"><i id="barTopic"></i></div>
-                  </div>
-                  <div class="mrow">
-                    <div class="name">메타인지(막힌 지점 인식)</div>
-                    <div class="bar"><i id="barMeta"></i></div>
-                  </div>
-                </div>
-
-                <details>
-                  <summary>상담 연결 코멘트(예시)</summary>
-                  <p>
-                    수능은 ‘특별한 문제풀이 기술’보다 <b>긴 영어를 끝까지 이해하는 힘</b>이 핵심입니다.
-                    오늘 체크 결과를 바탕으로, (1) 다양한 소재의 글을 꾸준히 접해 ‘낯섦’을 줄이고,
-                    (2) 문장 단위 이해를 안정화하며, (3) 읽기·듣기 지구력을 단계적으로 확장하는 학습이 필요합니다.
-                    (윤선생) 커리큘럼은 학년별로 텍스트 길이·소재·어휘를 누적 확장하는 구조로 이러한 역량 성장에 적합합니다.
-                  </p>
-                </details>
-              </div>
-
-              <div class="row">
-                <button class="btn btn-ghost" id="btnReset">다시 체험하기</button>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="footer">
-      본 페이지는 MVP용 프로토타입 HTML입니다. 운영 버전에서는 오디오 재생, 저장/출력, 문항 뱅크, 상담 리포트 자동 생성 기능을 추가할 수 있습니다.
-    </div>
-  </div>
-
-  <script>
-    // -------------------------------
-    // Data: level-based educational rewrites
-    // -------------------------------
-    const DATA = {
-      A: {
-        reading: {
-          text: [
-            "Many students think studying longer always leads to better results.",
-            "However, studying for too long without breaks can make learning harder.",
-            "When students get tired, they lose focus and remember less.",
-            "For example, students who take short breaks often understand their lessons better.",
-            "This shows that how you study can be more important than how long you study."
-          ],
-          choices: [
-            "Taking short breaks can help you learn better than studying for a long time without breaks.",
-            "Studying longer always leads to better results.",
-            "Short breaks are unnecessary if you focus hard.",
-            "The best way to learn is to study very slowly."
-          ]
-        },
-        listening: {
-          script: [
-            "Today, I want to talk about reading habits.",
-            "Some students think reading slowly is always the best way to understand a book.",
-            "Reading carefully is important, but reading too slowly can make it hard to follow the story.",
-            "When you practice reading often, you begin to read more smoothly.",
-            "Most importantly, try to enjoy reading instead of worrying too much about speed."
-          ],
-          choices: [
-            "Enjoy reading and practice regularly so you can understand better over time.",
-            "Reading slowly is the only way to understand a book.",
-            "You should avoid reading because it takes too much time.",
-            "Speed is more important than understanding."
-          ]
-        }
-      },
-      B: {
-        reading: {
-          text: [
-            "Many students believe that studying for a long time will naturally improve their performance.",
-            "However, research suggests that studying without breaks can reduce concentration and memory.",
-            "When mental fatigue builds up, learners often struggle to understand new information.",
-            "For instance, students who include short breaks in their study routine tend to learn more effectively.",
-            "Therefore, effective studying depends not only on time spent but also on how that time is managed."
-          ],
-          choices: [
-            "Studying effectively depends on how you manage your time, including taking breaks.",
-            "The longer you study, the better your performance will be.",
-            "Taking breaks makes students forget everything.",
-            "Only difficult materials improve concentration."
-          ]
-        },
-        listening: {
-          script: [
-            "Today, I’d like to discuss how reading habits affect understanding.",
-            "Many students believe that reading very slowly helps them understand everything clearly.",
-            "While careful reading is helpful, reading too slowly can interrupt the flow of the text.",
-            "With regular reading practice, students often improve both their speed and comprehension.",
-            "In the long run, enjoying reading is more important than focusing only on speed."
-          ],
-          choices: [
-            "Regular practice and enjoyment help improve reading and understanding over time.",
-            "Reading as slowly as possible guarantees perfect comprehension.",
-            "Speed is the only goal of reading.",
-            "You should stop reading when the text feels difficult."
-          ]
-        }
-      },
-      C: {
-        reading: {
-          text: [
-            "Many students assume that increasing study time will automatically lead to academic success.",
-            "However, cognitive research indicates that prolonged study sessions without breaks may negatively affect attention and memory.",
-            "As mental fatigue accumulates, learners are more likely to misinterpret or overlook important information.",
-            "For example, studies show that learners who take regular short breaks are better able to process and retain new knowledge.",
-            "This suggests that effective learning is determined not simply by duration, but by the quality and structure of study time."
-          ],
-          choices: [
-            "The quality and structure of study time, including breaks, matter more than study duration alone.",
-            "Academic success depends only on studying for longer hours.",
-            "Breaks reduce the ability to remember new knowledge.",
-            "Mental fatigue has no effect on learning outcomes."
-          ]
-        },
-        listening: {
-          script: [
-            "Today, I want to talk about the relationship between reading speed and comprehension.",
-            "Some students assume that reading slowly guarantees a full understanding of the text.",
-            "However, excessively slow reading can disrupt the overall flow and make it difficult to grasp the main idea.",
-            "Research shows that consistent reading practice helps learners develop both speed and deeper comprehension.",
-            "Ultimately, students who enjoy reading tend to make greater long-term progress."
-          ],
-          choices: [
-            "Consistent practice and enjoyment support both reading speed and comprehension in the long run.",
-            "Reading slowly always guarantees complete understanding.",
-            "The best readers never practice regularly.",
-            "Main ideas are less important than reading as fast as possible."
-          ]
-        }
-      }
-    };
-
-    // -------------------------------
-    // State
-    // -------------------------------
-    let level = 'A';
-    let readingStartAt = null;
-    let readingElapsed = null;
-
-    const state = {
-      readingChoice: null,
-      listeningChoice: null,
-      checks: {
-        read_clarity: null,
-        read_vocab: null,
-        read_topic: null,
-        read_key: null,
-        listen_flow: null,
-        listen_where: null,
-        listen_topic: null,
-        listen_summary: null,
-      }
-    };
-
-    // Elements
-    const tabs = Array.from(document.querySelectorAll('.tab'));
-    const readingText = document.getElementById('readingText');
-    const listeningScript = document.getElementById('listeningScript');
-    const readingChoices = document.getElementById('readingChoices');
-    const listeningChoices = document.getElementById('listeningChoices');
-
-    const step1 = document.getElementById('step1');
-    const step2 = document.getElementById('step2');
-    const step3 = document.getElementById('step3');
-
-    const panelReading = document.getElementById('panelReading');
-    const panelListening = document.getElementById('panelListening');
-    const panelResult = document.getElementById('panelResult');
-
-    const readTime = document.getElementById('readTime');
-
-    const btnStart = document.getElementById('btnStart');
-    const btnScrollReal = document.getElementById('btnScrollReal');
-
-    const btnReadingStartTimer = document.getElementById('btnReadingStartTimer');
-    const btnReadingStopTimer = document.getElementById('btnReadingStopTimer');
-    const btnNextToListening = document.getElementById('btnNextToListening');
-    const btnBackToReading = document.getElementById('btnBackToReading');
-    const btnFinish = document.getElementById('btnFinish');
-    const btnReset = document.getElementById('btnReset');
-
-    const resultSummary = document.getElementById('resultSummary');
-    const barStamina = document.getElementById('barStamina');
-    const barMeaning = document.getElementById('barMeaning');
-    const barTopic = document.getElementById('barTopic');
-    const barMeta = document.getElementById('barMeta');
-
-    // Helpers
-    function setActiveStep(n){
-      [step1,step2,step3].forEach(s=>s.classList.remove('on'));
-      if(n===1) step1.classList.add('on');
-      if(n===2) step2.classList.add('on');
-      if(n===3) step3.classList.add('on');
-    }
-
-    function showPanel(which){
-      panelReading.classList.add('hidden');
-      panelListening.classList.add('hidden');
-      panelResult.classList.add('hidden');
-      if(which==='reading'){panelReading.classList.remove('hidden'); setActiveStep(1);}
-      if(which==='listening'){panelListening.classList.remove('hidden'); setActiveStep(2);}
-      if(which==='result'){panelResult.classList.remove('hidden'); setActiveStep(3);}
-    }
-
-    function renderReading(){
-      const d = DATA[level].reading;
-      readingText.value = d.text.map((s,i)=>`${i+1}. ${s}`).join('\n');
-      readingChoices.innerHTML = '';
-      d.choices.forEach((c, idx)=>{
-        const div = document.createElement('label');
-        div.className = 'choice';
-        div.innerHTML = `
-          <input type="radio" name="reading" value="${idx}" ${state.readingChoice===idx? 'checked':''} />
-          <div>
-            <div><b>${String.fromCharCode(65+idx)}.</b> ${c}</div>
-            <small>※ 정답 여부가 핵심이 아닙니다. ‘중심 생각’을 한 문장으로 잡아보는 경험이 핵심입니다.</small>
-          </div>
-        `;
-        div.querySelector('input').addEventListener('change', ()=>{state.readingChoice = idx;});
-        readingChoices.appendChild(div);
-      });
-    }
-
-    function renderListening(){
-      const d = DATA[level].listening;
-      listeningScript.value = d.script.map((s,i)=>`${i+1}. ${s}`).join('\n');
-      listeningChoices.innerHTML = '';
-      d.choices.forEach((c, idx)=>{
-        const div = document.createElement('label');
-        div.className = 'choice';
-        div.innerHTML = `
-          <input type="radio" name="listening" value="${idx}" ${state.listeningChoice===idx? 'checked':''} />
-          <div>
-            <div><b>${String.fromCharCode(65+idx)}.</b> ${c}</div>
-            <small>※ ‘끝까지 의미를 유지했는지’에 집중해 주세요.</small>
-          </div>
-        `;
-        div.querySelector('input').addEventListener('change', ()=>{state.listeningChoice = idx;});
-        listeningChoices.appendChild(div);
-      });
-    }
-
-    function bindChips(){
-      document.querySelectorAll('.opts').forEach(group=>{
-        const key = group.dataset.group;
-        group.querySelectorAll('.chip').forEach(chip=>{
-          chip.addEventListener('click', ()=>{
-            group.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));
-            chip.classList.add('on');
-            state.checks[key] = chip.dataset.value;
-          });
+  useEffect(() => {
+    let interval;
+    if (isPlaying) {
+      interval = setInterval(() => {
+        setProgress((prev) => {
+          if (prev >= 100) {
+            setIsPlaying(false);
+            return 0;
+          }
+          return prev + 1.5; // 재생 속도 조절
         });
-      });
+      }, 50);
+    } else {
+      clearInterval(interval);
     }
+    return () => clearInterval(interval);
+  }, [isPlaying]);
 
-    function resetChecksUI(){
-      document.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));
-      Object.keys(state.checks).forEach(k=>state.checks[k]=null);
+  const togglePlay = () => {
+    if (!isPlaying) {
+      if (progress === 0 && onPlay) onPlay();
     }
+    setIsPlaying(!isPlaying);
+  };
 
-    function fmtMs(ms){
-      const s = Math.max(0, Math.round(ms/1000));
-      const m = Math.floor(s/60);
-      const r = s%60;
-      return (m>0? `${m}분 ${r}초` : `${r}초`);
-    }
+  return (
+    <div className="bg-slate-50 p-4 rounded-xl mb-6 flex items-center space-x-4 border border-slate-200 select-none">
+      <button 
+        onClick={togglePlay}
+        className="w-12 h-12 rounded-full bg-[#0077c8] text-white flex items-center justify-center hover:bg-blue-600 transition-colors shadow-md flex-shrink-0 active:scale-95"
+      >
+        {isPlaying ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" className="ml-1" />}
+      </button>
+      <div className="flex-1">
+        <div className="flex justify-between text-xs text-slate-500 mb-2 font-medium">
+          <span className="flex items-center"><Volume2 size={12} className="mr-1"/> Listening Test Audio</span>
+          <span>{isPlaying ? "Playing..." : "00:00 / 01:30"}</span>
+        </div>
+        <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
+          <div 
+            className="h-full bg-[#0077c8] transition-all duration-100 ease-linear"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
 
-    function widthFor(n){ return Math.max(8, Math.min(92, n)); }
+const QuestionCard = ({ question, currentAnswer, onAnswer }) => {
+  return (
+    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-500">
+      {/* Header Info */}
+      <div className="px-5 py-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+        <div className="flex items-center space-x-2">
+          <span className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${question.type === 'listening' ? 'bg-indigo-100 text-indigo-700' : 'bg-emerald-100 text-emerald-700'}`}>
+            {question.type === 'listening' ? 'Listening' : 'Reading'}
+          </span>
+          <span className="text-slate-400 text-xs font-mono">{question.id}</span>
+        </div>
+        {question.origin && (
+          <span className="text-[10px] text-slate-500 bg-white border border-slate-200 px-2 py-0.5 rounded-full">
+            {question.origin}
+          </span>
+        )}
+      </div>
 
-    function computeBars(){
-      // Heuristic visualization. Not a score.
-      let stamina = 40;
-      if(readingElapsed !== null) stamina += 20;
-      if(state.checks.listen_flow === 'kept') stamina += 25;
-      if(state.checks.listen_flow === 'lost') stamina += 10;
+      <div className="p-6">
+        {/* Prompt (Instruction) */}
+        <h3 className="text-lg font-bold text-slate-900 leading-snug mb-6 whitespace-pre-line">
+          {question.prompt}
+        </h3>
 
-      let meaning = 35;
-      if(state.checks.read_clarity === 'clear') meaning += 25;
-      if(state.checks.read_clarity === 'some') meaning += 15;
-      if(state.checks.read_clarity === 'unclear') meaning += 5;
-      if(state.checks.listen_summary === 'yes') meaning += 20;
-      if(state.checks.listen_summary === 'maybe') meaning += 10;
+        {/* Content Area */}
+        {question.type === 'listening' && (
+          <AudioPlayer script={question.script} onPlay={() => apiService.generateAudio(question.script)} />
+        )}
 
-      const map = v => (v==='familiar'? 65 : v==='heard'? 45 : v==='new'? 25 : 35);
-      let topic = Math.round((map(state.checks.read_topic) + map(state.checks.listen_topic))/2);
+        {question.passage && (
+          <div className="bg-[#f8fafc] p-6 rounded-xl border border-slate-200 mb-8 font-serif text-slate-700 leading-relaxed text-[15px] lg:text-base shadow-inner">
+            {question.passage.split('\n').map((line, i) => (
+              <p key={i} className={line ? "mb-4 last:mb-0" : "h-4"}>{line}</p>
+            ))}
+          </div>
+        )}
 
-      let meta = 25;
-      const reflectiveKeys = ['read_clarity','read_vocab','read_key','listen_flow','listen_where','listen_summary'];
-      reflectiveKeys.forEach(k=>{ if(state.checks[k]) meta += 10; });
+        {/* Options */}
+        <div className="space-y-3">
+          {question.options.map((option, idx) => (
+            <button
+              key={idx}
+              onClick={() => onAnswer(idx)}
+              className={`w-full text-left p-4 rounded-xl border-2 transition-all duration-200 flex items-start group ${
+                currentAnswer === idx
+                  ? 'border-[#0077c8] bg-blue-50/50'
+                  : 'border-transparent bg-slate-50 hover:bg-slate-100 hover:border-slate-200'
+              }`}
+            >
+              <div className={`w-6 h-6 rounded-full border flex-shrink-0 flex items-center justify-center mr-3 text-xs font-bold transition-colors ${
+                currentAnswer === idx ? 'bg-[#0077c8] border-[#0077c8] text-white' : 'border-slate-300 text-slate-400 group-hover:border-slate-400 group-hover:text-slate-500'
+              }`}>
+                {idx + 1}
+              </div>
+              <span className={`text-[15px] pt-0.5 ${currentAnswer === idx ? 'text-[#0077c8] font-semibold' : 'text-slate-700'}`}>
+                {option}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
 
-      stamina = Math.min(90, stamina);
-      meaning = Math.min(90, meaning);
-      topic = Math.min(90, topic);
-      meta = Math.min(90, meta);
+const GradeSelector = ({ onSelect }) => {
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+      {GRADES.map((grade) => {
+        let themeClass = "";
+        if (grade.startsWith("초")) themeClass = "from-yellow-50 to-orange-50 text-yellow-800 border-yellow-200 hover:border-yellow-400";
+        if (grade.startsWith("중")) themeClass = "from-green-50 to-emerald-50 text-green-800 border-green-200 hover:border-green-400";
+        if (grade.startsWith("고")) themeClass = "from-blue-50 to-indigo-50 text-blue-800 border-blue-200 hover:border-blue-400";
 
-      barStamina.style.width = widthFor(stamina) + '%';
-      barMeaning.style.width = widthFor(meaning) + '%';
-      barTopic.style.width = widthFor(topic) + '%';
-      barMeta.style.width = widthFor(meta) + '%';
+        return (
+          <button
+            key={grade}
+            onClick={() => onSelect(grade)}
+            className={`bg-gradient-to-br ${themeClass} border rounded-xl p-5 flex flex-col items-center justify-center transition-all hover:-translate-y-1 hover:shadow-md active:scale-95`}
+          >
+            <span className="text-xl font-black mb-1 tracking-tight">{grade}</span>
+            <span className="text-[10px] opacity-60 uppercase font-bold tracking-wider">Level</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+};
 
-      const lines = [];
-      if(readingElapsed !== null) lines.push(`읽기: ${fmtMs(readingElapsed)} 동안 글을 읽고 ‘중심 생각’을 한 문장으로 잡아보았습니다.`);
-      else lines.push(`읽기: 글을 읽고 ‘중심 생각’을 잡는 경험을 했습니다.`);
+// ResultView
+const ResultView = ({ score, total, correctCount, questions, userAnswers, onRetry }) => {
+  return (
+    <div className="pb-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      {/* Score Summary */}
+      <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 text-center mb-8 relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-400 to-indigo-500"></div>
+        <div className="flex justify-center mb-4">
+          <div className="w-20 h-20 rounded-full bg-blue-50 flex items-center justify-center text-[#0077c8]">
+            {score === 100 ? <Award size={40} /> : <BarChart size={36} />}
+          </div>
+        </div>
+        <h2 className="text-3xl font-black text-slate-800 mb-2">{score}점</h2>
+        <p className="text-slate-500 text-sm font-medium">총 {total}문제 중 {correctCount}문제를 맞혔습니다.</p>
+      </div>
 
-      if(state.checks.read_vocab) {
-        const v = state.checks.read_vocab;
-        lines.push(`어휘 체감: ${v==='low'?'모르는 단어가 거의 없었다': v==='mid'?'모르는 단어가 조금 있었다':'모르는 단어가 많았다'}고 느꼈습니다.`);
-      }
-      if(state.checks.read_topic || state.checks.listen_topic){
-        const label = (x)=> x==='familiar'?'익숙한 주제': x==='heard'?'들어본 적은 있는 주제': x==='new'?'낯선 주제':'(선택 없음)';
-        lines.push(`소재(익숙함): 읽기(${label(state.checks.read_topic)}), 듣기(${label(state.checks.listen_topic)}).`);
-      }
-      if(state.checks.listen_flow){
-        lines.push(`듣기: ${state.checks.listen_flow==='kept'?'끝까지 의미를 유지하며 따라갔다': state.checks.listen_flow==='lost'?'중간에 흐름을 놓친 느낌이 있었다':'의미가 잘 남지 않았다'}고 체크했습니다.`);
-      }
-      lines.push(`이 결과는 점수가 아니라, ‘수능 수준의 영어를 이해하기 위해 앞으로 쌓아야 할 역량’의 방향을 정리하기 위한 참고입니다.`);
-      resultSummary.textContent = lines.join(' ');
-    }
+      <h3 className="font-bold text-slate-800 mb-4 flex items-center px-1">
+        <BookOpen size={18} className="mr-2 text-[#0077c8]" />
+        문항별 상세 해설
+      </h3>
 
-    function setLevel(newLevel){
-      level = newLevel;
-      readingStartAt = null;
-      readingElapsed = null;
-      readTime.textContent = '-';
-      state.readingChoice = null;
-      state.listeningChoice = null;
-      resetChecksUI();
-      renderReading();
-      renderListening();
-      showPanel('reading');
-      window.scrollTo({top: document.getElementById('try').offsetTop - 80, behavior:'smooth'});
-    }
+      <div className="space-y-6">
+        {questions.map((q, idx) => {
+          const isCorrect = userAnswers[idx] === q.answer;
+          return (
+            <div key={q.id} className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+              <div className={`px-4 py-3 border-b flex justify-between items-center ${isCorrect ? 'bg-slate-50 border-slate-100' : 'bg-red-50 border-red-100'}`}>
+                <div className="flex items-center gap-2">
+                  <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${isCorrect ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}>
+                    {idx + 1}
+                  </span>
+                  <span className={`text-sm font-bold ${isCorrect ? 'text-green-700' : 'text-red-700'}`}>
+                    {isCorrect ? '정답입니다!' : '오답입니다'}
+                  </span>
+                </div>
+                <span className="text-[10px] text-slate-400 font-medium px-2 py-0.5 bg-white rounded border border-slate-200">{q.origin}</span>
+              </div>
 
-    // Events
-    tabs.forEach(t=>{
-      t.addEventListener('click', ()=>{
-        tabs.forEach(x=>{x.classList.remove('active'); x.setAttribute('aria-selected','false')});
-        t.classList.add('active');
-        t.setAttribute('aria-selected','true');
-        setLevel(t.dataset.level);
-      });
+              <div className="p-5">
+                <p className="font-bold text-slate-800 mb-4 text-[15px] leading-relaxed">{q.prompt}</p>
+                
+                {/* Script Display for Listening */}
+                {q.type === 'listening' && (
+                  <div className="bg-slate-50 p-4 rounded-lg border border-slate-200 text-sm text-slate-600 mb-4 relative">
+                    <div className="absolute top-3 right-3 text-[10px] font-bold text-slate-400 uppercase tracking-wide">Script</div>
+                    <p className="font-serif italic leading-relaxed pt-1">"{q.script}"</p>
+                  </div>
+                )}
+
+                {/* Answer Comparison */}
+                <div className="grid grid-cols-1 gap-2 mb-4 text-sm">
+                  {!isCorrect && (
+                    <div className="p-3 bg-red-50 rounded-lg border border-red-100 flex flex-col">
+                      <span className="text-[10px] font-bold text-red-500 mb-1 uppercase">내가 고른 답</span>
+                      <span className="text-red-800 font-medium">{q.options[userAnswers[idx]] || "선택 안함"}</span>
+                    </div>
+                  )}
+                  <div className="p-3 bg-green-50 rounded-lg border border-green-100 flex flex-col">
+                    <span className="text-[10px] font-bold text-green-600 mb-1 uppercase">정답</span>
+                    <span className="text-green-800 font-medium">{q.options[q.answer]}</span>
+                  </div>
+                </div>
+
+                {/* Explanation */}
+                <div className="mt-4 pt-4 border-t border-slate-100">
+                  <div className="flex items-start gap-2">
+                    <span className="bg-blue-100 text-blue-700 text-[10px] font-bold px-1.5 py-0.5 rounded mt-0.5 shrink-0">해설</span>
+                    <p className="text-sm text-slate-700 leading-relaxed">
+                      {q.explanation}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <button 
+        onClick={onRetry}
+        className="w-full mt-8 py-4 bg-slate-800 text-white font-bold rounded-xl flex items-center justify-center hover:bg-slate-900 transition-colors shadow-lg"
+      >
+        <RefreshCw size={18} className="mr-2" /> 다른 학년 도전하기
+      </button>
+    </div>
+  );
+};
+
+/**
+ * ==================================================================================
+ * 4. MAIN APPLICATION
+ * ==================================================================================
+ */
+const App = () => {
+  const [screen, setScreen] = useState('home');
+  const [selectedGrade, setSelectedGrade] = useState(null);
+  const [questions, setQuestions] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [userAnswers, setUserAnswers] = useState({});
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const handleGradeSelect = async (grade) => {
+    setSelectedGrade(grade);
+    setScreen('loading');
+    const data = await apiService.fetchQuestions(grade);
+    setQuestions(data);
+    setCurrentIndex(0);
+    setUserAnswers({});
+    setScreen('quiz');
+  };
+
+  const handleAnswer = (optionIdx) => {
+    setUserAnswers(prev => ({ ...prev, [currentIndex]: optionIdx }));
+  };
+
+  const handleNext = () => {
+    if (currentIndex < questions.length - 1) setCurrentIndex(prev => prev + 1);
+  };
+
+  const handlePrev = () => {
+    if (currentIndex > 0) setCurrentIndex(prev => prev - 1);
+  };
+
+  const calculateScore = () => {
+    if (!questions.length) return { score: 0, total: 0, correctCount: 0 };
+    let correctCount = 0;
+    questions.forEach((q, idx) => {
+      if (userAnswers[idx] === q.answer) correctCount++;
     });
+    return {
+      score: Math.round((correctCount / questions.length) * 100),
+      total: questions.length,
+      correctCount
+    };
+  };
 
-    btnStart.addEventListener('click', ()=>{
-      document.getElementById('try').scrollIntoView({behavior:'smooth', block:'start'});
-    });
+  return (
+    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 flex flex-col items-center">
+      {/* Global Header */}
+      <header className="w-full bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div className="max-w-xl mx-auto px-4 h-16 flex items-center justify-between">
+          <div 
+            className="flex items-center cursor-pointer" 
+            onClick={() => setScreen('home')}
+          >
+            <div className="w-8 h-8 bg-[#0077c8] rounded-lg flex items-center justify-center mr-2 text-white font-bold text-sm">
+              S
+            </div>
+            <h1 className="font-extrabold text-slate-800 text-lg tracking-tight">
+              SAT <span className="text-[#0077c8]">Hub</span>
+            </h1>
+          </div>
+          <div className="flex items-center space-x-2">
+             <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2 text-slate-400 hover:text-slate-600">
+               <HelpCircle size={22} />
+             </button>
+          </div>
+        </div>
+        
+        {/* Progress Bar (Visible only in Quiz mode) */}
+        {screen === 'quiz' && (
+          <div className="h-1 bg-slate-100 w-full">
+            <div 
+              className="h-full bg-[#0077c8] transition-all duration-300 ease-out" 
+              style={{ width: `${((currentIndex + 1) / questions.length) * 100}%` }}
+            />
+          </div>
+        )}
+      </header>
 
-    btnScrollReal.addEventListener('click', ()=>{
-      document.getElementById('real').scrollIntoView({behavior:'smooth', block:'start'});
-    });
+      {/* Main Content Area */}
+      <main className="w-full max-w-xl flex-1 flex flex-col p-4 md:p-6">
+        
+        {screen === 'home' && (
+          <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+            <div className="text-center py-10">
+              <span className="inline-block py-1 px-3 rounded-full bg-blue-50 text-[#0077c8] text-xs font-bold mb-4 border border-blue-100">
+                2026 수능 변형 문제 수록
+              </span>
+              <h2 className="text-3xl font-black text-slate-800 mb-3 leading-tight">
+                내 학년에 딱 맞는<br/>수능 영어 체험
+              </h2>
+              <p className="text-slate-500 text-[15px] leading-relaxed max-w-xs mx-auto">
+                초3부터 고3까지, 실제 수능 문항을 내 수준에 맞게 변형하여 미리 경험해보세요.
+              </p>
+            </div>
+            
+            <GradeSelector onSelect={handleGradeSelect} />
+            
+            <div className="mt-8 p-4 bg-white rounded-xl border border-slate-200 shadow-sm text-center text-xs text-slate-400">
+              * 본 서비스의 모든 문항은 2026학년도 수능 기출문제를 기반으로 교육적 목적을 위해 재구성되었습니다.
+            </div>
+          </div>
+        )}
 
-    btnReadingStartTimer.addEventListener('click', ()=>{
-      readingStartAt = Date.now();
-      readTime.textContent = '측정 중…';
-    });
+        {screen === 'loading' && (
+          <div className="flex-1 flex flex-col items-center justify-center">
+            <div className="w-12 h-12 border-4 border-[#0077c8] border-t-transparent rounded-full animate-spin mb-6"></div>
+            <h3 className="font-bold text-lg text-slate-800 mb-2">맞춤형 시험지 생성 중</h3>
+            <p className="text-slate-500 text-sm">{selectedGrade} 수준에 맞춰 난이도를 조절하고 있습니다.</p>
+          </div>
+        )}
 
-    btnReadingStopTimer.addEventListener('click', ()=>{
-      if(!readingStartAt){
-        readTime.textContent = '먼저 “읽기 시작”을 눌러주세요';
-        return;
-      }
-      readingElapsed = Date.now() - readingStartAt;
-      readTime.textContent = fmtMs(readingElapsed);
-    });
+        {screen === 'quiz' && questions[currentIndex] && (
+          <div className="flex-1 flex flex-col pb-20">
+            <div className="flex justify-between items-center mb-4 px-2">
+              <span className="font-bold text-slate-800 text-lg">Question {currentIndex + 1}</span>
+              <span className="text-slate-400 text-sm font-medium">{questions.length}문제 중</span>
+            </div>
+            
+            <QuestionCard 
+              question={questions[currentIndex]}
+              currentAnswer={userAnswers[currentIndex]}
+              onAnswer={handleAnswer}
+            />
+          </div>
+        )}
 
-    btnNextToListening.addEventListener('click', ()=>{ showPanel('listening'); });
-    btnBackToReading.addEventListener('click', ()=>{ showPanel('reading'); });
+        {screen === 'result' && (
+          <ResultView 
+            {...calculateScore()} 
+            questions={questions}
+            userAnswers={userAnswers}
+            onRetry={() => {
+              setScreen('home');
+              setSelectedGrade(null);
+            }}
+          />
+        )}
+      </main>
 
-    btnFinish.addEventListener('click', ()=>{
-      showPanel('result');
-      computeBars();
-    });
+      {/* Quiz Navigation Footer */}
+      {screen === 'quiz' && (
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-4 z-20 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+          <div className="max-w-xl mx-auto flex gap-3">
+            <button 
+              onClick={handlePrev} 
+              disabled={currentIndex === 0}
+              className="flex-1 py-3.5 rounded-xl font-bold text-slate-600 bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-200 transition-colors"
+            >
+              이전
+            </button>
+            
+            {currentIndex === questions.length - 1 ? (
+              <button 
+                onClick={() => setScreen('result')}
+                disabled={Object.keys(userAnswers).length < questions.length}
+                className="flex-[2] py-3.5 rounded-xl font-bold text-white bg-[#0077c8] shadow-lg shadow-blue-200 hover:bg-blue-600 active:scale-95 transition-all disabled:opacity-50 disabled:shadow-none"
+              >
+                채점하기
+              </button>
+            ) : (
+              <button 
+                onClick={handleNext}
+                className="flex-[2] py-3.5 rounded-xl font-bold text-white bg-slate-800 hover:bg-slate-700 active:scale-95 transition-all"
+              >
+                다음 문제
+              </button>
+            )}
+          </div>
+        </div>
+      )}
 
-    btnReset.addEventListener('click', ()=>{ setLevel(level); });
+      {/* Help Modal */}
+      {isMenuOpen && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl relative">
+            <button onClick={() => setIsMenuOpen(false)} className="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+              <X size={24} />
+            </button>
+            <h3 className="text-xl font-bold text-slate-900 mb-4">서비스 이용 가이드</h3>
+            <div className="space-y-4 text-sm text-slate-600 leading-relaxed">
+              <p><strong>1. 학년 선택:</strong> 본인의 학년을 선택하면 난이도가 자동 조절됩니다.</p>
+              <p><strong>2. 문제 풀이:</strong> 듣기 문제는 재생 버튼을 눌러주세요. 독해 문제는 지문을 읽고 답을 고르세요.</p>
+              <p><strong>3. 결과 확인:</strong> 채점 후에는 2026 수능 원문과 비교한 상세 해설을 볼 수 있습니다.</p>
+            </div>
+            <button onClick={() => setIsMenuOpen(false)} className="w-full mt-6 py-3 bg-[#0077c8] text-white rounded-xl font-bold">확인</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
-    // init
-    renderReading();
-    renderListening();
-    bindChips();
-  </script>
-</body>
-</html>
+export default App;
