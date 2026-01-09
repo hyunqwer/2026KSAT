@@ -1,428 +1,618 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Play, Pause, RotateCcw, FastForward, CheckCircle, XCircle, Eye, Search, MousePointer2, ChevronRight } from 'lucide-react';
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026 수능 영어 21번 만점자 리플레이</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&family=Roboto+Mono:wght@500&display=swap');
+        
+        body { font-family: 'Noto Sans KR', sans-serif; }
+        .font-mono { font-family: 'Roboto Mono', monospace; }
+        
+        /* Custom Animations */
+        @keyframes zoomIn {
+            from { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+            to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+        .animate-zoom-in { animation: zoomIn 0.3s ease-out forwards; }
+        
+        .decoration-clone { -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+        
+        /* Smooth transitions for highlights */
+        .segment-transition { transition: all 0.3s ease-out; }
+        
+        /* Eye Tracker Dot Pulse */
+        @keyframes trackerPulse {
+            0% { transform: scale(1); opacity: 0.6; }
+            50% { transform: scale(1.5); opacity: 0.3; }
+            100% { transform: scale(1); opacity: 0.6; }
+        }
+        .tracker-dot { animation: trackerPulse 1.5s infinite; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col items-center justify-center">
 
-const ReplayApp = () => {
-  const [mode, setMode] = useState('intro'); // intro, solving, replay, result
-  const [userSelection, setUserSelection] = useState(null);
-  const [solveTime, setSolveTime] = useState(0);
-  
-  // Replay State
-  const [currentTime, setCurrentTime] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [playbackSpeed, setPlaybackSpeed] = useState(1);
-  const [showEyeTracker, setShowEyeTracker] = useState(true);
-
-  // Constants
-  const TOTAL_DURATION = 40; // Increased to 40s for full linear reading
-  
-  // Text Segmentation (Granular for linear eye-tracking)
-  const passageSentences = [
-    { id: 1, text: "Digital platforms have ", type: "intro" },
-    { id: 2, text: "made a lot of work less sticky", type: "target_phrase", underline: true }, 
-    { id: 3, text: ". ", type: "text" },
-    { id: 4, text: "As work becomes ever more modularised, commoditised and standardised, and as markets for digital work are created, ", type: "context" },
-    { id: 5, text: "ties between service work and particular places ", type: "definition" },
-    { id: 6, text: "can be disconnected", type: "definition_highlight", highlight: true }, 
-    { id: 7, text: ". ", type: "text" },
-    { id: 8, text: "While the business process of outsourcing that emerged in the 1990s allowed large companies to take advantage of a ‘global reserve army’ by moving their call centres to cheap and distant labour markets, ", type: "contrast" },
-    { id: 9, text: "cloudwork changes the volume and granularity at which ", type: "contrast_focus" },
-    { id: 10, text: "geographically non-proximate work", type: "keyword" }, 
-    { id: 11, text: " can take place. ", type: "text" },
-    { id: 12, text: "A small business in New York can hire a freelance transcriber in ", type: "example" },
-    { id: 13, text: "Nairobi one day and New Delhi the next", type: "example_highlight" }, 
-    { id: 14, text: ". ", type: "text" },
-    { id: 15, text: "No offices or factories need to be built, no local regulations are observed, and ― in most cases ― no local taxes are paid. ", type: "detail" }, 
-    { id: 16, text: "The switch in the production network of work happens by simply sending some emails or clicking some buttons on a digital work platform. ", type: "detail" },
-    { id: 17, text: "And, in this way, the employer leaves behind ", type: "conclusion" },
-    { id: 18, text: "no material traces", type: "conclusion_highlight", highlight: true }, 
-    { id: 19, text: " in the places where it was once an employer.", type: "text" }
-  ];
-
-  const options = [
-    { id: 1, text: "settled the locational dilemma of the global markets", tag: "딜레마 해결(X)", isAnswer: false },
-    { id: 2, text: "elevated the spatial flexibility in conducting business", tag: "정답", isAnswer: true },
-    { id: 3, text: "weakened the geographical expansion of local business", tag: "확장 약화(반대)", isAnswer: false },
-    { id: 4, text: "relieved the strict legal processes of regional outsourcing", tag: "법적 절차(지엽)", isAnswer: false },
-    { id: 5, text: "allowed business to be less complicated in its hiring process", tag: "단순 채용(협소)", isAnswer: false },
-  ];
-
-  // Refined Timeline: Full Linear Reading (No Jumping)
-  const timelineEvents = [
-    { 
-      start: 0, end: 3.5, 
-      focusIds: [1, 2, 3], 
-      thought: "첫 문장: 'Digital platforms... less sticky'. 덜 끈적해졌다? 장소 구속력 감소 예측.",
-      phase: "타겟 포착",
-      action: "critical"
-    },
-    { 
-      start: 3.5, end: 6.0, 
-      focusIds: [4], 
-      thought: "배경: 일이 모듈화되고 상품화되면서...",
-      phase: "배경 독해",
-      action: "read"
-    },
-    { 
-      start: 6.0, end: 9.0, 
-      focusIds: [5, 6, 7], 
-      thought: "정의: 'ties... disconnected'. 일과 장소의 연결이 끊어졌다. (주제 확신)",
-      phase: "의미 확정",
-      action: "critical"
-    },
-    { 
-      start: 9.0, end: 13.0, 
-      focusIds: [8], 
-      thought: "대조: 1990년대 아웃소싱(콜센터 이동)과 비교...",
-      phase: "문맥 파악",
-      action: "read"
-    },
-    { 
-      start: 13.0, end: 16.0, 
-      focusIds: [9, 10, 11], 
-      thought: "현재: Cloudwork는 'volume and granularity'가 다르다. 핵심은 '비인접성(non-proximate)'.",
-      phase: "핵심 대조",
-      action: "critical"
-    },
-    { 
-      start: 16.0, end: 19.0, 
-      focusIds: [12, 13, 14], 
-      thought: "예시: 뉴욕 회사가 나이로비, 뉴델리 고용. 매일 바뀜.",
-      phase: "예시 확인",
-      action: "read"
-    },
-    { 
-      start: 19.0, end: 22.0, 
-      focusIds: [15], 
-      thought: "상세1: 사무실 X, 규제 X, 세금 X. (물리적 제약 없음)",
-      phase: "상세 독해",
-      action: "read"
-    },
-    { 
-      start: 22.0, end: 25.0, 
-      focusIds: [16], 
-      thought: "상세2: 이메일, 클릭 몇 번으로 생산망 전환. (디지털의 특징)",
-      phase: "상세 독해",
-      action: "read"
-    },
-    { 
-      start: 25.0, end: 28.0, 
-      focusIds: [17, 18, 19], 
-      thought: "결론: 'leaves behind no material traces'. 물리적 흔적조차 없다. → 공간성 소멸.",
-      phase: "결론 도출",
-      action: "critical"
-    },
-    // --- OPTION SCANNING ---
-    { 
-      start: 28.0, end: 29.5, 
-      focusIds: [], 
-      focusOption: 1, 
-      thought: "① 위치적 딜레마 해결? 딜레마 X.",
-      phase: "보기 소거",
-      action: "scan_option"
-    },
-    { 
-      start: 29.5, end: 32.5, 
-      focusIds: [], 
-      focusOption: 2, 
-      thought: "② '공간적 유연성(Spatial Flexibility)'? Less sticky, Disconnected, No traces와 일치. (★)",
-      phase: "정답 후보",
-      action: "critical_option"
-    },
-    { 
-      start: 32.5, end: 33.5, 
-      focusIds: [], 
-      focusOption: 3, 
-      thought: "③ 지리적 확장 약화? 오히려 확장됨.",
-      phase: "보기 소거",
-      action: "scan_option"
-    },
-    { 
-      start: 33.5, end: 34.5, 
-      focusIds: [], 
-      focusOption: 4, 
-      thought: "④ 법적 절차? 세금 얘기는 있지만 핵심 아님.",
-      phase: "보기 소거",
-      action: "scan_option"
-    },
-    { 
-      start: 34.5, end: 35.5, 
-      focusIds: [], 
-      focusOption: 5, 
-      thought: "⑤ 채용 절차 단순화? 너무 지엽적.",
-      phase: "보기 소거",
-      action: "scan_option"
-    },
-    { 
-      start: 35.5, end: 40.0, 
-      focusIds: [], 
-      focusOption: 2, 
-      thought: "2번 확정 마킹.",
-      phase: "마킹",
-      action: "mark"
-    }
-  ];
-
-  const currentEvent = timelineEvents.find(e => currentTime >= e.start && currentTime < e.end) || timelineEvents[timelineEvents.length - 1];
-  
-  // Timer & Auto-Scroll Logic
-  useEffect(() => {
-    let interval;
-    if (isPlaying && currentTime < TOTAL_DURATION) {
-      interval = setInterval(() => {
-        setCurrentTime(prev => {
-          const next = prev + 0.1 * playbackSpeed;
-          if (next >= TOTAL_DURATION) {
-            setIsPlaying(false);
-            return TOTAL_DURATION;
-          }
-          return next;
-        });
-      }, 100);
-    } else if (mode === 'solving') {
-      interval = setInterval(() => {
-        setSolveTime(prev => prev + 0.1);
-      }, 100);
-    }
-    return () => clearInterval(interval);
-  }, [isPlaying, playbackSpeed, mode, currentTime]);
-
-  const handleStartSolving = () => {
-    setMode('solving');
-    setSolveTime(0);
-    setUserSelection(null);
-  };
-
-  const handleOptionClick = (id) => {
-    if (mode === 'solving') {
-      setUserSelection(id);
-      setMode('result');
-    }
-  };
-
-  const startReplay = () => {
-    setMode('replay');
-    setCurrentTime(0);
-    setIsPlaying(true);
-  };
-
-  const isFocused = (id) => {
-    if (mode !== 'replay') return true; 
-    if (!currentEvent) return true;
-    if (currentEvent.phase.includes("보기") || currentEvent.phase === "정답 후보" || currentEvent.phase === "마킹") return false; 
-    return currentEvent.focusIds.includes(id);
-  };
-
-  const getOptionStyle = (opt) => {
-    if (mode === 'replay') {
-      if (currentTime < 28) return "opacity-40 blur-[1px] grayscale";
-
-      if (currentEvent?.phase === "마킹") {
-         if (opt.id === 2) return "bg-blue-600 text-white border-blue-600 scale-105 shadow-lg font-bold transform transition-all duration-500";
-         return "opacity-20 grayscale scale-95 transition-all duration-500";
-      }
-
-      if (currentEvent?.focusOption === opt.id) {
-         if (opt.id === 2) return "bg-blue-50 border-blue-500 scale-105 shadow-md font-bold ring-2 ring-blue-200 text-blue-900 transition-all duration-200";
-         return "bg-slate-100 border-slate-400 text-slate-700 scale-100 ring-1 ring-slate-300 transition-all duration-200";
-      }
-      
-      return "opacity-50 grayscale scale-95 border-slate-100 transition-all duration-200";
-    }
-    return "";
-  };
-
-  // Improved highlighting for reading mode
-  const getHighlightClass = (segment, focused) => {
-    if (mode !== 'replay') return segment.underline ? 'border-b-4 border-slate-800' : '';
-    
-    // Default state: slightly dimmed but readable
-    if (!focused) return 'opacity-40 grayscale transition-all duration-300'; 
-
-    const action = currentEvent?.action;
-    
-    if (action === 'critical' || action === 'critical_option') {
-      // Critical Evidence: Strong emphasis
-      return 'bg-red-100 text-slate-900 font-bold px-1 rounded ring-2 ring-red-200 transition-all duration-300';
-    } else if (action === 'read') {
-      // Normal Reading: Soft highlight
-      return 'bg-yellow-50 text-slate-900 px-0 rounded transition-all duration-300 shadow-sm';
-    }
-    
-    return '';
-  };
-
-  if (mode === 'intro') {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50 p-4 font-sans">
-        <div className="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full text-center space-y-6">
-          <div className="bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full w-fit mx-auto">2026 수능 영어</div>
-          <h1 className="text-2xl font-bold text-slate-800">21번 만점자 리플레이</h1>
-          <p className="text-slate-500">
-            만점자의 <span className="font-bold text-slate-800">시선 흐름</span>을 그대로 따라가보세요.<br/>
-            <span className="text-xs text-slate-400 mt-2 block">소요 시간: 40초 | 모든 문장 정독</span>
-          </p>
-          
-          <div className="space-y-3 pt-4">
-            <button 
-              onClick={handleStartSolving}
-              className="w-full py-3 bg-white border-2 border-slate-200 text-slate-700 font-bold rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-colors flex items-center justify-center gap-2"
-            >
-              <MousePointer2 size={18} />
-              직접 먼저 풀어보기
-            </button>
-            <button 
-              onClick={startReplay}
-              className="w-full py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200 flex items-center justify-center gap-2"
-            >
-              <Play size={18} />
-              만점자 시선 체험하기
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (mode === 'result') {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50 p-4 font-sans">
-        <div className="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full text-center space-y-6">
-          <div className={`w-16 h-16 mx-auto rounded-full flex items-center justify-center ${userSelection === 2 ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
-            {userSelection === 2 ? <CheckCircle size={32} /> : <XCircle size={32} />}
-          </div>
-          <h2 className="text-xl font-bold text-slate-800">{userSelection === 2 ? "정답입니다!" : "아쉽네요!"}</h2>
-          <p className="text-slate-500">나의 시간: <span className="font-mono font-bold text-slate-700">{solveTime.toFixed(1)}초</span></p>
-          <button onClick={startReplay} className="w-full py-4 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200 flex items-center justify-center gap-2 animate-pulse">
-            <Play size={20} />
-            만점자의 풀이 과정 보기 (Replay)
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen bg-slate-100 text-slate-800 font-sans flex flex-col md:flex-row max-w-6xl mx-auto shadow-2xl overflow-hidden">
-      
-      {/* LEFT PANEL: Passage */}
-      <div className="flex-1 bg-white p-6 md:p-10 flex flex-col relative overflow-y-auto">
-        <div className="mb-6 flex justify-between items-center border-b pb-4">
-          <div className="text-sm font-bold text-slate-500 tracking-wider">2026 ACADEMIC YEAR ENGLISH</div>
-          <div className={`text-xl font-mono font-bold ${mode === 'replay' ? 'text-blue-600' : 'text-slate-800'}`}>
-            {mode === 'replay' ? currentTime.toFixed(1) : solveTime.toFixed(1)}s
-          </div>
-        </div>
-
-        <h3 className="text-lg font-bold mb-6 text-slate-800">
-          21. 밑줄 친 <span className="border-b-2 border-slate-900">made a lot of work less sticky</span>가 다음 글에서 의미하는 바로 가장 적절한 것은?
-        </h3>
-
-        {/* Changed layout to single paragraph block */}
-        <div className="text-lg leading-loose font-serif relative transition-all duration-500 text-justify">
-          {passageSentences.map((segment, index) => {
-            const focused = isFocused(segment.id);
-            return (
-              <span 
-                key={index}
-                className={`transition-all duration-300 ease-out inline decoration-clone ${getHighlightClass(segment, focused)}`}
-              >
-                {segment.text}
-                {/* Visual Cursor */}
-                {mode === 'replay' && focused && showEyeTracker && (
-                    <span className="inline-block w-2 h-2 bg-red-500 rounded-full ml-0.5 align-baseline opacity-60"></span>
-                )}
-              </span>
-            );
-          })}
-        </div>
-
-        {/* Options Section */}
-        <div className="mt-8 space-y-3">
-          {options.map((opt) => (
-            <div 
-              key={opt.id}
-              onClick={() => handleOptionClick(opt.id)}
-              className={`p-4 border-2 rounded-xl flex justify-between items-center cursor-pointer transition-all relative ${mode === 'solving' ? 'hover:border-blue-400 hover:bg-blue-50' : ''} ${mode === 'replay' ? getOptionStyle(opt) : 'border-slate-200'}`}
-            >
-              <div className="flex items-center gap-3">
-                <span className={`w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold ${opt.isAnswer && mode === 'replay' && currentEvent?.phase === '마킹' ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-600'}`}>{opt.id}</span>
-                <span className="text-sm md:text-base font-medium">{opt.text}</span>
-              </div>
-              
-              {/* Eye icon */}
-              {mode === 'replay' && currentEvent?.focusOption === opt.id && (
-                  <div className="absolute -left-8 text-slate-400 animate-pulse hidden md:block">
-                      <Eye size={20} />
-                  </div>
-              )}
-
-              {/* Tags */}
-              {mode === 'replay' && currentTime > 28 && opt.id < (currentEvent?.focusOption || 99) && currentEvent?.focusOption !== opt.id && (
-                <span className={`text-xs font-bold px-2 py-1 rounded ml-2 whitespace-nowrap ${opt.isAnswer ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-500'}`}>
-                  {opt.tag}
-                </span>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* RIGHT PANEL: Thought Process */}
-      {mode === 'replay' && (
-        <div className="md:w-96 bg-slate-900 text-white flex flex-col shadow-2xl z-10">
-          <div className="h-2 bg-slate-800 w-full relative">
-            <div className="h-full bg-blue-500 transition-all duration-100 ease-linear" style={{ width: `${(currentTime / TOTAL_DURATION) * 100}%` }} />
-            <div className="absolute top-0 left-[8%] w-0.5 h-2 bg-white/30" title="Start" />
-            <div className="absolute top-0 left-[15%] w-0.5 h-2 bg-red-500" title="Definition" />
-            <div className="absolute top-0 left-[40%] w-0.5 h-2 bg-red-500" title="Example" />
-            <div className="absolute top-0 left-[70%] w-0.5 h-2 bg-white/30" title="Options" />
-          </div>
-
-          <div className="flex-1 p-6 flex flex-col justify-between">
-            <div>
-              <div className="flex items-center gap-2 text-blue-400 text-sm font-bold uppercase tracking-widest mb-2">
-                <Search size={14} /> {currentEvent?.phase}
-              </div>
-              <div className={`bg-slate-800 p-5 rounded-2xl border border-slate-700 shadow-inner relative mt-4 transition-all duration-500 ${currentEvent?.action === 'critical' || currentEvent?.action === 'critical_option' ? 'ring-2 ring-red-500/50 bg-slate-800/80' : ''}`}>
-                <div className="absolute -top-3 left-6 w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-b-[10px] border-b-slate-700"></div>
-                <p className="text-xl font-bold leading-relaxed text-white">"{currentEvent?.thought}"</p>
-              </div>
-
-              <div className="mt-6 space-y-3 opacity-80">
-                <p className="text-xs text-slate-500 mb-2 font-bold uppercase">Current Focus Strategy</p>
-                <div className="flex items-center gap-3 transition-opacity duration-300">
-                  <div className={`w-2 h-2 rounded-full ${currentEvent?.action?.includes('critical') ? 'bg-red-500 animate-ping' : currentEvent?.action === 'read' ? 'bg-yellow-400' : 'bg-slate-600'}`}></div>
-                  <span className={`text-sm ${currentEvent?.action?.includes('critical') ? 'text-red-300 font-bold' : currentEvent?.action === 'read' ? 'text-yellow-200' : 'text-slate-400'}`}>
-                    {currentEvent?.action?.includes('critical') ? '⚡ 핵심 단서/정답 집중' : currentEvent?.action === 'read' ? '📖 지문 정독 (Reading)' : '→ 빠른 스캐닝'}
-                  </span>
+    <!-- App Container -->
+    <div id="app-container" class="w-full max-w-6xl h-screen md:h-[90vh] bg-white shadow-2xl rounded-none md:rounded-2xl overflow-hidden flex flex-col md:flex-row relative">
+        
+        <!-- Screen: Intro -->
+        <div id="intro-screen" class="absolute inset-0 z-50 bg-slate-50 flex flex-col items-center justify-center p-4">
+            <div class="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full text-center space-y-6">
+                <div class="bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full w-fit mx-auto">2026 수능 영어</div>
+                <h1 class="text-2xl font-bold text-slate-800">21번 만점자 리플레이</h1>
+                
+                <div class="bg-slate-50 p-4 rounded-xl text-left space-y-3">
+                    <p class="font-bold text-slate-700 text-center mb-4 text-sm">🏆 만점자의 80초 시크릿</p>
+                    <div class="flex items-start gap-3 text-sm text-slate-600">
+                        <i data-lucide="target" class="w-4 h-4 mt-0.5 text-red-500"></i>
+                        <span><strong>0~10초:</strong> 밑줄-정의(Disconnected) 연결</span>
+                    </div>
+                    <div class="flex items-start gap-3 text-sm text-slate-600">
+                        <i data-lucide="zoom-in" class="w-4 h-4 mt-0.5 text-yellow-600"></i>
+                        <span><strong>10~30초:</strong> 'Non-proximate' 핵심 포착</span>
+                    </div>
+                    <div class="flex items-start gap-3 text-sm text-slate-600">
+                        <i data-lucide="arrow-right-left" class="w-4 h-4 mt-0.5 text-green-500"></i>
+                        <span><strong>30~55초:</strong> 예시로 '유연성' 시각화</span>
+                    </div>
+                    <div class="flex items-start gap-3 text-sm text-slate-600">
+                        <i data-lucide="check-square" class="w-4 h-4 mt-0.5 text-blue-500"></i>
+                        <span><strong>55~80초:</strong> 함정 회피 및 논리 확정</span>
+                    </div>
                 </div>
-              </div>
+                
+                <div class="space-y-3 pt-2">
+                    <button onclick="startSolving()" class="w-full py-3 bg-white border-2 border-slate-200 text-slate-700 font-bold rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-colors flex items-center justify-center gap-2">
+                        <i data-lucide="mouse-pointer-2" class="w-4 h-4"></i> 직접 먼저 풀어보기
+                    </button>
+                    <button onclick="startReplay()" class="w-full py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200 flex items-center justify-center gap-2">
+                        <i data-lucide="play" class="w-4 h-4"></i> 만점자 시선 체험하기 (80초)
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen: Result (Hidden by default) -->
+        <div id="result-screen" class="hidden absolute inset-0 z-50 bg-slate-50 flex flex-col items-center justify-center p-4">
+            <div class="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full text-center space-y-6">
+                <div id="result-icon-container" class="w-16 h-16 mx-auto rounded-full flex items-center justify-center bg-slate-100">
+                    <!-- Icon injected by JS -->
+                </div>
+                <h2 id="result-title" class="text-xl font-bold text-slate-800">결과</h2>
+                <p class="text-slate-500">나의 시간: <span id="result-time" class="font-mono font-bold text-slate-700">0.0초</span></p>
+                <button onclick="startReplay()" class="w-full py-4 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200 flex items-center justify-center gap-2 animate-pulse">
+                    <i data-lucide="play" class="w-5 h-5"></i> 만점자의 풀이 과정 보기 (Replay)
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content: Left Panel (Passage) -->
+        <div class="flex-1 bg-white p-6 md:p-10 flex flex-col relative overflow-y-auto">
+            <div class="mb-6 flex justify-between items-center border-b pb-4">
+                <div class="text-sm font-bold text-slate-500 tracking-wider">2026 ACADEMIC YEAR ENGLISH</div>
+                <div id="timer-display" class="text-xl font-mono font-bold text-slate-800">0.0s</div>
             </div>
 
-            <div className="bg-slate-800 rounded-xl p-4 mt-8">
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-xs text-slate-400 font-bold uppercase">Controls</span>
-                <button onClick={() => setShowEyeTracker(!showEyeTracker)} className={`text-xs flex items-center gap-1 ${showEyeTracker ? 'text-blue-400' : 'text-slate-500'}`}>
-                  <Eye size={12} /> {showEyeTracker ? 'Tracker ON' : 'OFF'}
-                </button>
-              </div>
-              <div className="flex items-center justify-between">
-                <button onClick={() => {setCurrentTime(0); setIsPlaying(true);}} className="p-2 hover:bg-slate-700 rounded-full text-slate-400 hover:text-white transition"><RotateCcw size={20} /></button>
-                <button onClick={() => setIsPlaying(!isPlaying)} className="w-14 h-14 bg-blue-600 rounded-full flex items-center justify-center text-white hover:bg-blue-500 hover:scale-105 transition shadow-lg shadow-blue-900/50">
-                  {isPlaying ? <Pause size={24} fill="currentColor" /> : <Play size={24} fill="currentColor" className="ml-1" />}
-                </button>
-                <div className="flex bg-slate-700 rounded-lg p-1">
-                  {[0.5, 1, 2].map(speed => (
-                    <button key={speed} onClick={() => setPlaybackSpeed(speed)} className={`px-2 py-1 text-xs font-bold rounded ${playbackSpeed === speed ? 'bg-slate-500 text-white' : 'text-slate-400 hover:text-white'}`}>{speed}x</button>
-                  ))}
+            <h3 class="text-lg font-bold mb-6 text-slate-800 leading-snug">
+                21. 밑줄 친 <span class="border-b-2 border-slate-900">made a lot of work less sticky</span>가 다음 글에서 의미하는 바로 가장 적절한 것은?
+            </h3>
+
+            <!-- Text Body -->
+            <div id="passage-body" class="text-lg leading-loose font-serif text-justify relative">
+                <!-- Sentences injected by JS -->
+                <div id="logic-match-overlay" class="hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-blue-600/90 text-white p-4 rounded-2xl shadow-2xl z-50 animate-zoom-in flex flex-col items-center pointer-events-none">
+                    <i data-lucide="zap" class="w-8 h-8 text-yellow-300 mb-2 fill-yellow-300"></i>
+                    <span class="text-xl font-bold">Logic Match!</span>
+                    <span class="text-xs text-blue-200 mt-1">Disconnected = Flexible</span>
                 </div>
-              </div>
             </div>
-          </div>
+
+            <!-- Options -->
+            <div id="options-container" class="mt-8 space-y-3">
+                <!-- Options injected by JS -->
+            </div>
         </div>
-      )}
+
+        <!-- Right Panel: Thought Process (Visible only in Replay) -->
+        <div id="thought-panel" class="hidden md:flex md:w-96 bg-slate-900 text-white flex-col shadow-2xl z-10">
+            <!-- Progress Bar -->
+            <div class="h-2 bg-slate-800 w-full relative">
+                <div id="progress-bar" class="h-full bg-blue-500 transition-all duration-100 ease-linear" style="width: 0%"></div>
+                <!-- Markers -->
+                <div class="absolute top-0 left-[12%] w-0.5 h-2 bg-white/30" title="10s"></div>
+                <div class="absolute top-0 left-[37%] w-0.5 h-2 bg-white/30" title="30s"></div>
+                <div class="absolute top-0 left-[68%] w-0.5 h-2 bg-white/30" title="55s"></div>
+            </div>
+
+            <div class="flex-1 p-6 flex flex-col justify-between">
+                <div>
+                    <div id="phase-indicator" class="flex items-center gap-2 text-blue-400 text-sm font-bold uppercase tracking-widest mb-2">
+                        <i data-lucide="clock" class="w-3 h-3"></i> <span>Ready</span>
+                    </div>
+                    
+                    <div id="thought-bubble" class="bg-slate-800 p-5 rounded-2xl border border-slate-700 shadow-inner relative mt-4 transition-all duration-300">
+                        <div class="absolute -top-3 left-6 w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-b-[10px] border-b-slate-700"></div>
+                        <p id="thought-text" class="text-xl font-bold leading-relaxed text-white">...</p>
+                    </div>
+
+                    <div class="mt-6 space-y-3 opacity-80">
+                        <p class="text-xs text-slate-500 mb-2 font-bold uppercase">Brain Activity</p>
+                        <div class="flex items-center gap-3 transition-opacity duration-300">
+                            <div id="brain-dot" class="w-2 h-2 rounded-full bg-slate-600"></div>
+                            <span id="brain-action" class="text-sm text-slate-400">대기 중</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <div class="bg-slate-800 rounded-xl p-4 mt-8">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="text-xs text-slate-400 font-bold uppercase">Controls</span>
+                        <button onclick="toggleEyeTracker()" id="eye-tracker-btn" class="text-xs flex items-center gap-1 text-blue-400">
+                            <i data-lucide="eye" class="w-3 h-3"></i> Tracker ON
+                        </button>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <button onclick="resetReplay()" class="p-2 hover:bg-slate-700 rounded-full text-slate-400 hover:text-white transition">
+                            <i data-lucide="rotate-ccw" class="w-5 h-5"></i>
+                        </button>
+                        <button onclick="togglePlay()" id="play-pause-btn" class="w-14 h-14 bg-blue-600 rounded-full flex items-center justify-center text-white hover:bg-blue-500 hover:scale-105 transition shadow-lg shadow-blue-900/50">
+                            <i data-lucide="play" class="w-6 h-6 ml-1"></i>
+                        </button>
+                        <div class="flex bg-slate-700 rounded-lg p-1" id="speed-controls">
+                            <button onclick="setSpeed(0.5)" class="speed-btn px-2 py-1 text-xs font-bold rounded text-slate-400 hover:text-white" data-speed="0.5">0.5x</button>
+                            <button onclick="setSpeed(1)" class="speed-btn px-2 py-1 text-xs font-bold rounded bg-slate-500 text-white" data-speed="1">1x</button>
+                            <button onclick="setSpeed(2)" class="speed-btn px-2 py-1 text-xs font-bold rounded text-slate-400 hover:text-white" data-speed="2">2x</button>
+                            <button onclick="setSpeed(4)" class="speed-btn px-2 py-1 text-xs font-bold rounded text-slate-400 hover:text-white" data-speed="4">4x</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-  );
-};
 
-export default ReplayApp;
+    <script>
+        // --- Data ---
+        const passageSentences = [
+            { id: 1, text: "Digital platforms have ", type: "intro" },
+            { id: 2, text: "made a lot of work less sticky", type: "target_phrase", underline: true }, 
+            { id: 3, text: ". ", type: "text" },
+            { id: 4, text: "As work becomes ever more modularised, commoditised and standardised, and as markets for digital work are created, ", type: "context" },
+            { id: 5, text: "ties between service work and particular places ", type: "definition" },
+            { id: 6, text: "can be disconnected", type: "definition_highlight", highlight: true }, 
+            { id: 7, text: ". ", type: "text" },
+            { id: 8, text: "While the business process of outsourcing that emerged in the 1990s allowed large companies to take advantage of a ‘global reserve army’ by moving their call centres to cheap and distant labour markets, ", type: "contrast" },
+            { id: 9, text: "cloudwork changes the volume and granularity at which ", type: "contrast_focus" },
+            { id: 10, text: "geographically non-proximate work", type: "keyword" }, 
+            { id: 11, text: " can take place. ", type: "text" },
+            { id: 12, text: "A small business in New York can hire a freelance transcriber in ", type: "example" },
+            { id: 13, text: "Nairobi one day and New Delhi the next", type: "example_highlight" }, 
+            { id: 14, text: ". ", type: "text" },
+            { id: 15, text: "No offices or factories need to be built, no local regulations are observed, and ― in most cases ― no local taxes are paid. ", type: "detail" }, 
+            { id: 16, text: "The switch in the production network of work happens by simply sending some emails or clicking some buttons on a digital work platform. ", type: "detail" },
+            { id: 17, text: "And, in this way, the employer leaves behind ", type: "conclusion" },
+            { id: 18, text: "no material traces", type: "conclusion_highlight", highlight: true }, 
+            { id: 19, text: " in the places where it was once an employer.", type: "text" }
+        ];
+
+        const options = [
+            { id: 1, text: "settled the locational dilemma of the global markets", tag: "딜레마 아님(X)", isAnswer: false },
+            { id: 2, text: "elevated the spatial flexibility in conducting business", tag: "Logic Match! (O)", isAnswer: true },
+            { id: 3, text: "weakened the geographical expansion of local business", tag: "확장 강화됨(X)", isAnswer: false },
+            { id: 4, text: "relieved the strict legal processes of regional outsourcing", tag: "부수적 결과(△→X)", isAnswer: false },
+            { id: 5, text: "allowed business to be less complicated in its hiring process", tag: "지엽적(X)", isAnswer: false },
+        ];
+
+        const timelineEvents = [
+            { start: 0, end: 4.0, focusIds: [2], thought: "Less sticky? 덜 끈끈하다? 무언가에서 떨어진다는 거네. 바로 뒤에 답이 있겠지.", phase: "타겟팅", action: "scan" },
+            { start: 4.0, end: 10.0, focusIds: [5, 6], thought: "Bingo. '장소(places)와의 연결(ties)이 끊어졌다(disconnected)'는 뜻이구나.", phase: "정의 연결", action: "link_target_definition" },
+            { start: 10.0, end: 18.0, focusIds: [8, 9], thought: "옛날 아웃소싱이랑 비교하네. (While...)", phase: "대조 파악", action: "scan" },
+            { start: 18.0, end: 30.0, focusIds: [10], thought: "핵심은 'Geographically non-proximate(지리적으로 가깝지 않은)'. 장소에 구애받지 않는다.", phase: "논리 구체화", action: "magnify_keyword" },
+            { start: 30.0, end: 40.0, focusIds: [12, 13], thought: "나이로비 갔다가 뉴델리 갔다가... (왔다 갔다 자유롭네)", phase: "예시 시각화", action: "visualize_example" },
+            { start: 40.0, end: 48.0, focusIds: [15, 18], thought: "사무실도 필요 없고 흔적도 안 남는다. 물리적 제약 소멸.", phase: "단서 재확인", action: "read" },
+            { start: 48.0, end: 55.0, focusIds: [2], thought: "결론: Sticky = 장소 고착성. Less sticky = 장소 유연성.", phase: "의미 확정", action: "link_target_definition" },
+            { start: 55.0, end: 58.0, focusIds: [], focusOption: 1, thought: "1번 딜레마 해결? 딜레마 문제가 아님. (X)", phase: "선지 소거", action: "eliminate" },
+            { start: 58.0, end: 62.0, focusIds: [], focusOption: 3, thought: "3번 확장 약화? 오히려 전 세계로 확장됨. 반대. (X)", phase: "선지 소거", action: "eliminate" },
+            { start: 62.0, end: 66.0, focusIds: [], focusOption: 4, thought: "4번 법적 절차 완화? 그건 결과일 뿐, 'Less sticky'의 정의는 아님. (함정)", phase: "함정 회피", action: "trap_check" },
+            { start: 66.0, end: 70.0, focusIds: [], focusOption: 2, thought: "2번 'Spatial flexibility'? 지문의 'disconnected places', 'non-proximate'랑 딱 맞아떨어짐.", phase: "정답 도출", action: "critical_option" },
+            { start: 70.0, end: 76.0, focusIds: [6, 10, 18], focusOption: 2, thought: "Stickiness(접착성)가 없으니 Flexible(유연)한 거지. 논리 완벽함.", phase: "최종 마킹", action: "logic_match" },
+            { start: 76.0, end: 80.0, focusIds: [], focusOption: 2, thought: "2번 확정 마킹.", phase: "종료", action: "mark" }
+        ];
+
+        // --- State ---
+        let mode = 'intro';
+        let currentTime = 0;
+        let isPlaying = false;
+        let playbackSpeed = 1;
+        let showEyeTracker = true;
+        let solveTime = 0;
+        let timerInterval = null;
+        const TOTAL_DURATION = 80;
+
+        // --- Logic & Rendering ---
+
+        function init() {
+            lucide.createIcons();
+            renderPassage();
+            renderOptions();
+        }
+
+        function startSolving() {
+            setMode('solving');
+        }
+
+        function startReplay() {
+            setMode('replay');
+            currentTime = 0;
+            isPlaying = true;
+            startTimer();
+        }
+
+        function setMode(newMode) {
+            mode = newMode;
+            document.getElementById('intro-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.add('hidden');
+            document.getElementById('thought-panel').classList.remove('flex');
+            document.getElementById('thought-panel').classList.add('hidden');
+            document.getElementById('app-container').classList.remove('md:flex-row');
+            document.getElementById('app-container').classList.add('flex-col'); // Default vertical
+
+            if (newMode === 'intro') {
+                document.getElementById('intro-screen').classList.remove('hidden');
+            } else if (newMode === 'solving') {
+                currentTime = 0;
+                solveTime = 0;
+                isPlaying = false;
+                startTimer();
+                updateUI();
+            } else if (newMode === 'replay') {
+                document.getElementById('thought-panel').classList.remove('hidden');
+                document.getElementById('thought-panel').classList.add('flex');
+                document.getElementById('app-container').classList.remove('flex-col');
+                document.getElementById('app-container').classList.add('md:flex-row');
+                updateUI();
+            } else if (newMode === 'result') {
+                document.getElementById('result-screen').classList.remove('hidden');
+            }
+        }
+
+        function togglePlay() {
+            isPlaying = !isPlaying;
+            if (isPlaying) startTimer();
+            else stopTimer();
+            updatePlayButton();
+        }
+
+        function startTimer() {
+            stopTimer();
+            timerInterval = setInterval(() => {
+                if (mode === 'replay') {
+                    if (isPlaying) {
+                        currentTime += 0.1 * playbackSpeed;
+                        if (currentTime >= TOTAL_DURATION) {
+                            currentTime = TOTAL_DURATION;
+                            isPlaying = false;
+                            stopTimer();
+                            updatePlayButton();
+                        }
+                        updateUI();
+                    }
+                } else if (mode === 'solving') {
+                    solveTime += 0.1;
+                    document.getElementById('timer-display').innerText = solveTime.toFixed(1) + 's';
+                }
+            }, 100);
+            updatePlayButton();
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+        }
+
+        function resetReplay() {
+            currentTime = 0;
+            isPlaying = true;
+            startTimer();
+            updateUI();
+        }
+
+        function setSpeed(speed) {
+            playbackSpeed = speed;
+            document.querySelectorAll('.speed-btn').forEach(btn => {
+                if (parseFloat(btn.dataset.speed) === speed) {
+                    btn.classList.remove('text-slate-400');
+                    btn.classList.add('bg-slate-500', 'text-white');
+                } else {
+                    btn.classList.add('text-slate-400');
+                    btn.classList.remove('bg-slate-500', 'text-white');
+                }
+            });
+        }
+
+        function toggleEyeTracker() {
+            showEyeTracker = !showEyeTracker;
+            const btn = document.getElementById('eye-tracker-btn');
+            if (showEyeTracker) {
+                btn.classList.add('text-blue-400');
+                btn.classList.remove('text-slate-500');
+                btn.innerHTML = `<i data-lucide="eye" class="w-3 h-3"></i> Tracker ON`;
+            } else {
+                btn.classList.add('text-slate-500');
+                btn.classList.remove('text-blue-400');
+                btn.innerHTML = `<i data-lucide="eye-off" class="w-3 h-3"></i> Tracker OFF`;
+            }
+            lucide.createIcons();
+            updateUI(); // re-render text to toggle dots
+        }
+
+        function handleOptionClick(id) {
+            if (mode === 'solving') {
+                stopTimer();
+                const isCorrect = id === 2;
+                document.getElementById('result-title').innerText = isCorrect ? "정답입니다!" : "아쉽네요!";
+                document.getElementById('result-time').innerText = solveTime.toFixed(1) + '초';
+                
+                const iconContainer = document.getElementById('result-icon-container');
+                if (isCorrect) {
+                    iconContainer.className = "w-16 h-16 mx-auto rounded-full flex items-center justify-center bg-green-100 text-green-600";
+                    iconContainer.innerHTML = `<i data-lucide="check-circle" class="w-10 h-10"></i>`;
+                } else {
+                    iconContainer.className = "w-16 h-16 mx-auto rounded-full flex items-center justify-center bg-red-100 text-red-600";
+                    iconContainer.innerHTML = `<i data-lucide="x-circle" class="w-10 h-10"></i>`;
+                }
+                
+                lucide.createIcons();
+                setMode('result');
+            }
+        }
+
+        // --- Rendering Helpers ---
+
+        function updatePlayButton() {
+            const btn = document.getElementById('play-pause-btn');
+            if (isPlaying) {
+                btn.innerHTML = `<i data-lucide="pause" class="w-6 h-6"></i>`;
+            } else {
+                btn.innerHTML = `<i data-lucide="play" class="w-6 h-6 ml-1"></i>`;
+            }
+            lucide.createIcons();
+        }
+
+        function getCurrentEvent() {
+            return timelineEvents.find(e => currentTime >= e.start && currentTime < e.end) || timelineEvents[timelineEvents.length - 1];
+        }
+
+        function isFocused(id, currentEvent) {
+            if (mode !== 'replay') return true;
+            if (!currentEvent) return true;
+            
+            // Logic match shows anchors
+            if (currentEvent.action === 'logic_match') return currentEvent.focusIds.includes(id);
+
+            // Phase exclusions
+            if (currentEvent.phase.includes("선지") || currentEvent.phase.includes("정답") || currentEvent.phase.includes("함정") || currentEvent.phase === "종료") return false;
+
+            return currentEvent.focusIds.includes(id);
+        }
+
+        function updateUI() {
+            const currentEvent = getCurrentEvent();
+            
+            // 1. Update Timer Text
+            const timeDisplay = mode === 'replay' ? currentTime : solveTime;
+            const timerEl = document.getElementById('timer-display');
+            timerEl.innerText = timeDisplay.toFixed(1) + 's';
+            if (mode === 'replay') timerEl.classList.add('text-blue-600');
+            else timerEl.classList.remove('text-blue-600');
+
+            // 2. Update Passage Text
+            renderPassage(currentEvent);
+
+            // 3. Update Options
+            renderOptions(currentEvent);
+
+            // 4. Update Thought Panel (Replay Only)
+            if (mode === 'replay') {
+                // Progress Bar
+                document.getElementById('progress-bar').style.width = `${(currentTime / TOTAL_DURATION) * 100}%`;
+                
+                // Thought Bubble & Phase
+                document.getElementById('phase-indicator').innerHTML = `<i data-lucide="clock" class="w-3 h-3"></i> ${Math.floor(currentTime)}s / 80s - ${currentEvent.phase}`;
+                document.getElementById('thought-text').innerText = `"${currentEvent.thought}"`;
+                
+                // Thought Bubble Style
+                const bubble = document.getElementById('thought-bubble');
+                if (currentEvent.action === 'link_target_definition') {
+                    bubble.className = "bg-slate-800/80 p-5 rounded-2xl border border-slate-700 shadow-inner relative mt-4 ring-2 ring-red-500/50 transition-all duration-300";
+                } else if (currentEvent.action === 'logic_match') {
+                    bubble.className = "bg-blue-900/20 p-5 rounded-2xl border border-slate-700 shadow-inner relative mt-4 ring-2 ring-blue-500/50 transition-all duration-300";
+                } else {
+                    bubble.className = "bg-slate-800 p-5 rounded-2xl border border-slate-700 shadow-inner relative mt-4 transition-all duration-300";
+                }
+
+                // Brain Action
+                const dot = document.getElementById('brain-dot');
+                const actionText = document.getElementById('brain-action');
+                
+                let actionLabel = "→ 흐름 읽기";
+                let dotClass = "bg-slate-600";
+                let textClass = "text-slate-400";
+
+                if (currentEvent.action === 'link_target_definition') {
+                    actionLabel = "🔗 연결 추론 (Linking)";
+                    dotClass = "bg-red-500 animate-ping";
+                    textClass = "text-red-300 font-bold";
+                } else if (currentEvent.action === 'magnify_keyword') {
+                    actionLabel = "🔍 핵심 키워드 확대";
+                    dotClass = "bg-yellow-400";
+                    textClass = "text-yellow-300 font-bold";
+                } else if (currentEvent.action === 'visualize_example') {
+                    actionLabel = "🖼️ 예시 시각화";
+                    dotClass = "bg-green-500";
+                    textClass = "text-green-300 font-bold";
+                } else if (currentEvent.action === 'logic_match') {
+                    actionLabel = "⚡ 논리 일치 (Match)";
+                    dotClass = "bg-blue-400 animate-pulse";
+                    textClass = "text-blue-300 font-bold";
+                }
+
+                dot.className = `w-2 h-2 rounded-full transition-colors duration-300 ${dotClass}`;
+                actionText.className = `text-sm transition-colors duration-300 ${textClass}`;
+                actionText.innerText = actionLabel;
+                
+                lucide.createIcons();
+            }
+
+            // Logic Match Overlay Logic
+            const overlay = document.getElementById('logic-match-overlay');
+            if (mode === 'replay' && currentEvent.action === 'logic_match') {
+                overlay.classList.remove('hidden');
+            } else {
+                overlay.classList.add('hidden');
+            }
+        }
+
+        function getHighlightClass(segment, focused, currentEvent) {
+            if (mode !== 'replay') return segment.underline ? 'border-b-4 border-slate-800' : '';
+            
+            // Action Specific Styles
+            if (currentEvent?.action === 'link_target_definition') {
+                if (segment.id === 2 || segment.id === 6) {
+                    return 'bg-red-100 text-red-900 font-bold border-b-4 border-red-500 transition-all duration-300 shadow-sm';
+                }
+            }
+
+            if (currentEvent?.action === 'magnify_keyword' && segment.id === 10) {
+                return 'bg-yellow-200 text-slate-900 font-bold scale-110 shadow-lg px-2 rounded-lg ring-2 ring-yellow-400 transition-all duration-300 z-10 inline-block transform';
+            }
+            
+            if (currentEvent?.action === 'logic_match' && focused) {
+                return 'bg-blue-100 text-blue-900 font-bold px-1 rounded ring-2 ring-blue-200 transition-all duration-500';
+            }
+
+            if (!focused) return 'opacity-30 grayscale transition-all duration-500'; 
+
+            if (currentEvent?.action === 'visualize_example') {
+                return 'bg-green-50 text-slate-900 px-0 rounded transition-all duration-300';
+            }
+            
+            return 'bg-slate-100 text-slate-900 px-0 rounded transition-all duration-300';
+        }
+
+        function renderPassage(currentEvent) {
+            const container = document.getElementById('passage-body');
+            // We want to preserve existing elements if possible for performance, but for this simple app, re-rendering string is fine.
+            // To support overlay absolute positioning correctly, we render spans.
+            
+            let html = '';
+            
+            // Add Overlay container inside
+             html += `<div id="logic-match-overlay" class="${(mode === 'replay' && currentEvent?.action === 'logic_match') ? '' : 'hidden'} absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-blue-600/90 text-white p-4 rounded-2xl shadow-2xl z-50 animate-zoom-in flex flex-col items-center pointer-events-none"><i data-lucide="zap" class="w-8 h-8 text-yellow-300 mb-2 fill-yellow-300"></i><span class="text-xl font-bold">Logic Match!</span><span class="text-xs text-blue-200 mt-1">Disconnected = Flexible</span></div>`;
+
+            passageSentences.forEach(segment => {
+                const focused = isFocused(segment.id, currentEvent);
+                const classes = `segment-transition inline decoration-clone ${getHighlightClass(segment, focused, currentEvent)}`;
+                
+                let extraHtml = '';
+                // Key Focus Badge
+                if (mode === 'replay' && currentEvent?.action === 'magnify_keyword' && segment.id === 10) {
+                    extraHtml += `<span class="absolute -top-6 left-1/2 -translate-x-1/2 bg-yellow-400 text-yellow-900 text-[10px] px-2 py-0.5 rounded-full font-bold whitespace-nowrap animate-bounce z-20">Key Focus!</span>`;
+                }
+                // Visual Cursor (Red Dot)
+                if (mode === 'replay' && focused && showEyeTracker) {
+                    extraHtml += `<span class="inline-block w-2 h-2 bg-red-500 rounded-full ml-0.5 align-baseline tracker-dot"></span>`;
+                }
+                // Arrow Animation
+                if (mode === 'replay' && currentEvent?.action === 'visualize_example' && segment.id === 13) {
+                     extraHtml += `<span class="absolute top-0 left-0 w-full h-full border-b-2 border-green-400 border-dashed animate-pulse pointer-events-none"></span>`;
+                }
+
+                html += `<span class="relative ${classes}">${segment.text}${extraHtml}</span>`;
+            });
+            
+            container.innerHTML = html;
+            lucide.createIcons();
+        }
+
+        function renderOptions(currentEvent) {
+            const container = document.getElementById('options-container');
+            let html = '';
+
+            options.forEach(opt => {
+                let containerClasses = "p-4 border-2 rounded-xl flex justify-between items-center cursor-pointer transition-all relative ";
+                let badgeClasses = "w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold ";
+                let eyeIcon = "";
+                let tagHtml = "";
+
+                if (mode === 'solving') {
+                    containerClasses += "hover:border-blue-400 hover:bg-blue-50 border-slate-200";
+                    badgeClasses += "bg-slate-200 text-slate-600";
+                } else if (mode === 'replay') {
+                    if (currentTime < 55) {
+                        containerClasses += "opacity-40 blur-[1px] grayscale border-slate-200";
+                        badgeClasses += "bg-slate-200 text-slate-600";
+                    } else {
+                        // Replay Active Phase
+                        let isActive = false;
+                        if (currentEvent?.phase === '종료' || currentEvent?.phase === '최종 마킹') {
+                            if (opt.id === 2) {
+                                containerClasses += "bg-blue-600 text-white border-blue-600 scale-105 shadow-lg font-bold transform";
+                                badgeClasses += "bg-blue-600 text-white";
+                            } else {
+                                containerClasses += "opacity-20 grayscale scale-95";
+                                badgeClasses += "bg-slate-200 text-slate-600";
+                            }
+                        } else if (currentEvent?.focusOption === opt.id) {
+                            isActive = true;
+                            if (opt.id === 2) {
+                                containerClasses += "bg-blue-50 border-blue-500 scale-105 shadow-md font-bold ring-2 ring-blue-200 text-blue-900";
+                            } else if (opt.id === 4) {
+                                containerClasses += "bg-yellow-50 border-yellow-400 text-slate-700 scale-100 ring-1 ring-yellow-300";
+                            } else {
+                                containerClasses += "bg-slate-100 border-slate-400 text-slate-700 scale-100 ring-1 ring-slate-300";
+                            }
+                        } else {
+                            containerClasses += "opacity-50 grayscale scale-95 border-slate-100";
+                        }
+                        
+                        // Eye Icon
+                        if (isActive) {
+                             eyeIcon = `<div class="absolute -left-8 text-slate-400 animate-pulse hidden md:block"><i data-lucide="eye" class="w-5 h-5"></i></div>`;
+                        }
+
+                        // Tags
+                        if (currentTime > 55 && opt.id < (currentEvent?.focusOption || 99) && currentEvent?.focusOption !== opt.id) {
+                            let tagColor = "bg-slate-200 text-slate-500";
+                            if (opt.isAnswer) tagColor = "bg-blue-600 text-white";
+                            else if (opt.id === 4) tagColor = "bg-yellow-100 text-yellow-700";
+                            
+                            tagHtml = `<span class="text-xs font-bold px-2 py-1 rounded ml-2 whitespace-nowrap ${tagColor}">${opt.tag}</span>`;
+                        }
+                    }
+                }
+
+                html += `
+                <div onclick="handleOptionClick(${opt.id})" class="${containerClasses}">
+                    ${eyeIcon}
+                    <div class="flex items-center gap-3">
+                        <span class="${badgeClasses}">${opt.id}</span>
+                        <span class="text-sm md:text-base font-medium">${opt.text}</span>
+                    </div>
+                    ${tagHtml}
+                </div>`;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // Initialize
+        init();
+
+    </script>
+</body>
+</html>
