@@ -1,745 +1,677 @@
-import React, { useState, useEffect } from 'react';
-import { Play, Pause, ChevronRight, ChevronLeft, CheckCircle, XCircle, RefreshCw, BookOpen, Volume2, HelpCircle, X, Award, BarChart } from 'lucide-react';
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAT Experience Hub - 수능 체험</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-/**
- * ==================================================================================
- * 1. MOCK DATA & CONFIGURATION
- * 2026 수능 시험지를 기반으로 초3~고3 수준별로 변형한 전체 문항 데이터입니다.
- * ==================================================================================
- */
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+        
+        body {
+            font-family: 'Pretendard', sans-serif;
+        }
 
-const GRADES = [
-  "초3", "초4", "초5", "초6",
-  "중1", "중2", "중3",
-  "고1", "고2", "고3"
-];
+        /* Animation Utilities */
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        
+        .animate-slide-up {
+            animation: slideUp 0.5s ease-out forwards;
+        }
 
-const MOCK_DB = {
-  // ========================================================================
-  // [초등] 4지 선다, 직관적 지문, 친절한 해설
-  // ========================================================================
-  "초3": [
-    {
-      id: "E3_L_01",
-      origin: "2026 수능 1번 변형",
-      type: "listening",
-      audioUrl: "mock-audio-e3-l-01.mp3",
-      prompt: "[1~2] 다음을 듣고, 남자가 하는 말의 목적으로 알맞은 것을 고르시오.",
-      script: "M: Hello, students. Tomorrow is our school picnic. Please bring your lunch box and water. Let's meet at 9.",
-      options: ["소풍 준비물을 알리려고", "생일 파티에 초대하려고", "학교 청소를 하려고", "숙제를 내려고"],
-      answer: 0,
-      explanation: "남자가 'Please bring your lunch box'(점심 도시락을 가져오세요)라고 말하며 소풍 준비물을 안내하고 있어요."
-    },
-    {
-      id: "E3_R_18",
-      origin: "2026 수능 18번 변형",
-      type: "reading",
-      prompt: "다음 글의 목적으로 알맞은 것을 고르시오.",
-      passage: "Dear Minji,\nHappy Birthday! Come to my house this Saturday. Let's eat cake and play games together.\nFrom, Sujin",
-      options: ["초대하려고", "사과하려고", "빌려주려고", "질문하려고"],
-      answer: 0,
-      explanation: "수진이가 민지에게 'Come to my house'(우리 집에 와)라고 말하며 생일 파티에 초대하고 있습니다."
-    }
-  ],
-  "초4": [
-    {
-      id: "E4_L_04",
-      origin: "2026 수능 4번 변형",
-      type: "listening",
-      audioUrl: "mock-audio-e4-l-04.mp3",
-      prompt: "대화를 듣고, 그림 속 고양이의 위치로 알맞은 것을 고르시오.",
-      script: "W: Look at the cat! It is so cute.\nM: Where is it?\nW: It is sleeping under the bench.",
-      options: ["벤치 아래", "벤치 위", "나무 뒤", "지붕 위"],
-      answer: 0,
-      explanation: "여자가 고양이가 'under the bench'(벤치 아래)에서 자고 있다고 말했습니다."
-    },
-    {
-      id: "E4_R_26",
-      origin: "2026 수능 26번 변형",
-      type: "reading",
-      prompt: "다음 글을 읽고, 펭귄에 대한 내용과 일치하는 것을 고르시오.",
-      passage: "Penguins are birds, but they cannot fly. They are very good swimmers. They live in cold places like Antarctica.",
-      options: ["하늘을 잘 난다.", "수영을 잘한다.", "더운 곳에 산다.", "물고기가 아니다."],
-      answer: 1,
-      explanation: "지문에서 'They are very good swimmers'(그들은 매우 훌륭한 수영 선수입니다)라고 했습니다."
-    }
-  ],
-  "초5": [
-    {
-      id: "E5_L_06",
-      origin: "2026 수능 6번 변형",
-      type: "listening",
-      audioUrl: "mock-audio-e5-l-06.mp3",
-      prompt: "대화를 듣고, 여자가 지불할 금액을 고르시오.",
-      script: "M: Can I help you?\nW: Yes, I want to buy this notebook.\nM: It is 1,000 won.\nW: Okay. I will buy two notebooks.",
-      options: ["1,000원", "2,000원", "3,000원", "4,000원"],
-      answer: 1,
-      explanation: "1,000원짜리 공책을 2권 산다고 했으므로, 1,000 x 2 = 2,000원입니다."
-    },
-    {
-      id: "E5_R_19",
-      origin: "2026 수능 19번 변형",
-      type: "reading",
-      prompt: "다음 글에 드러난 'I'의 심정으로 알맞은 것은?",
-      passage: "I lost my favorite toy car in the park. I looked everywhere, but I couldn't find it. Tears came out of my eyes.",
-      options: ["슬픈", "기쁜", "신난", "자랑스러운"],
-      answer: 0,
-      explanation: "아끼던 장난감을 잃어버려서 눈물이 났으므로(Tears came out), 심정은 '슬픈(sad)'이 맞습니다."
-    }
-  ],
-  "초6": [
-    {
-      id: "E6_L_07",
-      origin: "2026 수능 7번 변형",
-      type: "listening",
-      audioUrl: "mock-audio-e6-l-07.mp3",
-      prompt: "대화를 듣고, 남자가 축구를 할 수 없는 이유를 고르시오.",
-      script: "W: Do you want to play soccer with us?\nM: I'd love to, but I can't.\nW: Why not?\nM: I hurt my leg yesterday.",
-      options: ["다리를 다쳐서", "숙제가 많아서", "비가 와서", "학원에 가야 해서"],
-      answer: 0,
-      explanation: "남자가 'I hurt my leg'(나 다리를 다쳤어)라고 이유를 설명했습니다."
-    },
-    {
-      id: "E6_R_25",
-      origin: "2026 수능 25번 변형",
-      type: "reading",
-      prompt: "다음 도표의 내용과 일치하지 않는 것은?",
-      passage: "[Favorite Fruit]\n1. Apple: 50%\n2. Banana: 30%\n3. Grape: 20%\n\nThe text says apples are the most popular fruit. Half of the students like apples. Bananas are more popular than grapes.",
-      options: ["사과가 가장 인기가 많다.", "학생 절반이 사과를 좋아한다.", "포도가 바나나보다 인기가 많다.", "바나나는 2위이다."],
-      answer: 2,
-      explanation: "도표에서 바나나(30%)가 포도(20%)보다 더 높습니다. 따라서 포도가 더 인기 있다는 ③번은 틀린 내용입니다."
-    }
-  ],
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
 
-  // ========================================================================
-  // [중등] 5지 선다, 논리적 흐름, 기본 문법 및 독해
-  // ========================================================================
-  "중1": [
-    {
-      id: "M1_L_02",
-      origin: "2026 수능 2번 변형",
-      type: "listening",
-      audioUrl: "mock-audio-m1-l-02.mp3",
-      prompt: "대화를 듣고, 여자의 의견으로 가장 적절한 것을 고르시오.",
-      script: "M: You look healthy. What is your secret?\nW: I go jogging every morning. It gives me energy for the day.\nM: Is it hard to wake up early?\nW: A little, but morning exercise is great for your health.",
-      options: ["아침 운동은 건강에 유익하다.", "일찍 일어나는 것은 피곤하다.", "친구와 함께 운동해야 한다.", "저녁 식사를 가볍게 해야 한다.", "물은 많이 마실수록 좋다."],
-      answer: 0,
-      explanation: "여자는 아침 운동이 건강에 좋고(great for health), 하루의 에너지를 준다고 말하고 있습니다."
-    },
-    {
-      id: "M1_R_20",
-      origin: "2026 수능 20번 변형",
-      type: "reading",
-      prompt: "다음 글에서 필자가 주장하는 바로 가장 적절한 것은?",
-      passage: "Many students stay up late to play games. However, sleep is very important for your brain. If you sleep well, you can study better the next day. You should go to bed early for your health.",
-      options: ["건강을 위해 일찍 잠자리에 들어야 한다.", "게임은 스트레스 해소에 도움이 된다.", "공부 계획을 철저히 세워야 한다.", "아침 식사를 거르지 말아야 한다.", "잠자기 전에 독서를 해야 한다."],
-      answer: 0,
-      explanation: "필자는 잠이 뇌에 중요하며, 건강을 위해 일찍 자야 한다(You should go to bed early)고 주장합니다."
-    }
-  ],
-  "중2": [
-    {
-      id: "M2_L_03",
-      origin: "2026 수능 3번 변형",
-      type: "listening",
-      audioUrl: "mock-audio-m2-l-03.mp3",
-      prompt: "다음을 듣고, 남자가 하는 말의 요지로 가장 적절한 것을 고르시오.",
-      script: "M: Today, I'll talk about recycling. We use too much paper and plastic. Recycling saves trees and keeps the earth clean. Please separate your trash correctly.",
-      options: ["재활용을 생활화해야 한다.", "일회용품 사용을 늘려야 한다.", "쓰레기통을 자주 비워야 한다.", "종이보다 플라스틱이 낫다.", "나무를 많이 심어야 한다."],
-      answer: 0,
-      explanation: "남자는 재활용이 지구를 깨끗하게 하므로 쓰레기를 잘 분리해서 재활용하자고 말하고 있습니다."
-    },
-    {
-      id: "M2_R_22",
-      origin: "2026 수능 22번 변형",
-      type: "reading",
-      prompt: "다음 글의 요지로 가장 적절한 것은?",
-      passage: "Teamwork is essential in sports. A star player cannot win the game alone. To win, you must pass the ball and trust your teammates. Cooperation brings the best results.",
-      options: ["스포츠에서는 팀워크가 승리의 열쇠다.", "꾸준한 연습만이 실력을 향상시킨다.", "경쟁보다는 즐기는 것이 중요하다.", "훌륭한 리더가 팀을 승리로 이끈다.", "규칙을 준수하는 태도가 필요하다."],
-      answer: 0,
-      explanation: "혼자서는 이길 수 없으며 협력(cooperation)이 최고의 결과를 가져온다는 내용이므로 '팀워크가 승리의 열쇠다'가 요지입니다."
-    }
-  ],
-  "중3": [
-    {
-      id: "M3_L_11",
-      origin: "2026 수능 11번 변형",
-      type: "listening",
-      audioUrl: "mock-audio-m3-l-11.mp3",
-      prompt: "대화를 듣고, 여자의 마지막 말에 대한 남자의 응답으로 가장 적절한 것을 고르시오.",
-      script: "W: Hey, look at the time! We are going to be late for the movie.\nM: Don't worry. The bus is coming soon.\nW: But there is heavy traffic. What if we miss the beginning?",
-      options: [
-        "Don't worry. It's not a big deal.",
-        "Then, let's take the subway instead.",
-        "I think the movie was boring.",
-        "You should buy the tickets now.",
-        "The bus stop is over there."
-      ],
-      answer: 1,
-      explanation: "차가 막혀서(heavy traffic) 늦을까 봐 걱정하는 상황이므로, 대안으로 '지하철을 타자'고 제안하는 것이 자연스럽습니다."
-    },
-    {
-      id: "M3_R_31",
-      origin: "2026 수능 31번 변형",
-      type: "reading",
-      prompt: "다음 빈칸에 들어갈 말로 가장 적절한 것을 고르시오.",
-      passage: "Reading books opens new worlds for us. It allows us to travel to different countries without moving our feet. Through books, we can experience ______ lives and cultures.",
-      options: ["boring", "similar", "different", "expensive", "heavy"],
-      answer: 2,
-      explanation: "책을 통해 새로운 세상을 보고 움직이지 않고도 여행한다고 했으므로, '다른(different)' 삶과 문화를 경험한다는 것이 문맥상 적절합니다."
-    }
-  ],
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-  // ========================================================================
-  // [고등] 5지 선다, 수능형 논리, 추상적 개념, 복합적 사고
-  // ========================================================================
-  "고1": [
-    {
-      id: "H1_L_03",
-      origin: "2026 수능 3번 변형",
-      type: "listening",
-      audioUrl: "mock-audio-h1-l-03.mp3",
-      prompt: "다음을 듣고, 남자가 하는 말의 요지로 가장 적절한 것을 고르시오.",
-      script: "M: Do you get nervous before a presentation? Here is a tip. Make a 'big pose' like a superhero. Stretch your arms out wide. This signals to your brain that you are powerful. It effectively reduces your anxiety.",
-      options: ["큰 자세를 취하면 불안감을 줄일 수 있다.", "발표 준비는 철저히 하는 것이 중요하다.", "적당한 긴장감은 집중력을 높여준다.", "자신감은 성공적인 발표의 핵심이다.", "규칙적인 스트레칭은 건강에 필수적이다."],
-      answer: 0,
-      explanation: "발표 전 긴장될 때 'big pose'를 취하면 뇌에 신호를 보내 불안감을 줄여준다는 것이 요지입니다."
-    },
-    {
-      id: "H1_R_21",
-      origin: "2026 수능 21번 변형",
-      type: "reading",
-      prompt: "밑줄 친 'make work less sticky'가 다음 글에서 의미하는 바로 가장 적절한 것은?",
-      passage: "Digital platforms have changed how we work. In the past, work was tied to a specific place. But now, digital platforms have made work less sticky. A company in New York can hire a worker in Seoul instantly. Location matters less now.",
-      options: ["일자리의 지역적 제약을 없애주었다.", "업무 처리 속도를 획기적으로 높였다.", "직장 내 인간관계를 끈끈하게 만들었다.", "복잡한 업무 절차를 단순화시켰다.", "고용주와 근로자의 관계를 강화했다."],
-      answer: 0,
-      explanation: "'Sticky'는 장소에 고착된 것을 의미합니다. 디지털 플랫폼이 이를 덜하게 만들었다는 것은 장소에 구애받지 않게 되었다는 의미입니다."
-    }
-  ],
-  "고2": [
-    {
-      id: "H2_L_13",
-      origin: "2026 수능 13번 변형",
-      type: "listening",
-      audioUrl: "mock-audio-h2-l-13.mp3",
-      prompt: "대화를 듣고, 여자의 마지막 말에 대한 남자의 응답으로 가장 적절한 것을 고르시오.",
-      script: "W: I ordered a DIY chair, but one of the legs is scratched.\nM: I'm sorry. Is the rest of the chair okay?\nW: Yes, only the left front leg is damaged. I don't need a whole new set.",
-      options: [
-        "Then, we'll send you a replacement part right away.",
-        "You can buy a new chair at the store.",
-        "Please return the whole set for a refund.",
-        "It takes a long time to assemble the chair.",
-        "The scratch is not a big problem."
-      ],
-      answer: 0,
-      explanation: "여자가 전체 세트는 필요 없고 다리 하나만 문제라고 했으므로, '그럼 교체 부품만 바로 보내드리겠습니다'가 가장 적절한 응답입니다."
-    },
-    {
-      id: "H2_R_33",
-      origin: "2026 수능 33번 변형",
-      type: "reading",
-      prompt: "다음 빈칸에 들어갈 말로 가장 적절한 것을 고르시오.",
-      passage: "Designing a building requires more than just the architect's idea. It is crucial to listen to the people who will use the building. Users like doctors or patients know what they need best. People are likely to be more satisfied with a new building if they ______.",
-      options: [
-        "have been consulted in the design process",
-        "pay for the construction costs",
-        "design the building by themselves",
-        "are ignored by the architects",
-        "visit the building only once"
-      ],
-      answer: 0,
-      explanation: "건물을 실제로 사용할 사람들의 의견을 듣는 것이 중요하다고 했으므로, 그들이 '설계 과정에서 상담(의견 청취)을 받았다면' 더 만족할 것입니다."
-    }
-  ],
-  "고3": [
-    {
-      id: "H3_L_16",
-      origin: "2026 수능 16번 변형",
-      type: "listening",
-      audioUrl: "mock-audio-h3-l-16.mp3",
-      prompt: "다음을 듣고, 여자가 하는 말의 주제로 가장 적절한 것을 고르시오.",
-      script: "W: Today, let's talk about plants used in science. Bamboo grows very fast, so it helps study climate change. Peas grow quickly too, which helped Mendel study genetics. These fast-growing plants are perfect for experiments.",
-      options: [
-        "fast growing plants used for science experiments",
-        "how to grow bamboo in your garden",
-        "the history of genetic engineering",
-        "effects of climate change on plants",
-        "nutritional benefits of eating peas"
-      ],
-      answer: 0,
-      explanation: "여자는 대나무, 완두콩 등 빨리 자라는 식물들이 과학 실험에 어떻게 활용되는지 설명하고 있으므로 주제는 ①번입니다."
-    },
-    {
-      id: "H3_R_34",
-      origin: "2026 수능 34번 변형",
-      type: "reading",
-      prompt: "다음 빈칸에 들어갈 말로 가장 적절한 것을 고르시오.",
-      passage: "Kant believed that the rule of law guarantees freedom. However, this is not because people are naturally good. Even 'a nation of devils' can live in peace if the laws are effective. The law forces us to act correctly. Therefore, the law cannot be ______.",
-      options: [
-        "regarded as reasonably confining human liberty",
-        "seen as unnecessary for modern society",
-        "created without the consent of the people",
-        "changed easily by the government",
-        "ignored by the judges in the court"
-      ],
-      answer: 0,
-      explanation: "칸트는 법이 자유를 보장한다고 보았습니다. 비록 법이 강제성을 띠더라도 그것은 평화와 공존을 위한 것이므로, 법이 '합리적으로 인간의 자유를 구속한다고 간주될 수 없다(자유를 침해하는 것이 아니다)'는 논리입니다. (수능 원문의 핵심 논리 변형)"
-    }
-  ]
-};
+        /* Custom Scrollbar for Script Box */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900">
+    <div id="root"></div>
 
-/**
- * ==================================================================================
- * 2. MOCK API SERVICE
- * ==================================================================================
- */
-const apiService = {
-  fetchQuestions: async (grade) => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        // 데이터가 없는 경우를 대비한 방어 코드
-        const data = MOCK_DB[grade] || MOCK_DB["고1"];
-        resolve(data);
-      }, 600); // 약간 더 빠른 반응 속도
-    });
-  },
-  
-  generateAudio: async (script) => {
-    console.log(`[API] Generating TTS for: "${script}"`);
-    return new Promise((resolve) => setTimeout(() => resolve(true), 1000));
-  }
-};
+    <script type="text/babel">
+        const { useState, useEffect } = React;
 
-/**
- * ==================================================================================
- * 3. COMPONENTS
- * ==================================================================================
- */
-
-const AudioPlayer = ({ script, onPlay }) => {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [progress, setProgress] = useState(0);
-
-  useEffect(() => {
-    let interval;
-    if (isPlaying) {
-      interval = setInterval(() => {
-        setProgress((prev) => {
-          if (prev >= 100) {
-            setIsPlaying(false);
-            return 0;
-          }
-          return prev + 1.5; // 재생 속도 조절
-        });
-      }, 50);
-    } else {
-      clearInterval(interval);
-    }
-    return () => clearInterval(interval);
-  }, [isPlaying]);
-
-  const togglePlay = () => {
-    if (!isPlaying) {
-      if (progress === 0 && onPlay) onPlay();
-    }
-    setIsPlaying(!isPlaying);
-  };
-
-  return (
-    <div className="bg-slate-50 p-4 rounded-xl mb-6 flex items-center space-x-4 border border-slate-200 select-none">
-      <button 
-        onClick={togglePlay}
-        className="w-12 h-12 rounded-full bg-[#0077c8] text-white flex items-center justify-center hover:bg-blue-600 transition-colors shadow-md flex-shrink-0 active:scale-95"
-      >
-        {isPlaying ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" className="ml-1" />}
-      </button>
-      <div className="flex-1">
-        <div className="flex justify-between text-xs text-slate-500 mb-2 font-medium">
-          <span className="flex items-center"><Volume2 size={12} className="mr-1"/> Listening Test Audio</span>
-          <span>{isPlaying ? "Playing..." : "00:00 / 01:30"}</span>
-        </div>
-        <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
-          <div 
-            className="h-full bg-[#0077c8] transition-all duration-100 ease-linear"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const QuestionCard = ({ question, currentAnswer, onAnswer }) => {
-  return (
-    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-500">
-      {/* Header Info */}
-      <div className="px-5 py-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
-        <div className="flex items-center space-x-2">
-          <span className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${question.type === 'listening' ? 'bg-indigo-100 text-indigo-700' : 'bg-emerald-100 text-emerald-700'}`}>
-            {question.type === 'listening' ? 'Listening' : 'Reading'}
-          </span>
-          <span className="text-slate-400 text-xs font-mono">{question.id}</span>
-        </div>
-        {question.origin && (
-          <span className="text-[10px] text-slate-500 bg-white border border-slate-200 px-2 py-0.5 rounded-full">
-            {question.origin}
-          </span>
-        )}
-      </div>
-
-      <div className="p-6">
-        {/* Prompt (Instruction) */}
-        <h3 className="text-lg font-bold text-slate-900 leading-snug mb-6 whitespace-pre-line">
-          {question.prompt}
-        </h3>
-
-        {/* Content Area */}
-        {question.type === 'listening' && (
-          <AudioPlayer script={question.script} onPlay={() => apiService.generateAudio(question.script)} />
-        )}
-
-        {question.passage && (
-          <div className="bg-[#f8fafc] p-6 rounded-xl border border-slate-200 mb-8 font-serif text-slate-700 leading-relaxed text-[15px] lg:text-base shadow-inner">
-            {question.passage.split('\n').map((line, i) => (
-              <p key={i} className={line ? "mb-4 last:mb-0" : "h-4"}>{line}</p>
-            ))}
-          </div>
-        )}
-
-        {/* Options */}
-        <div className="space-y-3">
-          {question.options.map((option, idx) => (
-            <button
-              key={idx}
-              onClick={() => onAnswer(idx)}
-              className={`w-full text-left p-4 rounded-xl border-2 transition-all duration-200 flex items-start group ${
-                currentAnswer === idx
-                  ? 'border-[#0077c8] bg-blue-50/50'
-                  : 'border-transparent bg-slate-50 hover:bg-slate-100 hover:border-slate-200'
-              }`}
+        /**
+         * ------------------------------------------------------------------
+         * 1. ICONS (SVG Components)
+         * ------------------------------------------------------------------
+         */
+        const IconBase = ({ size = 24, className = "", children }) => (
+            <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                width={size} 
+                height={size} 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                className={className}
             >
-              <div className={`w-6 h-6 rounded-full border flex-shrink-0 flex items-center justify-center mr-3 text-xs font-bold transition-colors ${
-                currentAnswer === idx ? 'bg-[#0077c8] border-[#0077c8] text-white' : 'border-slate-300 text-slate-400 group-hover:border-slate-400 group-hover:text-slate-500'
-              }`}>
-                {idx + 1}
-              </div>
-              <span className={`text-[15px] pt-0.5 ${currentAnswer === idx ? 'text-[#0077c8] font-semibold' : 'text-slate-700'}`}>
-                {option}
-              </span>
-            </button>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const GradeSelector = ({ onSelect }) => {
-  return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-      {GRADES.map((grade) => {
-        let themeClass = "";
-        if (grade.startsWith("초")) themeClass = "from-yellow-50 to-orange-50 text-yellow-800 border-yellow-200 hover:border-yellow-400";
-        if (grade.startsWith("중")) themeClass = "from-green-50 to-emerald-50 text-green-800 border-green-200 hover:border-green-400";
-        if (grade.startsWith("고")) themeClass = "from-blue-50 to-indigo-50 text-blue-800 border-blue-200 hover:border-blue-400";
-
-        return (
-          <button
-            key={grade}
-            onClick={() => onSelect(grade)}
-            className={`bg-gradient-to-br ${themeClass} border rounded-xl p-5 flex flex-col items-center justify-center transition-all hover:-translate-y-1 hover:shadow-md active:scale-95`}
-          >
-            <span className="text-xl font-black mb-1 tracking-tight">{grade}</span>
-            <span className="text-[10px] opacity-60 uppercase font-bold tracking-wider">Level</span>
-          </button>
+                {children}
+            </svg>
         );
-      })}
-    </div>
-  );
-};
 
-// ResultView
-const ResultView = ({ score, total, correctCount, questions, userAnswers, onRetry }) => {
-  return (
-    <div className="pb-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      {/* Score Summary */}
-      <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 text-center mb-8 relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-400 to-indigo-500"></div>
-        <div className="flex justify-center mb-4">
-          <div className="w-20 h-20 rounded-full bg-blue-50 flex items-center justify-center text-[#0077c8]">
-            {score === 100 ? <Award size={40} /> : <BarChart size={36} />}
-          </div>
-        </div>
-        <h2 className="text-3xl font-black text-slate-800 mb-2">{score}점</h2>
-        <p className="text-slate-500 text-sm font-medium">총 {total}문제 중 {correctCount}문제를 맞혔습니다.</p>
-      </div>
+        const Play = (props) => <IconBase {...props}><polygon points="5 3 19 12 5 21 5 3"></polygon></IconBase>;
+        const Pause = (props) => <IconBase {...props}><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></IconBase>;
+        const ChevronRight = (props) => <IconBase {...props}><polyline points="9 18 15 12 9 6"></polyline></IconBase>;
+        const ChevronLeft = (props) => <IconBase {...props}><polyline points="15 18 9 12 15 6"></polyline></IconBase>;
+        const CheckCircle = (props) => <IconBase {...props}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></IconBase>;
+        const XCircle = (props) => <IconBase {...props}><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></IconBase>;
+        const RefreshCw = (props) => <IconBase {...props}><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></IconBase>;
+        const BookOpen = (props) => <IconBase {...props}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></IconBase>;
+        const Volume2 = (props) => <IconBase {...props}><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></IconBase>;
+        const HelpCircle = (props) => <IconBase {...props}><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></IconBase>;
+        const X = (props) => <IconBase {...props}><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></IconBase>;
+        const Award = (props) => <IconBase {...props}><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></IconBase>;
+        const BarChart = (props) => <IconBase {...props}><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></IconBase>;
+        const ArrowDown = (props) => <IconBase {...props}><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></IconBase>;
 
-      <h3 className="font-bold text-slate-800 mb-4 flex items-center px-1">
-        <BookOpen size={18} className="mr-2 text-[#0077c8]" />
-        문항별 상세 해설
-      </h3>
+        /**
+         * ------------------------------------------------------------------
+         * 2. DATA (MOCK_DB)
+         * ------------------------------------------------------------------
+         */
+        const GRADES = ["초3", "초4", "초5", "초6", "중1", "중2", "중3", "고1", "고2", "고3"];
 
-      <div className="space-y-6">
-        {questions.map((q, idx) => {
-          const isCorrect = userAnswers[idx] === q.answer;
-          return (
-            <div key={q.id} className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
-              <div className={`px-4 py-3 border-b flex justify-between items-center ${isCorrect ? 'bg-slate-50 border-slate-100' : 'bg-red-50 border-red-100'}`}>
-                <div className="flex items-center gap-2">
-                  <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${isCorrect ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}>
-                    {idx + 1}
-                  </span>
-                  <span className={`text-sm font-bold ${isCorrect ? 'text-green-700' : 'text-red-700'}`}>
-                    {isCorrect ? '정답입니다!' : '오답입니다'}
-                  </span>
-                </div>
-                <span className="text-[10px] text-slate-400 font-medium px-2 py-0.5 bg-white rounded border border-slate-200">{q.origin}</span>
-              </div>
+        const MOCK_DB = {
+            "초3": [
+                { id: "E3_L_01", origin: "2026 수능 1번 변형", type: "listening", script: "M: Hello, class. Tomorrow is cleaning day. Please bring a rag and gloves.", prompt: "[1~2] 다음을 듣고, 선생님이 학생들에게 가져오라고 한 것을 고르시오.", options: ["걸레와 장갑", "빗자루와 쓰레받기", "책과 연필", "도시락과 물통"], answer: 0, explanation: "'rag(걸레) and gloves(장갑)'를 가져오라고 했습니다." },
+                { id: "E3_L_02", origin: "2026 수능 4번 변형", type: "listening", script: "W: Look at the balloon. It is high in the sky.\nM: Oh, it is red and round.", prompt: "대화를 듣고, 풍선의 모양과 색깔로 알맞은 것을 고르시오.", options: ["파랗고 네모난 모양", "빨갛고 둥근 모양", "노랗고 세모난 모양", "하얗고 별 모양"], answer: 1, explanation: "남자가 'red and round'(빨갛고 둥근)라고 묘사했습니다." },
+                { id: "E3_L_03", origin: "2026 수능 6번 변형", type: "listening", script: "M: How much is this candy?\nW: It is 500 won.\nM: I want two candies, please.", prompt: "대화를 듣고, 남자가 지불할 금액을 고르시오.", options: ["500원", "1,000원", "1,500원", "2,000원"], answer: 1, explanation: "500원짜리 사탕 2개이므로 1,000원입니다." },
+                { id: "E3_L_04", origin: "2026 수능 7번 변형", type: "listening", script: "W: Can you come to the playground?\nM: Sorry, I can't. I have a cold.", prompt: "대화를 듣고, 남자가 놀이터에 갈 수 없는 이유를 고르시오.", options: ["숙제가 있어서", "비가 와서", "감기에 걸려서", "학원에 가야 해서"], answer: 2, explanation: "'I have a cold'(감기에 걸렸어)라고 말했습니다." },
+                { id: "E3_R_01", origin: "2026 수능 18번 변형", type: "reading", passage: "Dear Mom,\nThank you for the delicious lunch. I liked the sandwich very much.\nLove, Jinu", prompt: "다음 글을 쓴 목적으로 알맞은 것은?", options: ["감사하려고", "사과하려고", "부탁하려고", "불평하려고"], answer: 0, explanation: "점심이 맛있었다고 'Thank you'라고 말하고 있습니다." },
+                { id: "E3_R_02", origin: "2026 수능 19번 변형", type: "reading", passage: "The dog wagged its tail. It jumped up and down when Minji came home. Minji smiled.", prompt: "다음 글에 나타난 분위기로 알맞은 것은?", options: ["무서운", "슬픈", "지루한", "즐거운"], answer: 3, explanation: "개가 꼬리를 흔들며 반기는 상황은 즐거운 분위기입니다." },
+                { id: "E3_R_03", origin: "2026 수능 25번 변형", type: "reading", passage: "Tom has two cats. Jane has one dog. Mike has three fish.", prompt: "다음 글의 내용과 일치하는 것은?", options: ["톰은 개를 키운다.", "제인은 고양이를 키운다.", "마이크는 물고기를 세 마리 키운다.", "모두 같은 동물을 키운다."], answer: 2, explanation: "Mike has three fish(마이크는 물고기 세 마리를 가지고 있다)가 일치합니다." },
+                { id: "E3_R_04", origin: "2026 수능 20번 변형", type: "reading", passage: "Brushing teeth is important. You should brush your teeth three times a day. It keeps your teeth strong.", prompt: "다음 글의 요지로 알맞은 것은?", options: ["손을 자주 씻자.", "양치질을 잘 하자.", "일찍 자고 일찍 일어나자.", "골고루 먹자."], answer: 1, explanation: "Brushing teeth(양치질)의 중요성을 이야기하고 있습니다." },
+                { id: "E3_R_05", origin: "2026 수능 31번 변형", type: "reading", passage: "It is raining outside. You need an ______.", prompt: "빈칸에 들어갈 말로 알맞은 것은?", options: ["umbrella", "ice cream", "apple", "eraser"], answer: 0, explanation: "비가 오니까 우산(umbrella)이 필요합니다." },
+                { id: "E3_R_06", origin: "2026 수능 36번 변형", type: "reading", passage: "(A) He puts on his shoes.\n(B) Minho wakes up in the morning.\n(C) He goes to school.", prompt: "글의 순서로 알맞은 것은?", options: ["(A)-(B)-(C)", "(B)-(A)-(C)", "(C)-(A)-(B)", "(B)-(C)-(A)"], answer: 1, explanation: "일어나서(B) -> 신발을 신고(A) -> 학교에 가는(C) 순서가 자연스럽습니다." }
+            ],
+            "초4": [
+                { id: "E4_L_01", origin: "2026 수능 1번 변형", type: "listening", script: "W: Welcome to the library. Please be quiet here. Do not run.", prompt: "다음을 듣고, 여자가 하는 말의 목적으로 알맞은 것을 고르시오.", options: ["도서관 규칙을 안내하려고", "책을 빌려주려고", "길을 알려주려고", "친구를 찾으려고"], answer: 0, explanation: "도서관에서 조용히 하고 뛰지 말라는 규칙을 안내하고 있습니다." },
+                { id: "E4_L_02", origin: "2026 수능 4번 변형", type: "listening", script: "M: Where is my cap?\nW: It is on the bed, next to the pillow.", prompt: "대화를 듣고, 모자가 있는 위치로 알맞은 것을 고르시오.", options: ["침대 위", "책상 아래", "의자 뒤", "가방 안"], answer: 0, explanation: "'on the bed'(침대 위)에 있다고 했습니다." },
+                { id: "E4_L_03", origin: "2026 수능 6번 변형", type: "listening", script: "W: I'd like to buy these pencils. How much are they?\nM: They are 2 dollars each.\nW: I'll take three.", prompt: "대화를 듣고, 여자가 지불할 금액을 고르시오.", options: ["2달러", "4달러", "6달러", "8달러"], answer: 2, explanation: "2달러짜리 3개이므로 6달러입니다." },
+                { id: "E4_L_04", origin: "2026 수능 7번 변형", type: "listening", script: "M: Let's go swimming this afternoon.\nW: I can't. I have to visit my grandmother.", prompt: "대화를 듣고, 여자가 수영하러 갈 수 없는 이유를 고르시오.", options: ["할머니 댁에 가야 해서", "숙제가 많아서", "다리가 아파서", "수영장이 문을 닫아서"], answer: 0, explanation: "'visit my grandmother'(할머니 댁 방문) 때문에 못 간다고 했습니다." },
+                { id: "E4_R_01", origin: "2026 수능 18번 변형", type: "reading", passage: "To all students,\nNext Friday is Sports Day. Wear your running shoes and comfortable clothes.\n- Mr. Kim", prompt: "다음 글의 목적으로 알맞은 것은?", options: ["운동회 복장을 안내하려고", "시험 날짜를 알리려고", "청소 구역을 정하려고", "방학 숙제를 내려고"], answer: 0, explanation: "운동회 날 편한 옷과 운동화를 입으라고 안내하고 있습니다." },
+                { id: "E4_R_02", origin: "2026 수능 19번 변형", type: "reading", passage: "Sarah practiced the piano every day. Finally, she won the first prize in the contest. She jumped for joy.", prompt: "다음 글에 드러난 Sarah의 심정으로 알맞은 것은?", options: ["기쁜", "화난", "걱정스러운", "미안한"], answer: 0, explanation: "1등 상을 타고 기뻐서 뛰었으므로(jumped for joy) 기쁜 심정입니다." },
+                { id: "E4_R_03", origin: "2026 수능 26번 변형", type: "reading", passage: "Koalas live in Australia. They eat eucalyptus leaves. They sleep for about 20 hours a day.", prompt: "다음 글의 코알라에 대한 내용과 일치하지 않는 것은?", options: ["호주에 산다.", "유칼립투스 잎을 먹는다.", "하루에 20시간 정도 잔다.", "빨리 달릴 수 있다."], answer: 3, explanation: "빨리 달린다는 내용은 본문에 없습니다." },
+                { id: "E4_R_04", origin: "2026 수능 20번 변형", type: "reading", passage: "Don't throw trash on the street. It makes our town dirty. Let's put trash in the trash can.", prompt: "다음 글의 요지로 알맞은 것은?", options: ["쓰레기를 휴지통에 버리자.", "길에서 뛰지 말자.", "나무를 많이 심자.", "인사를 잘 하자."], answer: 0, explanation: "쓰레기를 길에 버리지 말고 휴지통에 넣자고 주장합니다." },
+                { id: "E4_R_05", origin: "2026 수능 31번 변형", type: "reading", passage: "The sun goes down in the evening. The sky becomes ______.", prompt: "빈칸에 들어갈 말로 알맞은 것은?", options: ["dark", "bright", "green", "hot"], answer: 0, explanation: "해가 지면 하늘은 어두워집니다(dark)." },
+                { id: "E4_R_06", origin: "2026 수능 38번 변형", type: "reading", passage: "First, wash your hands. Then, dry them with a towel. Finally, put lotion on your hands.", prompt: "글의 흐름이 자연스러운 것은?", options: ["손 씻기 -> 물기 닦기 -> 로션 바르기", "로션 바르기 -> 손 씻기 -> 물기 닦기", "물기 닦기 -> 로션 바르기 -> 손 씻기", "손 씻기 -> 로션 바르기 -> 물기 닦기"], answer: 0, explanation: "씻고, 닦고, 로션을 바르는 순서가 적절합니다." }
+            ],
+            "초5": [
+                { id: "E5_L_01", origin: "2026 수능 1번 변형", type: "listening", script: "M: Attention, please. The museum closes in 10 minutes. Please head to the exit.", prompt: "다음을 듣고, 남자가 하는 말의 목적으로 알맞은 것을 고르시오.", options: ["폐관 시간을 알리려고", "박물관을 홍보하려고", "입장권을 판매하려고", "화장실 위치를 안내하려고"], answer: 0, explanation: "10분 뒤에 문을 닫으니 출구로 가달라고 안내하고 있습니다." },
+                { id: "E5_L_02", origin: "2026 수능 8번 변형", type: "listening", script: "W: Are you going to join the Science Camp?\nM: Yes. It is on July 20th. We can watch stars at night.", prompt: "대화를 듣고, 과학 캠프에 대해 언급되지 않은 것을 고르시오.", options: ["날짜", "활동 내용", "참가비", "참가 여부"], answer: 2, explanation: "날짜(7월 20일), 활동(별 보기)은 언급되었으나 참가비는 없습니다." },
+                { id: "E5_L_03", origin: "2026 수능 6번 변형", type: "listening", script: "M: I'd like a cheeseburger and a cola.\nW: A burger is $4 and a cola is $2.\nM: Here is $10.", prompt: "대화를 듣고, 남자가 거슬러 받을 돈을 고르시오.", options: ["2달러", "4달러", "6달러", "8달러"], answer: 1, explanation: "총 $6(4+2)를 샀고 $10를 냈으므로 거스름돈은 $4입니다." },
+                { id: "E5_L_04", origin: "2026 수능 13번 변형", type: "listening", script: "W: I lost my watch. Did you see it?\nM: No. Where did you put it last?\nW: I left it on the desk.", prompt: "대화를 듣고, 여자의 마지막 말에 대한 남자의 응답으로 알맞은 것을 고르시오.", options: ["Let's look for it together.", "It is 5 o'clock.", "The watch is expensive.", "I bought a new desk."], answer: 0, explanation: "시계를 잃어버렸다는 말에 '같이 찾아보자'고 반응하는 것이 자연스럽습니다." },
+                { id: "E5_R_01", origin: "2026 수능 18번 변형", type: "reading", passage: "Hi, Tom. Can you help me with my math homework? I don't understand question number 5.\n- Sally", prompt: "다음 글의 목적으로 알맞은 것은?", options: ["도움을 요청하려고", "축하하려고", "약속을 취소하려고", "안부를 물으려고"], answer: 0, explanation: "수학 숙제를 도와달라고(help me) 요청하고 있습니다." },
+                { id: "E5_R_02", origin: "2026 수능 20번 변형", type: "reading", passage: "Vegetables have many vitamins. They help your body grow strong. You should eat vegetables every day.", prompt: "다음 글에서 필자가 주장하는 바로 알맞은 것은?", options: ["채소를 매일 먹자.", "운동을 열심히 하자.", "물을 많이 마시자.", "잠을 충분히 자자."], answer: 0, explanation: "채소가 몸에 좋으니 매일 먹자(You should eat vegetables)고 주장합니다." },
+                { id: "E5_R_03", origin: "2026 수능 25번 변형", type: "reading", passage: "[Our Pets]\n- Dog: 10 students\n- Cat: 8 students\n- Hamster: 5 students\n\nDogs are the most popular pet. More students have cats than hamsters.", prompt: "도표의 내용과 일치하지 않는 것은?", options: ["개가 가장 인기가 많다.", "고양이를 키우는 학생이 햄스터보다 많다.", "햄스터를 키우는 학생이 가장 적다.", "고양이를 키우는 학생은 10명이다."], answer: 3, explanation: "고양이를 키우는 학생은 8명입니다." },
+                { id: "E5_R_04", origin: "2026 수능 26번 변형", type: "reading", passage: "Beethoven was a famous musician. He wrote many great songs. He kept writing music even after he couldn't hear.", prompt: "Beethoven에 관한 내용과 일치하는 것은?", options: ["화가였다.", "유명한 곡을 많이 썼다.", "귀가 들리지 않게 되자 음악을 그만두었다.", "노래 부르는 것만 좋아했다."], answer: 1, explanation: "유명한 음악가였고 많은 훌륭한 곡을 썼습니다." },
+                { id: "E5_R_05", origin: "2026 수능 31번 변형", type: "reading", passage: "It is dangerous to run on the stairs. You might fall down and get ______.", prompt: "빈칸에 들어갈 말로 알맞은 것은?", options: ["hurt", "happy", "tall", "rich"], answer: 0, explanation: "계단에서 뛰면 넘어져서 다칠(hurt) 수 있습니다." },
+                { id: "E5_R_06", origin: "2026 수능 38번 변형", type: "reading", passage: "My family went camping. (1) Dad set up the tent. (2) Mom cooked delicious curry. (3) We ate dinner together under the stars. (4) I went to school by bus.", prompt: "다음 글에서 흐름과 관계없는 문장은?", options: ["(1)", "(2)", "(3)", "(4)"], answer: 3, explanation: "캠핑 이야기 중에 학교에 버스 타고 갔다는 내용은 어울리지 않습니다." }
+            ],
+            "초6": [
+                { id: "E6_L_01", origin: "2026 수능 2번 변형", type: "listening", script: "M: I think riding a bike is the best exercise.\nW: I agree. It makes our legs strong.", prompt: "대화를 듣고, 남자의 의견으로 알맞은 것을 고르시오.", options: ["자전거 타기는 최고의 운동이다.", "걷기는 다리에 좋다.", "수영을 배워야 한다.", "자전거는 위험하다."], answer: 0, explanation: "남자가 'riding a bike is the best exercise'라고 의견을 말했습니다." },
+                { id: "E6_L_02", origin: "2026 수능 8번 변형", type: "listening", script: "W: Are you free this Saturday? We are having a garage sale.\nM: Sounds good. What are you selling?\nW: We are selling old books and toys.", prompt: "대화를 듣고, 언급되지 않은 것을 고르시오.", options: ["요일", "행사 종류", "판매 물품", "장소"], answer: 3, explanation: "요일(토요일), 행사(창고 세일), 물품(책, 장난감)은 나왔으나 장소는 나오지 않았습니다." },
+                { id: "E6_L_03", origin: "2026 수능 11번 변형", type: "listening", script: "M: Oh no, it started raining. I don't have an umbrella.\nW: Don't worry. I have one. We can share mine.", prompt: "대화를 듣고, 여자의 마지막 말에 이어질 남자의 응답으로 알맞은 것을 고르시오.", options: ["Thank you. You are so kind.", "It is sunny today.", "I like swimming.", "My umbrella is red."], answer: 0, explanation: "우산을 같이 쓰자고 했으니 고맙다고(Thank you) 하는 것이 적절합니다." },
+                { id: "E6_L_04", origin: "2026 수능 16번 변형", type: "listening", script: "W: Today, we will learn about seasons. In spring, flowers bloom. In summer, it is hot. In fall, leaves change colors.", prompt: "다음을 듣고, 여자가 하는 말의 주제로 알맞은 것을 고르시오.", options: ["계절의 특징", "꽃의 종류", "여름 방학 계획", "좋아하는 색깔"], answer: 0, explanation: "봄, 여름, 가을의 특징을 설명하고 있으므로 주제는 계절입니다." },
+                { id: "E6_R_01", origin: "2026 수능 18번 변형", type: "reading", passage: "Notice: The school library will be closed next Monday for cleaning. Please return books by this Friday.", prompt: "다음 글의 목적으로 알맞은 것은?", options: ["도서관 휴관을 알리려고", "책을 기부받으려고", "사서를 모집하려고", "청소 도구를 사려고"], answer: 0, explanation: "청소로 인한 도서관 휴관(closed)을 공지하고 있습니다." },
+                { id: "E6_R_02", origin: "2026 수능 20번 변형", type: "reading", passage: "Many people use plastic bags. But they are bad for the Earth. We should use cloth bags instead to protect our planet.", prompt: "다음 글에서 필자가 주장하는 바로 알맞은 것은?", options: ["천 가방을 사용하자.", "플라스틱을 많이 만들자.", "가방을 새로 사자.", "지구본을 관찰하자."], answer: 0, explanation: "지구를 위해 플라스틱 대신 천 가방(cloth bags)을 쓰자고 주장합니다." },
+                { id: "E6_R_03", origin: "2026 수능 29번 변형", type: "reading", passage: "My brother likes soccer. He plays it every Sunday. He (A) [is / are] very fast.", prompt: "(A)에 들어갈 알맞은 말은?", options: ["is", "are", "am", "be"], answer: 0, explanation: "주어가 He(3인칭 단수)이므로 is가 맞습니다." },
+                { id: "E6_R_04", origin: "2026 수능 33번 변형", type: "reading", passage: "If you want to make friends, you should be ______. Smile and say hello first.", prompt: "빈칸에 들어갈 말로 알맞은 것은?", options: ["kind", "angry", "sleepy", "sad"], answer: 0, explanation: "친구를 사귀려면 친절해야(kind) 하고 먼저 웃으며 인사해야 합니다." },
+                { id: "E6_R_05", origin: "2026 수능 36번 변형", type: "reading", passage: "(A) Then, pour hot water into the cup.\n(B) Put a tea bag in a cup.\n(C) Wait for 3 minutes and enjoy.", prompt: "차를 만드는 순서로 알맞은 것은?", options: ["(B)-(A)-(C)", "(A)-(B)-(C)", "(C)-(A)-(B)", "(B)-(C)-(A)"], answer: 0, explanation: "컵에 티백을 넣고(B) -> 물을 붓고(A) -> 기다린다(C) 순서입니다." },
+                { id: "E6_R_06", origin: "2026 수능 38번 변형", type: "reading", passage: "There are many animals in the zoo. (1) The lion is sleeping. (2) The monkeys are playing. (3) I like pizza very much. (4) The giraffe is eating leaves.", prompt: "다음 글에서 흐름과 관계없는 문장은?", options: ["(1)", "(2)", "(3)", "(4)"], answer: 2, explanation: "동물원 묘사 중에 피자를 좋아한다는 내용은 어색합니다." }
+            ],
+            "중1": [
+                { id: "M1_L_01", origin: "2026 수능 1번 변형", type: "listening", script: "M: Hello, students. I'm Mr. Brown. I want to introduce our new reading club. We read one book a month and share ideas. It will help you improve your thinking skills.", prompt: "다음을 듣고, 남자가 하는 말의 목적으로 가장 적절한 것을 고르시오.", options: ["독서 동아리를 홍보하려고", "도서관 이용법을 안내하려고", "추천 도서 목록을 제공하려고", "작문 숙제를 설명하려고", "동아리 회장을 선출하려고"], answer: 0, explanation: "남자는 새로운 독서 동아리를 소개(introduce)하고 가입을 유도하고 있습니다." },
+                { id: "M1_L_02", origin: "2026 수능 3번 변형", type: "listening", script: "W: You look tired today.\nM: I didn't sleep well last night. I played games on my phone until late.\nW: You should stop using your phone before bed. It disturbs your sleep.", prompt: "대화를 듣고, 여자의 조언으로 가장 적절한 것을 고르시오.", options: ["잠자기 전 스마트폰 사용을 자제해라.", "아침에 일찍 일어나는 습관을 길러라.", "게임보다는 독서를 해라.", "피곤할 때는 낮잠을 자라.", "운동을 규칙적으로 해라."], answer: 0, explanation: "여자는 자기 전에 폰을 쓰지 말라(stop using your phone before bed)고 조언합니다." },
+                { id: "M1_L_03", origin: "2026 수능 10번 변형", type: "listening", script: "M: I want to buy a pencil case. Which one is good?\nW: How about this blue one? It's $5.\nM: It's nice, but I prefer the red one. It's a bit bigger.\nW: The red one is $7.", prompt: "대화를 듣고, 두 사람이 선택할 필통의 색상과 가격을 고르시오.", options: ["파란색 - $5", "파란색 - $7", "빨간색 - $5", "빨간색 - $7", "노란색 - $5"], answer: 3, explanation: "남자가 빨간색(red one)을 선호한다고 했고, 여자가 그건 $7라고 했습니다." },
+                { id: "M1_L_04", origin: "2026 수능 14번 변형", type: "listening", script: "W: Mom, I'm hungry. Is dinner ready?\nM: Not yet. Can you set the table first?\nW: Sure. I'll put the spoons and chopsticks on the table.", prompt: "대화를 듣고, 여자가 할 일로 가장 적절한 것을 고르시오.", options: ["식탁 차리기", "설거지 하기", "요리 하기", "장 보러 가기", "청소 하기"], answer: 0, explanation: "set the table(식탁 차리기)을 하겠다고 했습니다." },
+                { id: "M1_R_01", origin: "2026 수능 18번 변형", type: "reading", passage: "To Green Park Visitors,\nPlease keep the park clean. Use the trash cans for your garbage. Also, please do not feed the wild animals. It is dangerous for them. Thank you for your cooperation.", prompt: "다음 글의 목적으로 가장 적절한 것은?", options: ["공원 이용 수칙을 안내하려고", "공원 청소 봉사자를 모집하려고", "야생 동물 보호를 호소하려고", "공원 폐쇄를 공지하려고", "쓰레기통 위치를 설명하려고"], answer: 0, explanation: "쓰레기 처리와 동물 먹이 금지 등 공원 이용 수칙을 안내하고 있습니다." },
+                { id: "M1_R_02", origin: "2026 수능 20번 변형", type: "reading", passage: "Learning a new language is not easy. It takes time and effort. Don't be afraid of making mistakes. Mistakes help you learn better. Speak loudly and confidently.", prompt: "다음 글에서 필자가 주장하는 바로 가장 적절한 것은?", options: ["실수를 두려워하지 말고 자신 있게 말해라.", "외국어 단어는 매일 50개씩 외워라.", "문법 공부를 가장 먼저 시작해라.", "원어민 친구를 많이 사귀어라.", "듣기 연습에 더 많은 시간을 투자해라."], answer: 0, explanation: "실수를 두려워하지 말고(Don't be afraid of making mistakes) 자신 있게 말하라고 주장합니다." },
+                { id: "M1_R_03", origin: "2026 수능 26번 변형", type: "reading", passage: "The cheetah is the fastest land animal. It has black spots on its yellow fur. Cheetahs live mainly in Africa. They usually hunt during the day.", prompt: "Cheetah에 관한 내용과 일치하지 않는 것은?", options: ["육지에서 가장 빠른 동물이다.", "노란 털에 검은 반점이 있다.", "주로 아프리카에 산다.", "주로 밤에 사냥한다.", "고괏과 동물이다."], answer: 3, explanation: "hunt during the day(낮에 사냥한다)라고 했으므로 밤에 사냥한다는 틀립니다." },
+                { id: "M1_R_04", origin: "2026 수능 29번 변형", type: "reading", passage: "Yesterday, I went to the park. There (A) [was / were] many people. I saw a boy who (B) [was / were] flying a kite.", prompt: "(A), (B)에 들어갈 말로 가장 적절한 것은?", options: ["was - was", "were - was", "was - were", "were - were", "is - is"], answer: 1, explanation: "(A) people은 복수이므로 were, (B) boy는 단수이므로 was가 적절합니다." },
+                { id: "M1_R_05", origin: "2026 수능 31번 변형", type: "reading", passage: "Water is essential for life. Humans, animals, and plants all need water to survive. We must save water because it is a ______ resource.", prompt: "빈칸에 들어갈 말로 가장 적절한 것은?", options: ["limited", "endless", "useless", "cheap", "heavy"], answer: 0, explanation: "물을 아껴야 한다고 했으므로 물은 '제한된(limited)' 자원이라는 논리가 적절합니다." },
+                { id: "M1_R_06", origin: "2026 수능 38번 변형", type: "reading", passage: "Soccer is a team sport. (1) There are 11 players in each team. (2) They have to kick the ball into the net. (3) Basketball is played with hands. (4) The team with more goals wins the game. (5) Teamwork is very important.", prompt: "다음 글에서 흐름과 관계없는 문장은?", options: ["(1)", "(2)", "(3)", "(4)", "(5)"], answer: 2, explanation: "축구에 대한 설명 중 농구(Basketball) 이야기는 흐름에 맞지 않습니다." }
+            ],
+            "중2": [
+                { id: "M2_L_01", origin: "2026 수능 3번 변형", type: "listening", script: "M: Many students skip breakfast. But breakfast gives you fuel for the day. Eating breakfast helps you focus in class. Make sure to eat something in the morning.", prompt: "다음을 듣고, 남자가 하는 말의 요지로 가장 적절한 것을 고르시오.", options: ["아침 식사를 챙겨 먹어야 한다.", "편식은 건강에 좋지 않다.", "수업 시간에 집중해야 한다.", "일찍 일어나는 것이 좋다.", "간식을 줄여야 한다."], answer: 0, explanation: "아침 식사가 하루의 연료가 되고 집중력을 높여주므로 꼭 먹으라는 요지입니다." },
+                { id: "M2_L_02", origin: "2026 수능 8번 변형", type: "listening", script: "W: Are you ready for the school festival?\nM: Almost. Our club is going to sell cookies.\nW: Sounds delicious. Where is your booth?\nM: It's next to the library.", prompt: "대화를 듣고, 축제에 관해 언급되지 않은 것을 고르시오.", options: ["판매 품목", "부스 위치", "시작 시간", "준비 상태", "동아리 활동"], answer: 2, explanation: "쿠키(품목), 도서관 옆(위치) 등은 언급되었으나 시작 시간은 언급되지 않았습니다." },
+                { id: "M2_L_03", origin: "2026 수능 13번 변형", type: "listening", script: "M: I'm planning to visit the new art museum.\nW: Oh, I've been there. It's great, but the line was very long.\nM: Really? I hate waiting in line.\nW: Then you should book tickets online in advance.", prompt: "대화를 듣고, 남자가 할 일로 가장 적절한 것을 고르시오.", options: ["온라인으로 티켓 예매하기", "박물관에 전화하기", "친구와 함께 가기", "다른 박물관 찾기", "아침 일찍 출발하기"], answer: 0, explanation: "줄 서는 게 싫다는 남자에 말에 여자가 예매를 권유했으므로, 남자는 예매를 할 것입니다." },
+                { id: "M2_L_04", origin: "2026 수능 15번 변형", type: "listening", script: "W: Your friend Minho is in the hospital. He broke his leg. You want to visit him and cheer him up. What would you say to Minho?", prompt: "다음 상황에서 Minho에게 할 말로 가장 적절한 것을 고르시오.", options: ["Get well soon.", "Congratulations.", "Happy birthday.", "Nice to meet you.", "Good luck on your test."], answer: 0, explanation: "병문안을 가서 쾌유를 비는 상황이므로 'Get well soon'이 적절합니다." },
+                { id: "M2_R_01", origin: "2026 수능 21번 변형", type: "reading", passage: "Some people say 'Time is money'. This means time is very valuable. Once you waste time, you cannot get it back. So, use your time wisely.", prompt: "밑줄 친 'Time is money'가 의미하는 바로 가장 적절한 것은?", options: ["시간은 매우 소중하다.", "돈으로 시간을 살 수 있다.", "시간은 돈보다 중요하다.", "돈을 아껴 써야 한다.", "시간은 천천히 흐른다."], answer: 0, explanation: "시간은 소중하고 되돌릴 수 없다는 의미입니다." },
+                { id: "M2_R_02", origin: "2026 수능 22번 변형", type: "reading", passage: "Recycling is not just about separating trash. It is also about reusing things. For example, you can use old jars as pencil holders. Reusing reduces waste more effectively.", prompt: "다음 글의 요지로 가장 적절한 것은?", options: ["재사용은 쓰레기를 줄이는 효과적인 방법이다.", "분리수거를 철저히 해야 한다.", "플라스틱 사용을 금지해야 한다.", "새 물건을 자주 사지 말아야 한다.", "유리병은 재활용하기 어렵다."], answer: 0, explanation: "단순 분리수거를 넘어 '재사용(reusing)'이 쓰레기 감소에 효과적이라는 내용입니다." },
+                { id: "M2_R_03", origin: "2026 수능 29번 변형", type: "reading", passage: "My sister enjoys (1) listening to music. She is good at (2) play the piano. She hopes (3) to be a musician. Her dream is (4) coming true. She practices (5) hard every day.", prompt: "밑줄 친 부분 중 어법상 틀린 것은?", options: ["(1)", "(2)", "(3)", "(4)", "(5)"], answer: 1, explanation: "전치사 at 뒤에는 동명사가 와야 하므로 'playing'이 되어야 합니다." },
+                { id: "M2_R_04", origin: "2026 수능 33번 변형", type: "reading", passage: "If you want to be healthy, exercise is not enough. You also need to eat healthy food. Your body needs various nutrients. Therefore, a balanced ______ is important.", prompt: "빈칸에 들어갈 말로 가장 적절한 것은?", options: ["diet", "exercise", "sleep", "mind", "schedule"], answer: 0, explanation: "운동만으로는 부족하고 건강한 음식을 먹어야 한다고 했으므로 균형 잡힌 '식단(diet)'이 중요합니다." },
+                { id: "M2_R_05", origin: "2026 수능 36번 변형", type: "reading", passage: "Bees are very important insects.\n(A) They carry pollen from flower to flower.\n(B) This helps plants grow fruits and seeds.\n(C) Without bees, we would have less food.", prompt: "글의 순서로 가장 적절한 것은?", options: ["(A)-(B)-(C)", "(B)-(A)-(C)", "(C)-(A)-(B)", "(A)-(C)-(B)", "(B)-(C)-(A)"], answer: 0, explanation: "벌이 꽃가루를 옮기고(A) -> 그것이 식물 성장을 돕고(B) -> 결과적으로 식량에 중요하다(C)는 흐름입니다." },
+                { id: "M2_R_06", origin: "2026 수능 38번 변형", type: "reading", passage: "Smartphones are useful. (1) We can search for information quickly. (2) We can talk to friends far away. (3) Playing outside is good for health. (4) We can also take photos. (5) However, using them too much is bad for our eyes.", prompt: "다음 글에서 흐름과 관계없는 문장은?", options: ["(1)", "(2)", "(3)", "(4)", "(5)"], answer: 2, explanation: "스마트폰의 장단점을 이야기하는데 갑자기 밖에서 노는 것이 건강에 좋다는 내용은 흐름에 맞지 않습니다." }
+            ],
+            "중3": [
+                { id: "M3_L_01", origin: "2026 수능 1번 변형", type: "listening", script: "M: Are you stressed out? Try keeping a diary. Writing down your feelings can help you understand yourself better. It is a simple way to relieve stress.", prompt: "다음을 듣고, 남자가 하는 말의 목적으로 가장 적절한 것을 고르시오.", options: ["일기 쓰기의 장점을 설명하려고", "스트레스의 원인을 분석하려고", "작문 숙제 방법을 안내하려고", "심리 상담 센터를 홍보하려고", "다이어리 구매를 추천하려고"], answer: 0, explanation: "일기 쓰기가 스트레스 해소와 자기 이해에 도움이 된다고 설명하고 있습니다." },
+                { id: "M3_L_02", origin: "2026 수능 7번 변형", type: "listening", script: "W: Are you coming to the study group today?\nM: I really want to, but I can't.\nW: Why? Is it because of your part-time job?\nM: No, I have to take care of my little sister. My parents are out.", prompt: "대화를 듣고, 남자가 스터디 그룹에 갈 수 없는 이유를 고르시오.", options: ["여동생을 돌봐야 해서", "아르바이트가 있어서", "부모님을 도와드려야 해서", "몸이 아파서", "숙제를 다 못 해서"], answer: 0, explanation: "부모님이 안 계셔서 여동생을 돌봐야 한다(take care of my little sister)고 했습니다." },
+                { id: "M3_L_03", origin: "2026 수능 12번 변형", type: "listening", script: "W: What are you going to do this weekend?\nM: I'm planning to go hiking. How about you?\nW: I'll probably stay home and watch movies.", prompt: "대화를 듣고, 두 사람의 주말 계획으로 적절한 것을 고르시오.", options: ["남자: 등산, 여자: 영화 감상", "남자: 영화 감상, 여자: 등산", "남자: 공부, 여자: 요리", "남자: 휴식, 여자: 쇼핑", "남자: 운동, 여자: 독서"], answer: 0, explanation: "남자는 hiking, 여자는 watch movies라고 했습니다." },
+                { id: "M3_L_04", origin: "2026 수능 16번 변형", type: "listening", script: "W: Paper is made from trees. Recycling paper saves forests. It also saves energy and water. Let's start recycling paper today.", prompt: "다음을 듣고, 여자가 하는 말의 주제로 가장 적절한 것을 고르시오.", options: ["종이 재활용의 이점", "종이가 만들어지는 과정", "숲을 보호하는 방법", "에너지를 절약하는 팁", "나무 심기의 중요성"], answer: 0, explanation: "종이 재활용이 숲, 에너지, 물을 절약한다는 이점을 설명하고 있습니다." },
+                { id: "M3_R_01", origin: "2026 수능 20번 변형", type: "reading", passage: "Many teens are addicted to social media. They care too much about 'likes'. This can lower their self-esteem. We should focus on real-life relationships, not virtual ones.", prompt: "다음 글에서 필자가 주장하는 바로 가장 적절한 것은?", options: ["가상 공간보다 현실의 관계에 집중해야 한다.", "소셜 미디어를 통해 친구를 사귀어야 한다.", "자존감을 높이기 위해 칭찬을 많이 해야 한다.", "청소년들의 스마트폰 사용 시간을 제한해야 한다.", "온라인상에서 예절을 지켜야 한다."], answer: 0, explanation: "소셜 미디어에 집착하기보다 현실 관계(real-life relationships)에 집중하자고 주장합니다." },
+                { id: "M3_R_02", origin: "2026 수능 24번 변형", type: "reading", passage: "AI is changing our lives. It can drive cars and diagnose diseases. However, some people worry about AI taking away jobs. We need to prepare for the future wisely.", prompt: "다음 글의 제목으로 가장 적절한 것은?", options: ["AI: A Double-Edged Sword", "The History of AI", "How to Drive Safely", "New Medical Technologies", "Jobs of the Future"], answer: 0, explanation: "AI의 긍정적 측면과 부정적 측면(일자리 위협)을 모두 언급했으므로 '양날의 검'이 적절합니다." },
+                { id: "M3_R_03", origin: "2026 수능 30번 변형", type: "reading", passage: "Some animals hide from predators. They use camouflage to (1) blend in with their surroundings. This makes them (2) visible to enemies. For example, a chameleon changes its color. This helps it (3) survive in nature.", prompt: "밑줄 친 부분 중 문맥상 낱말의 쓰임이 적절하지 않은 것은?", options: ["(1)", "(2)", "(3)", "없음", "모두 틀림"], answer: 1, explanation: "위장은 주변에 섞여서 적에게 '보이지 않게(invisible)' 하는 것이므로 visible은 틀립니다." },
+                { id: "M3_R_04", origin: "2026 수능 32번 변형", type: "reading", passage: "Music has the power to change our mood. When we listen to sad music, we feel sad. When we listen to happy music, we feel happy. This is because music directly affects our ______.", prompt: "빈칸에 들어갈 말로 가장 적절한 것은?", options: ["emotions", "bodies", "memories", "decisions", "intelligence"], answer: 0, explanation: "음악이 기분에 영향을 준다는 내용이므로 '감정(emotions)'에 영향을 준다가 맞습니다." },
+                { id: "M3_R_05", origin: "2026 수능 34번 변형", type: "reading", passage: "History is not just about the past. It helps us understand the present. By learning from past mistakes, we can avoid ______ them in the future.", prompt: "빈칸에 들어갈 말로 가장 적절한 것은?", options: ["repeating", "forgetting", "creating", "ignoring", "hiding"], answer: 0, explanation: "과거의 실수로부터 배워서 미래에 그것을 '반복하는(repeating)' 것을 피할 수 있습니다." },
+                { id: "M3_R_06", origin: "2026 수능 38번 변형", type: "reading", passage: "Climate change is a serious problem. (1) The Earth is getting warmer. (2) Ice in the North Pole is melting. (3) Polar bears are losing their homes. (4) I like winter sports like skiing. (5) We must act now to save our planet.", prompt: "다음 글에서 흐름과 관계없는 문장은?", options: ["(1)", "(2)", "(3)", "(4)", "(5)"], answer: 3, explanation: "기후 변화의 심각성을 이야기하는 글에서 겨울 스포츠를 좋아한다는 내용은 흐름에서 벗어납니다." }
+            ],
+            "고1": [
+                { id: "H1_L_01", origin: "2026 수능 1번 변형", type: "listening", script: "M: Hello, students. The school cafeteria will be under construction next week. So, lunch will be served in the gym. Please check the notice board for details.", prompt: "다음을 듣고, 남자가 하는 말의 목적으로 가장 적절한 것을 고르시오.", options: ["급식 장소 변경을 공지하려고", "공사 일정 연기를 알리려고", "급식 메뉴 설문조사를 하려고", "체육관 사용 수칙을 설명하려고", "점심시간 변경을 안내하려고"], answer: 0, explanation: "공사로 인해 급식 장소가 체육관으로 변경됨을 알리고 있습니다." },
+                { id: "H1_L_02", origin: "2026 수능 3번 변형", type: "listening", script: "W: I think group projects are difficult. Some members don't do their work.\nM: That's true. But it teaches us responsibility and teamwork. We can learn how to cooperate with others.", prompt: "대화를 듣고, 남자의 요지로 가장 적절한 것을 고르시오.", options: ["그룹 프로젝트는 협동심을 길러준다.", "무임승차하는 팀원은 제재해야 한다.", "과제는 혼자 하는 것이 효율적이다.", "리더의 역할이 가장 중요하다.", "평가 방식이 공정해야 한다."], answer: 0, explanation: "남자는 그룹 프로젝트가 책임감과 협동심(teamwork)을 가르쳐준다고 말하고 있습니다." },
+                { id: "H1_L_03", origin: "2026 수능 13번 변형", type: "listening", script: "W: I bought this jacket yesterday, but it's too small.\nM: Do you have the receipt?\nW: Yes, here it is. Can I exchange it for a larger size?", prompt: "대화를 듣고, 여자가 남자에게 요청한 일로 가장 적절한 것을 고르시오.", options: ["재킷 교환", "재킷 환불", "영수증 재발급", "수선 요청", "할인 적용"], answer: 0, explanation: "exchange it for a larger size(더 큰 사이즈로 교환)를 요청했습니다." },
+                { id: "H1_L_04", origin: "2026 수능 15번 변형", type: "listening", script: "M: Your friend Kate lost her wallet. She is very upset. You want to comfort her and help her find it. What would you say to Kate?", prompt: "다음 상황에서 Kate에게 할 말로 가장 적절한 것을 고르시오.", options: ["Don't worry. We can find it together.", "You should buy a new wallet.", "Where did you buy it?", "Be more careful next time.", "I found a wallet on the street."], answer: 0, explanation: "지갑을 잃어버려 속상해하는 친구에게 '걱정 마, 같이 찾아보자'라고 위로하는 것이 적절합니다." },
+                { id: "H1_R_01", origin: "2026 수능 18번 변형", type: "reading", passage: "Dear Volunteer Club,\nI am writing to inquire about the upcoming beach cleanup event. I would like to know the exact time and meeting place. Also, do I need to bring my own gloves? I look forward to your reply.", prompt: "다음 글의 목적으로 가장 적절한 것은?", options: ["봉사활동 세부 정보를 문의하려고", "봉사활동 일정을 변경하려고", "클럽 가입 방법을 물어보려고", "행사 취소를 통보하려고", "봉사 시간을 확인하려고"], answer: 0, explanation: "해변 청소 행사의 시간, 장소, 준비물 등을 문의(inquire)하고 있습니다." },
+                { id: "H1_R_02", origin: "2026 수능 21번 변형", type: "reading", passage: "In modern society, silence is becoming rare. We are surrounded by constant noise from phones and traffic. However, silence allows our brains to rest and recover. We need to find 'islands of silence' in our daily lives.", prompt: "밑줄 친 'islands of silence'가 의미하는 바로 가장 적절한 것은?", options: ["조용히 쉴 수 있는 시간이나 공간", "소음이 차단된 무인도", "고립되어 외로운 상태", "스마트폰을 사용하는 시간", "소통이 단절된 사회 문제"], answer: 0, explanation: "소음 속에서 뇌가 쉴 수 있는 침묵의 순간이나 공간을 비유적으로 표현한 것입니다." },
+                { id: "H1_R_03", origin: "2026 수능 29번 변형", type: "reading", passage: "Robots are becoming smarter. They can learn from their mistakes. Some robots (1) are designed to help doctors. They can perform surgery (2) more precisely than humans. However, they still (3) needs human supervision.", prompt: "밑줄 친 부분 중 어법상 틀린 것은?", options: ["(1)", "(2)", "(3)", "없음", "모두 틀림"], answer: 2, explanation: "주어가 'they(복수)'이므로 동사는 'need'가 되어야 합니다." },
+                { id: "H1_R_04", origin: "2026 수능 32번 변형", type: "reading", passage: "First impressions are powerful. It takes only a few seconds to judge someone. Once formed, this impression is hard to change. Therefore, it is important to show a ______ attitude when meeting someone new.", prompt: "빈칸에 들어갈 말로 가장 적절한 것은?", options: ["positive", "negative", "indifferent", "aggressive", "lazy"], answer: 0, explanation: "첫인상은 바꾸기 어려우므로 처음 만날 때 '긍정적인(positive)' 태도를 보여주는 것이 중요합니다." },
+                { id: "H1_R_05", origin: "2026 수능 34번 변형", type: "reading", passage: "Creativity is not just about having new ideas. It is also about making them useful. An idea that is novel but useless is not true creativity. Innovation requires both ______ and utility.", prompt: "빈칸에 들어갈 말로 가장 적절한 것은?", options: ["novelty", "tradition", "repetition", "cost", "speed"], answer: 0, explanation: "창의성은 새로움과 유용성을 모두 필요로 하므로, 빈칸에는 '새로움(novelty)'이 들어가야 합니다." },
+                { id: "H1_R_06", origin: "2026 수능 38번 변형", type: "reading", passage: "Exercise is good for the brain. (1) It increases blood flow to the brain. (2) This helps new brain cells grow. (3) Video games can improve reaction speed. (4) Also, exercise reduces stress hormones. (5) Therefore, students should exercise regularly.", prompt: "다음 글에서 흐름과 관계없는 문장은?", options: ["(1)", "(2)", "(3)", "(4)", "(5)"], answer: 2, explanation: "운동의 뇌에 대한 긍정적 효과를 설명하는데 비디오 게임 이야기는 흐름을 깹니다." }
+            ],
+            "고2": [
+                { id: "H2_L_01", origin: "2026 수능 2번 변형", type: "listening", script: "M: I believe that reading classics is essential for students.\nW: I disagree. Classics are too difficult and boring. Students should read what they enjoy.\nM: But classics contain wisdom that has survived for centuries.", prompt: "대화를 듣고, 여자의 의견으로 가장 적절한 것을 고르시오.", options: ["학생들은 흥미를 느끼는 책을 읽어야 한다.", "고전 읽기는 필수적이다.", "독서 교육은 어릴 때 시작해야 한다.", "학교 도서관을 확충해야 한다.", "독서 토론 동아리에 가입해야 한다."], answer: 0, explanation: "여자는 고전이 지루하다며 학생들이 즐기는 것(what they enjoy)을 읽어야 한다고 주장합니다." },
+                { id: "H2_L_02", origin: "2026 수능 9번 변형", type: "listening", script: "W: Look at this painting. A woman is sitting by the window.\nM: Yes. She is holding a book in her hand. And there is a vase on the table.\nW: The flowers in the vase are lilies.", prompt: "대화를 듣고, 그림의 내용과 일치하지 않는 것을 고르시오.", options: ["여자가 창가에 앉아 있다.", "여자가 책을 들고 있다.", "탁자 위에 꽃병이 있다.", "꽃병에 장미가 꽂혀 있다.", "여자는 실내에 있다."], answer: 3, explanation: "꽃병에 있는 꽃은 백합(lilies)이라고 했으므로 장미는 일치하지 않습니다." },
+                { id: "H2_L_03", origin: "2026 수능 12번 변형", type: "listening", script: "M: How was your trip to Jeju Island?\nW: It was wonderful. The weather was perfect.\nM: Did you visit Hallasan Mountain?\nW: Yes, the view from the top was amazing.", prompt: "대화를 듣고, 두 사람의 대화 주제로 가장 적절한 것을 고르시오.", options: ["제주도 여행 후기", "한라산 등반 코스", "제주도 날씨 정보", "여행 경비 절약 팁", "다음 휴가 계획"], answer: 0, explanation: "제주도 여행이 어땠는지(trip to Jeju Island) 묻고 답하고 있습니다." },
+                { id: "H2_L_04", origin: "2026 수능 14번 변형", type: "listening", script: "W: What are you doing?\nM: I'm writing an essay about artificial intelligence.\nW: That sounds difficult. Do you need any help?\nM: Actually, could you proofread it for me later?", prompt: "대화를 듣고, 남자가 여자에게 부탁한 일로 가장 적절한 것을 고르시오.", options: ["에세이 교정 봐주기", "자료 조사 도와주기", "주제 선정하기", "발표 연습하기", "컴퓨터 고쳐주기"], answer: 0, explanation: "proofread(교정보다)를 부탁했습니다." },
+                { id: "H2_R_01", origin: "2026 수능 20번 변형", type: "reading", passage: "Many people focus on the outcome of success. However, the process is just as important. Failures during the process teach us valuable lessons. We should embrace failure as a stepping stone to success.", prompt: "다음 글에서 필자가 주장하는 바로 가장 적절한 것은?", options: ["실패를 성공으로 가는 과정으로 받아들여야 한다.", "결과보다는 과정이 항상 중요하다.", "성공하기 위해서는 철저한 계획이 필요하다.", "실수를 반복하지 않도록 주의해야 한다.", "목표를 높게 설정해야 한다."], answer: 0, explanation: "실패를 성공의 디딤돌(stepping stone)로 받아들이자(embrace)고 주장합니다." },
+                { id: "H2_R_02", origin: "2026 수능 23번 변형", type: "reading", passage: "The concept of 'privacy' has changed in the digital age. We share personal information online voluntarily. This brings convenience but also risks. We need to balance sharing and protecting our data.", prompt: "다음 글의 주제로 가장 적절한 것은?", options: ["Changes in privacy in the digital age", "The history of the internet", "Benefits of online shopping", "How to secure your password", "The importance of social media"], answer: 0, explanation: "디지털 시대에 개인정보(privacy) 개념의 변화와 위험성에 대해 다루고 있습니다." },
+                { id: "H2_R_03", origin: "2026 수능 30번 변형", type: "reading", passage: "Competition can be healthy. It motivates us to try harder. However, excessive competition can lead to (1) stress. It can damage relationships and cause (2) anxiety. Therefore, we should promote (3) cooperative competition.", prompt: "밑줄 친 부분 중 문맥상 적절하지 않은 어휘가 있다면?", options: ["(1)", "(2)", "(3)", "없음", "모두 적절함"], answer: 3, explanation: "문맥상 모두 자연스럽습니다. 과도한 경쟁은 스트레스와 불안을 유발하므로 협력적 경쟁을 지향해야 한다는 논리입니다." },
+                { id: "H2_R_04", origin: "2026 수능 33번 변형", type: "reading", passage: "Science is based on observation. However, observation is not objective. What we see depends on what we know. Our prior knowledge acts as a lens. Therefore, scientists must be aware of their ______.", prompt: "빈칸에 들어갈 말로 가장 적절한 것은?", options: ["biases", "achievements", "budgets", "equipment", "names"], answer: 0, explanation: "관찰은 배경지식에 영향을 받으므로 과학자는 자신의 '편견(biases)'을 인지해야 합니다." },
+                { id: "H2_R_05", origin: "2026 수능 37번 변형", type: "reading", passage: "Globalization connects the world.\n(A) This leads to cultural exchange.\n(B) However, it can also cause the loss of local traditions.\n(C) People can enjoy foods and music from other countries.", prompt: "글의 순서로 가장 적절한 것은?", options: ["(A)-(C)-(B)", "(C)-(A)-(B)", "(A)-(B)-(C)", "(B)-(C)-(A)", "(C)-(B)-(A)"], answer: 0, explanation: "세계화는 연결한다 -> 문화 교류로 이어진다(A) -> 예시(음식, 음악)(C) -> 하지만 단점도 있다(B)의 흐름이 논리적입니다." },
+                { id: "H2_R_06", origin: "2026 수능 39번 변형", type: "reading", passage: "[Given Sentence]\nBut this is not always true.\n\nWe often think that more choices make us happier. (1) We believe that having many options gives us freedom. (2) However, too many choices can lead to anxiety. (3) We worry about making the wrong decision. (4) This is called the 'paradox of choice'. (5)", prompt: "주어진 문장이 들어갈 곳으로 알맞은 곳은?", options: ["(1)", "(2)", "(3)", "(4)", "(5)"], answer: 1, explanation: "선택이 많으면 행복하다는 통념 뒤에 '하지만 항상 그렇진 않다'는 반박이 오고, 그 뒤에 불안감에 대한 설명이 이어져야 합니다. (2)번 자리가 적절합니다." }
+            ],
+            "고3": [
+                { id: "H3_L_01", origin: "2026 수능 1번 변형", type: "listening", script: "M: Hello, viewers. Do you want to sleep well? The app 'Nightly Journey' is perfect for you. It provides calming sounds and bedtime stories. It also teaches you how to breathe for better sleep. Why don't you try this app tonight?", prompt: "다음을 듣고, 남자가 하는 말의 목적으로 가장 적절한 것을 고르시오.", options: ["숙면을 도와주는 앱을 소개하려고", "명상에 좋은 음악을 추천하려고", "수면 부족의 위험성을 경고하려고", "올바른 호흡법을 강의하려고", "새로운 운동 기구를 홍보하려고"], answer: 0, explanation: "남자는 'Nightly Journey' 앱이 숙면에 도움이 된다고 하며 앱의 기능과 장점을 소개하고 있습니다." },
+                { id: "H3_L_07", origin: "2026 수능 7번 변형", type: "listening", script: "M: Ms. Lee, are you going to the Morning Tea Club?\nW: Not today. I can't attend.\nM: Why? Are you sick?\nW: No, I feel fine. But I have an early business meeting that overlaps with the club time.", prompt: "대화를 듣고, 여자가 Morning Tea Club에 참석할 수 없는 이유를 고르시오.", options: ["비즈니스 미팅이 있어서", "몸이 좋지 않아서", "차를 좋아하지 않아서", "업무가 너무 많아서", "가족 행사에 가야 해서"], answer: 0, explanation: "여자는 클럽 시간과 겹치는 조기 비즈니스 미팅(early business meeting)이 있다고 불참 이유를 밝혔습니다." },
+                { id: "H3_L_08", origin: "2026 수능 8번 변형", type: "listening", script: "W: Have you heard about the Autumn Treasure Hunt?\nM: Yes, it sounds fun. Where will it be?\nW: It'll be at Pinenut Park this Saturday.\nM: What is the prize?\nW: The winner gets a $100 gift card. You can sign up online.", prompt: "대화를 듣고, Autumn Treasure Hunt 행사에 관해 언급되지 않은 것을 고르시오.", options: ["장소", "날짜", "상품", "신청 방법", "후원 기관"], answer: 4, explanation: "장소(Pinenut Park), 날짜(this Saturday), 상품($100 gift card), 신청 방법(online)은 언급되었으나, 후원 기관은 언급되지 않았습니다." },
+                { id: "H3_L_16", origin: "2026 수능 16번 변형", type: "listening", script: "W: Today, let's talk about plants used in science. Bamboo grows very fast, so it helps study climate change. Peas grow quickly too, which helped Mendel study genetics. These fast-growing plants are perfect for experiments.", prompt: "다음을 듣고, 여자가 하는 말의 주제로 가장 적절한 것을 고르시오.", options: ["fast growing plants used for science experiments", "how to grow bamboo in your garden", "the history of genetic engineering", "effects of climate change on plants", "nutritional benefits of eating peas"], answer: 0, explanation: "여자는 대나무, 완두콩 등 빨리 자라는 식물들이 과학 실험에 어떻게 활용되는지 설명하고 있으므로 주제는 ①번입니다." },
+                { id: "H3_R_18", origin: "2026 수능 18번 변형", type: "reading", passage: "Dear students,\nI am Amanda Clark, the school club director. Many students requested more diverse clubs. So, we decided to allow students to make new clubs based on their interests like K-pop or coding. I encourage you to submit a proposal for a new club by this week.\nBest regards,\nAmanda Clark", prompt: "다음 글의 목적으로 가장 적절한 것은?", options: ["동아리 개설 제안서 제출을 독려하려고", "신규 동아리 회원을 모집하려고", "동아리 활동 시간을 안내하려고", "학교 축제 일정을 공지하려고", "학생회장 선거를 홍보하려고"], answer: 0, explanation: "글쓴이는 학생들에게 새로운 동아리를 만들 수 있는 기회를 알리며 제안서(proposal) 제출을 독려하고 있습니다." },
+                { id: "H3_R_20", origin: "2026 수능 20번 변형", type: "reading", passage: "Some people ignore the literary value of pop song lyrics. However, modern songwriters use linguistic skills and storytelling just like poets. Their lyrics have a deep impact on our language and culture. Therefore, their works must be recognized in the field of modern literature.", prompt: "다음 글에서 필자가 주장하는 바로 가장 적절한 것은?", options: ["가사를 통해 작사가들이 문학에 기여한 바를 인정해야 한다.", "대중가요의 상업적 성공보다 예술성을 중시해야 한다.", "청소년들에게 건전한 음악을 들려주어야 한다.", "문학 작품을 노래로 만드는 시도가 필요하다.", "작사가들은 올바른 언어 사용을 지향해야 한다."], answer: 0, explanation: "필자는 작사가들의 작품(가사)이 현대 문학의 영역에서 인정받아야 한다(must be recognized)고 강력하게 주장하고 있습니다." },
+                { id: "H3_R_29", origin: "2026 수능 29번 변형", type: "reading", passage: "Humans are smart, but individuals are not smart enough to solve all problems. The tools and knowledge used by groups (1) are too complex for one person. We learn things because we acquire information (2) from others. We are better at learning than other species (3) are. We are motivated to learn even when we do not understand (4) why our models act that way. This allows us to accumulate information that (5) exceed the capacity of individuals.", prompt: "다음 글의 밑줄 친 부분 중, 어법상 틀린 것은?", options: ["(1) are", "(2) from", "(3) are", "(4) why", "(5) exceed"], answer: 4, explanation: "선행사 information(단수)을 수식하는 관계대명사 절이므로 exceed는 exceeds가 되어야 합니다." },
+                { id: "H3_R_33", origin: "2026 수능 33번 변형", type: "reading", passage: "Designing a building requires listening to the users. Doctors, nurses, and patients know what they need in a hospital. If these users are involved in the design process, the building will be much better. People are likely to be more satisfied with a new building if they ______.", prompt: "다음 빈칸에 들어갈 말로 가장 적절한 것을 고르시오.", options: ["have been consulted in the design process", "pay for the construction costs directly", "design the building by themselves", "are ignored by the architects", "visit the building only once a year"], answer: 0, explanation: "건물을 실제로 사용할 사람들의 의견을 듣는 것이 중요하다고 했으므로, 그들이 '설계 과정에서 상담(참여)을 받았다면' 더 만족할 것입니다." },
+                { id: "H3_R_34", origin: "2026 수능 34번 변형", type: "reading", passage: "Kant believed that the rule of law guarantees freedom. Even 'a nation of devils' can live in peace if the laws are effective. The law forces us to act correctly to secure peace. Therefore, even if the law restricts us, it cannot be ______.", prompt: "다음 빈칸에 들어갈 말로 가장 적절한 것을 고르시오.", options: ["regarded as reasonably confining human liberty", "seen as unnecessary for modern society", "created without the consent of the people", "changed easily by the government", "ignored by the judges in the court"], answer: 0, explanation: "칸트는 법이 강제성을 띠더라도 평화와 공존을 위한 것이므로, 법이 '합리적으로 인간의 자유를 구속한다고(침해한다고) 간주될 수 없다'는 논리입니다." },
+                { id: "H3_R_38", origin: "2026 수능 38번 변형", type: "reading", passage: "[Given Sentence]\nSuddenly, you judge everyone from that university based on a few bad experiences.\n\nWe tell ourselves stories to understand the world. (1) When we experience events, we create narratives. (2) For example, if you have bad experiences with graduates from a certain university, you may form a negative story. (3) This is an internal narrative. (4) These stories shape our beliefs and identity. (5)", prompt: "글의 흐름으로 보아, 주어진 문장이 들어가기에 가장 적절한 곳을 고르시오.", options: ["(1)", "(2)", "(3)", "(4)", "(5)"], answer: 2, explanation: "주어진 문장은 '갑자기, 당신은 몇몇 나쁜 경험을 근거로 그 대학 출신 모두를 판단해버린다'는 내용입니다. 이는 (3)번 앞의 '부정적인 이야기를 만들어낸다'는 내용에 이어지는 구체적인 예시이자 결과이므로 (3)번 자리가 가장 적절합니다." }
+            ]
+        };
 
-              <div className="p-5">
-                <p className="font-bold text-slate-800 mb-4 text-[15px] leading-relaxed">{q.prompt}</p>
-                
-                {/* Script Display for Listening */}
-                {q.type === 'listening' && (
-                  <div className="bg-slate-50 p-4 rounded-lg border border-slate-200 text-sm text-slate-600 mb-4 relative">
-                    <div className="absolute top-3 right-3 text-[10px] font-bold text-slate-400 uppercase tracking-wide">Script</div>
-                    <p className="font-serif italic leading-relaxed pt-1">"{q.script}"</p>
-                  </div>
-                )}
+        /**
+         * ------------------------------------------------------------------
+         * 3. COMPONENTS
+         * ------------------------------------------------------------------
+         */
 
-                {/* Answer Comparison */}
-                <div className="grid grid-cols-1 gap-2 mb-4 text-sm">
-                  {!isCorrect && (
-                    <div className="p-3 bg-red-50 rounded-lg border border-red-100 flex flex-col">
-                      <span className="text-[10px] font-bold text-red-500 mb-1 uppercase">내가 고른 답</span>
-                      <span className="text-red-800 font-medium">{q.options[userAnswers[idx]] || "선택 안함"}</span>
+        const AudioPlayer = ({ script, onPlay }) => {
+            const [isPlaying, setIsPlaying] = useState(false);
+            const [progress, setProgress] = useState(0);
+
+            useEffect(() => {
+                let interval;
+                if (isPlaying) {
+                    interval = setInterval(() => {
+                        setProgress((prev) => {
+                            if (prev >= 100) {
+                                setIsPlaying(false);
+                                return 0;
+                            }
+                            return prev + 1.5;
+                        });
+                    }, 50);
+                } else {
+                    clearInterval(interval);
+                }
+                return () => clearInterval(interval);
+            }, [isPlaying]);
+
+            const togglePlay = () => {
+                if (!isPlaying) {
+                    if (progress === 0 && onPlay) onPlay();
+                }
+                setIsPlaying(!isPlaying);
+            };
+
+            return (
+                <div className="bg-slate-50 p-4 rounded-xl mb-6 flex items-center space-x-4 border border-slate-200 select-none">
+                    <button 
+                        onClick={togglePlay}
+                        className="w-12 h-12 rounded-full bg-[#0077c8] text-white flex items-center justify-center hover:bg-blue-600 transition-colors shadow-md flex-shrink-0 active:scale-95"
+                    >
+                        {isPlaying ? <Pause size={20} /> : <Play size={20} className="ml-1" />}
+                    </button>
+                    <div className="flex-1">
+                        <div className="flex justify-between text-xs text-slate-500 mb-2 font-medium">
+                            <span className="flex items-center"><Volume2 size={12} className="mr-1"/> Listening Test Audio</span>
+                            <span>{isPlaying ? "Playing..." : "00:00 / 01:30"}</span>
+                        </div>
+                        <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
+                            <div 
+                                className="h-full bg-[#0077c8] transition-all duration-100 ease-linear"
+                                style={{ width: `${progress}%` }}
+                            />
+                        </div>
                     </div>
-                  )}
-                  <div className="p-3 bg-green-50 rounded-lg border border-green-100 flex flex-col">
-                    <span className="text-[10px] font-bold text-green-600 mb-1 uppercase">정답</span>
-                    <span className="text-green-800 font-medium">{q.options[q.answer]}</span>
-                  </div>
                 </div>
+            );
+        };
 
-                {/* Explanation */}
-                <div className="mt-4 pt-4 border-t border-slate-100">
-                  <div className="flex items-start gap-2">
-                    <span className="bg-blue-100 text-blue-700 text-[10px] font-bold px-1.5 py-0.5 rounded mt-0.5 shrink-0">해설</span>
-                    <p className="text-sm text-slate-700 leading-relaxed">
-                      {q.explanation}
-                    </p>
-                  </div>
+        const QuestionCard = ({ question, currentAnswer, onAnswer }) => {
+            // Mock API service for TTS
+            const generateAudio = (script) => {
+                console.log(`[API] Generating TTS for: "${script}"`);
+                // Simulate async operation
+                return new Promise((resolve) => setTimeout(() => resolve(true), 1000));
+            };
+
+            return (
+                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden animate-slide-up">
+                    <div className="px-5 py-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                        <div className="flex items-center space-x-2">
+                            <span className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${question.type === 'listening' ? 'bg-indigo-100 text-indigo-700' : 'bg-emerald-100 text-emerald-700'}`}>
+                                {question.type === 'listening' ? 'Listening' : 'Reading'}
+                            </span>
+                            <span className="text-slate-400 text-xs font-mono">{question.id}</span>
+                        </div>
+                        {question.origin && (
+                            <span className="text-[10px] text-slate-500 bg-white border border-slate-200 px-2 py-0.5 rounded-full">
+                                {question.origin}
+                            </span>
+                        )}
+                    </div>
+
+                    <div className="p-6">
+                        <h3 className="text-lg font-bold text-slate-900 leading-snug mb-6 whitespace-pre-line">
+                            {question.prompt}
+                        </h3>
+
+                        {question.type === 'listening' && (
+                            <AudioPlayer script={question.script} onPlay={() => generateAudio(question.script)} />
+                        )}
+
+                        {question.passage && (
+                            <div className="bg-[#f8fafc] p-6 rounded-xl border border-slate-200 mb-8 font-serif text-slate-700 leading-relaxed text-[15px] lg:text-base shadow-inner whitespace-pre-line">
+                                {question.passage}
+                            </div>
+                        )}
+
+                        <div className="space-y-3">
+                            {question.options.map((option, idx) => (
+                                <button
+                                    key={idx}
+                                    onClick={() => onAnswer(idx)}
+                                    className={`w-full text-left p-4 rounded-xl border-2 transition-all duration-200 flex items-start group ${
+                                        currentAnswer === idx
+                                            ? 'border-[#0077c8] bg-blue-50/50'
+                                            : 'border-transparent bg-slate-50 hover:bg-slate-100 hover:border-slate-200'
+                                    }`}
+                                >
+                                    <div className={`w-6 h-6 rounded-full border flex-shrink-0 flex items-center justify-center mr-3 text-xs font-bold transition-colors ${
+                                        currentAnswer === idx ? 'bg-[#0077c8] border-[#0077c8] text-white' : 'border-slate-300 text-slate-400 group-hover:border-slate-400 group-hover:text-slate-500'
+                                    }`}>
+                                        {idx + 1}
+                                    </div>
+                                    <span className={`text-[15px] pt-0.5 ${currentAnswer === idx ? 'text-[#0077c8] font-semibold' : 'text-slate-700'}`}>
+                                        {option}
+                                    </span>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
                 </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+        };
 
-      <button 
-        onClick={onRetry}
-        className="w-full mt-8 py-4 bg-slate-800 text-white font-bold rounded-xl flex items-center justify-center hover:bg-slate-900 transition-colors shadow-lg"
-      >
-        <RefreshCw size={18} className="mr-2" /> 다른 학년 도전하기
-      </button>
-    </div>
-  );
-};
+        const GradeSelector = ({ onSelect }) => {
+            return (
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {GRADES.map((grade) => {
+                        let themeClass = "";
+                        if (grade.startsWith("초")) themeClass = "from-yellow-50 to-orange-50 text-yellow-800 border-yellow-200 hover:border-yellow-400";
+                        if (grade.startsWith("중")) themeClass = "from-green-50 to-emerald-50 text-green-800 border-green-200 hover:border-green-400";
+                        if (grade.startsWith("고")) themeClass = "from-blue-50 to-indigo-50 text-blue-800 border-blue-200 hover:border-blue-400";
 
-/**
- * ==================================================================================
- * 4. MAIN APPLICATION
- * ==================================================================================
- */
-const App = () => {
-  const [screen, setScreen] = useState('home');
-  const [selectedGrade, setSelectedGrade] = useState(null);
-  const [questions, setQuestions] = useState([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [userAnswers, setUserAnswers] = useState({});
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+                        return (
+                            <button
+                                key={grade}
+                                onClick={() => onSelect(grade)}
+                                className={`bg-gradient-to-br ${themeClass} border rounded-xl p-5 flex flex-col items-center justify-center transition-all hover:-translate-y-1 hover:shadow-md active:scale-95`}
+                            >
+                                <span className="text-xl font-black mb-1 tracking-tight">{grade}</span>
+                                <span className="text-[10px] opacity-60 uppercase font-bold tracking-wider">Level</span>
+                            </button>
+                        );
+                    })}
+                </div>
+            );
+        };
 
-  const handleGradeSelect = async (grade) => {
-    setSelectedGrade(grade);
-    setScreen('loading');
-    const data = await apiService.fetchQuestions(grade);
-    setQuestions(data);
-    setCurrentIndex(0);
-    setUserAnswers({});
-    setScreen('quiz');
-  };
+        const ResultView = ({ score, total, correctCount, questions, userAnswers, onRetry }) => {
+            return (
+                <div className="pb-12 animate-slide-up">
+                    <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 text-center mb-8 relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-400 to-indigo-500"></div>
+                        <div className="flex justify-center mb-4">
+                            <div className="w-20 h-20 rounded-full bg-blue-50 flex items-center justify-center text-[#0077c8]">
+                                {score === 100 ? <Award size={40} /> : <BarChart size={36} />}
+                            </div>
+                        </div>
+                        <h2 className="text-3xl font-black text-slate-800 mb-2">{score}점</h2>
+                        <p className="text-slate-500 text-sm font-medium">총 {total}문제 중 {correctCount}문제를 맞혔습니다.</p>
+                        <div className="mt-4 flex items-center justify-center text-xs text-slate-400 animate-bounce">
+                            <ArrowDown size={14} className="mr-1" /> 아래로 스크롤하여 해설 확인
+                        </div>
+                    </div>
 
-  const handleAnswer = (optionIdx) => {
-    setUserAnswers(prev => ({ ...prev, [currentIndex]: optionIdx }));
-  };
+                    <h3 className="font-bold text-slate-800 mb-4 flex items-center px-1">
+                        <BookOpen size={18} className="mr-2 text-[#0077c8]" />
+                        문항별 상세 해설
+                    </h3>
 
-  const handleNext = () => {
-    if (currentIndex < questions.length - 1) setCurrentIndex(prev => prev + 1);
-  };
+                    <div className="space-y-6">
+                        {questions.map((q, idx) => {
+                            const isCorrect = userAnswers[idx] === q.answer;
+                            return (
+                                <div key={q.id} className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+                                    <div className={`px-4 py-3 border-b flex justify-between items-center ${isCorrect ? 'bg-slate-50 border-slate-100' : 'bg-red-50 border-red-100'}`}>
+                                        <div className="flex items-center gap-2">
+                                            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${isCorrect ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}>
+                                                {idx + 1}
+                                            </span>
+                                            <span className={`text-sm font-bold ${isCorrect ? 'text-green-700' : 'text-red-700'}`}>
+                                                {isCorrect ? '정답입니다!' : '오답입니다'}
+                                            </span>
+                                        </div>
+                                        <span className="text-[10px] text-slate-400 font-medium px-2 py-0.5 bg-white rounded border border-slate-200">{q.origin}</span>
+                                    </div>
 
-  const handlePrev = () => {
-    if (currentIndex > 0) setCurrentIndex(prev => prev - 1);
-  };
+                                    <div className="p-5">
+                                        <p className="font-bold text-slate-800 mb-4 text-[15px] leading-relaxed whitespace-pre-line">{q.prompt}</p>
+                                        
+                                        {q.type === 'listening' && (
+                                            <div className="bg-slate-50 p-4 rounded-lg border border-slate-200 text-sm text-slate-600 mb-4 relative">
+                                                <div className="absolute top-3 right-3 text-[10px] font-bold text-slate-400 uppercase tracking-wide">Script</div>
+                                                <p className="font-serif italic leading-relaxed pt-1 whitespace-pre-line">"{q.script}"</p>
+                                            </div>
+                                        )}
 
-  const calculateScore = () => {
-    if (!questions.length) return { score: 0, total: 0, correctCount: 0 };
-    let correctCount = 0;
-    questions.forEach((q, idx) => {
-      if (userAnswers[idx] === q.answer) correctCount++;
-    });
-    return {
-      score: Math.round((correctCount / questions.length) * 100),
-      total: questions.length,
-      correctCount
-    };
-  };
+                                        <div className="grid grid-cols-1 gap-2 mb-4 text-sm">
+                                            {!isCorrect && (
+                                                <div className="p-3 bg-red-50 rounded-lg border border-red-100 flex flex-col">
+                                                    <span className="text-[10px] font-bold text-red-500 mb-1 uppercase">내가 고른 답</span>
+                                                    <span className="text-red-800 font-medium">{q.options[userAnswers[idx]] || "선택 안함"}</span>
+                                                </div>
+                                            )}
+                                            <div className="p-3 bg-green-50 rounded-lg border border-green-100 flex flex-col">
+                                                <span className="text-[10px] font-bold text-green-600 mb-1 uppercase">정답</span>
+                                                <span className="text-green-800 font-medium">{q.options[q.answer]}</span>
+                                            </div>
+                                        </div>
 
-  return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 flex flex-col items-center">
-      {/* Global Header */}
-      <header className="w-full bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
-        <div className="max-w-xl mx-auto px-4 h-16 flex items-center justify-between">
-          <div 
-            className="flex items-center cursor-pointer" 
-            onClick={() => setScreen('home')}
-          >
-            <div className="w-8 h-8 bg-[#0077c8] rounded-lg flex items-center justify-center mr-2 text-white font-bold text-sm">
-              S
-            </div>
-            <h1 className="font-extrabold text-slate-800 text-lg tracking-tight">
-              SAT <span className="text-[#0077c8]">Hub</span>
-            </h1>
-          </div>
-          <div className="flex items-center space-x-2">
-             <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2 text-slate-400 hover:text-slate-600">
-               <HelpCircle size={22} />
-             </button>
-          </div>
-        </div>
-        
-        {/* Progress Bar (Visible only in Quiz mode) */}
-        {screen === 'quiz' && (
-          <div className="h-1 bg-slate-100 w-full">
-            <div 
-              className="h-full bg-[#0077c8] transition-all duration-300 ease-out" 
-              style={{ width: `${((currentIndex + 1) / questions.length) * 100}%` }}
-            />
-          </div>
-        )}
-      </header>
+                                        <div className="mt-4 pt-4 border-t border-slate-100 bg-slate-50/50 -mx-5 -mb-5 p-5">
+                                            <div className="flex items-start gap-3">
+                                                <span className="bg-[#0077c8] text-white text-[11px] font-bold px-2 py-1 rounded mt-0.5 shrink-0 shadow-sm">해설</span>
+                                                <p className="text-sm text-slate-700 leading-relaxed font-medium">
+                                                    {q.explanation}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
 
-      {/* Main Content Area */}
-      <main className="w-full max-w-xl flex-1 flex flex-col p-4 md:p-6">
-        
-        {screen === 'home' && (
-          <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
-            <div className="text-center py-10">
-              <span className="inline-block py-1 px-3 rounded-full bg-blue-50 text-[#0077c8] text-xs font-bold mb-4 border border-blue-100">
-                2026 수능 변형 문제 수록
-              </span>
-              <h2 className="text-3xl font-black text-slate-800 mb-3 leading-tight">
-                내 학년에 딱 맞는<br/>수능 영어 체험
-              </h2>
-              <p className="text-slate-500 text-[15px] leading-relaxed max-w-xs mx-auto">
-                초3부터 고3까지, 실제 수능 문항을 내 수준에 맞게 변형하여 미리 경험해보세요.
-              </p>
-            </div>
-            
-            <GradeSelector onSelect={handleGradeSelect} />
-            
-            <div className="mt-8 p-4 bg-white rounded-xl border border-slate-200 shadow-sm text-center text-xs text-slate-400">
-              * 본 서비스의 모든 문항은 2026학년도 수능 기출문제를 기반으로 교육적 목적을 위해 재구성되었습니다.
-            </div>
-          </div>
-        )}
+                    <button 
+                        onClick={onRetry}
+                        className="w-full mt-8 py-4 bg-slate-800 text-white font-bold rounded-xl flex items-center justify-center hover:bg-slate-900 transition-colors shadow-lg"
+                    >
+                        <RefreshCw size={18} className="mr-2" /> 다른 학년 도전하기
+                    </button>
+                </div>
+            );
+        };
 
-        {screen === 'loading' && (
-          <div className="flex-1 flex flex-col items-center justify-center">
-            <div className="w-12 h-12 border-4 border-[#0077c8] border-t-transparent rounded-full animate-spin mb-6"></div>
-            <h3 className="font-bold text-lg text-slate-800 mb-2">맞춤형 시험지 생성 중</h3>
-            <p className="text-slate-500 text-sm">{selectedGrade} 수준에 맞춰 난이도를 조절하고 있습니다.</p>
-          </div>
-        )}
+        /**
+         * ------------------------------------------------------------------
+         * 4. MAIN APP
+         * ------------------------------------------------------------------
+         */
+        const App = () => {
+            const [screen, setScreen] = useState('home');
+            const [selectedGrade, setSelectedGrade] = useState(null);
+            const [questions, setQuestions] = useState([]);
+            const [currentIndex, setCurrentIndex] = useState(0);
+            const [userAnswers, setUserAnswers] = useState({});
+            const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-        {screen === 'quiz' && questions[currentIndex] && (
-          <div className="flex-1 flex flex-col pb-20">
-            <div className="flex justify-between items-center mb-4 px-2">
-              <span className="font-bold text-slate-800 text-lg">Question {currentIndex + 1}</span>
-              <span className="text-slate-400 text-sm font-medium">{questions.length}문제 중</span>
-            </div>
-            
-            <QuestionCard 
-              question={questions[currentIndex]}
-              currentAnswer={userAnswers[currentIndex]}
-              onAnswer={handleAnswer}
-            />
-          </div>
-        )}
+            // Mock fetch function
+            const fetchQuestions = (grade) => {
+                return new Promise((resolve) => {
+                    setTimeout(() => {
+                        const data = MOCK_DB[grade] || MOCK_DB["고3"];
+                        resolve(data);
+                    }, 600);
+                });
+            };
 
-        {screen === 'result' && (
-          <ResultView 
-            {...calculateScore()} 
-            questions={questions}
-            userAnswers={userAnswers}
-            onRetry={() => {
-              setScreen('home');
-              setSelectedGrade(null);
-            }}
-          />
-        )}
-      </main>
+            const handleGradeSelect = async (grade) => {
+                setSelectedGrade(grade);
+                setScreen('loading');
+                const data = await fetchQuestions(grade);
+                setQuestions(data);
+                setCurrentIndex(0);
+                setUserAnswers({});
+                setScreen('quiz');
+            };
 
-      {/* Quiz Navigation Footer */}
-      {screen === 'quiz' && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-4 z-20 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
-          <div className="max-w-xl mx-auto flex gap-3">
-            <button 
-              onClick={handlePrev} 
-              disabled={currentIndex === 0}
-              className="flex-1 py-3.5 rounded-xl font-bold text-slate-600 bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-200 transition-colors"
-            >
-              이전
-            </button>
-            
-            {currentIndex === questions.length - 1 ? (
-              <button 
-                onClick={() => setScreen('result')}
-                disabled={Object.keys(userAnswers).length < questions.length}
-                className="flex-[2] py-3.5 rounded-xl font-bold text-white bg-[#0077c8] shadow-lg shadow-blue-200 hover:bg-blue-600 active:scale-95 transition-all disabled:opacity-50 disabled:shadow-none"
-              >
-                채점하기
-              </button>
-            ) : (
-              <button 
-                onClick={handleNext}
-                className="flex-[2] py-3.5 rounded-xl font-bold text-white bg-slate-800 hover:bg-slate-700 active:scale-95 transition-all"
-              >
-                다음 문제
-              </button>
-            )}
-          </div>
-        </div>
-      )}
+            const handleAnswer = (optionIdx) => {
+                setUserAnswers(prev => ({ ...prev, [currentIndex]: optionIdx }));
+            };
 
-      {/* Help Modal */}
-      {isMenuOpen && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl relative">
-            <button onClick={() => setIsMenuOpen(false)} className="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
-              <X size={24} />
-            </button>
-            <h3 className="text-xl font-bold text-slate-900 mb-4">서비스 이용 가이드</h3>
-            <div className="space-y-4 text-sm text-slate-600 leading-relaxed">
-              <p><strong>1. 학년 선택:</strong> 본인의 학년을 선택하면 난이도가 자동 조절됩니다.</p>
-              <p><strong>2. 문제 풀이:</strong> 듣기 문제는 재생 버튼을 눌러주세요. 독해 문제는 지문을 읽고 답을 고르세요.</p>
-              <p><strong>3. 결과 확인:</strong> 채점 후에는 2026 수능 원문과 비교한 상세 해설을 볼 수 있습니다.</p>
-            </div>
-            <button onClick={() => setIsMenuOpen(false)} className="w-full mt-6 py-3 bg-[#0077c8] text-white rounded-xl font-bold">확인</button>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
+            const handleNext = () => {
+                if (currentIndex < questions.length - 1) setCurrentIndex(prev => prev + 1);
+            };
 
-export default App;
+            const handlePrev = () => {
+                if (currentIndex > 0) setCurrentIndex(prev => prev - 1);
+            };
+
+            const calculateScore = () => {
+                if (!questions.length) return { score: 0, total: 0, correctCount: 0 };
+                let correctCount = 0;
+                questions.forEach((q, idx) => {
+                    if (userAnswers[idx] === q.answer) correctCount++;
+                });
+                return {
+                    score: Math.round((correctCount / questions.length) * 100),
+                    total: questions.length,
+                    correctCount
+                };
+            };
+
+            return (
+                <div className="min-h-screen bg-slate-50 font-sans text-slate-900 flex flex-col items-center">
+                    {/* Header */}
+                    <header className="w-full bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+                        <div className="max-w-xl mx-auto px-4 h-16 flex items-center justify-between">
+                            <div 
+                                className="flex items-center cursor-pointer" 
+                                onClick={() => setScreen('home')}
+                            >
+                                <div className="w-8 h-8 bg-[#0077c8] rounded-lg flex items-center justify-center mr-2 text-white font-bold text-sm">
+                                    S
+                                </div>
+                                <h1 className="font-extrabold text-slate-800 text-lg tracking-tight">
+                                    SAT <span className="text-[#0077c8]">Hub</span>
+                                </h1>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2 text-slate-400 hover:text-slate-600">
+                                    <HelpCircle size={22} />
+                                </button>
+                            </div>
+                        </div>
+                        
+                        {screen === 'quiz' && (
+                            <div className="h-1 bg-slate-100 w-full">
+                                <div 
+                                    className="h-full bg-[#0077c8] transition-all duration-300 ease-out" 
+                                    style={{ width: `${((currentIndex + 1) / questions.length) * 100}%` }}
+                                />
+                            </div>
+                        )}
+                    </header>
+
+                    {/* Main */}
+                    <main className="w-full max-w-xl flex-1 flex flex-col p-4 md:p-6">
+                        
+                        {screen === 'home' && (
+                            <div className="animate-fade-in">
+                                <div className="text-center py-10">
+                                    <span className="inline-block py-1 px-3 rounded-full bg-blue-50 text-[#0077c8] text-xs font-bold mb-4 border border-blue-100">
+                                        2026 수능 변형 문제 수록
+                                    </span>
+                                    <h2 className="text-3xl font-black text-slate-800 mb-3 leading-tight">
+                                        내 학년에 딱 맞는<br/>수능 영어 체험
+                                    </h2>
+                                    <p className="text-slate-500 text-[15px] leading-relaxed max-w-xs mx-auto">
+                                        초3부터 고3까지, 실제 수능 문항을 내 수준에 맞게 변형하여 미리 경험해보세요.
+                                    </p>
+                                </div>
+                                
+                                <GradeSelector onSelect={handleGradeSelect} />
+                                
+                                <div className="mt-8 p-4 bg-white rounded-xl border border-slate-200 shadow-sm text-center text-xs text-slate-400">
+                                    * 본 서비스의 모든 문항은 2026학년도 수능 기출문제를 기반으로 교육적 목적을 위해 재구성되었습니다.
+                                </div>
+                            </div>
+                        )}
+
+                        {screen === 'loading' && (
+                            <div className="flex-1 flex flex-col items-center justify-center">
+                                <div className="w-12 h-12 border-4 border-[#0077c8] border-t-transparent rounded-full animate-spin mb-6"></div>
+                                <h3 className="font-bold text-lg text-slate-800 mb-2">맞춤형 시험지 생성 중</h3>
+                                <p className="text-slate-500 text-sm">{selectedGrade} 수준에 맞춰 난이도를 조절하고 있습니다.</p>
+                            </div>
+                        )}
+
+                        {screen === 'quiz' && questions[currentIndex] && (
+                            <div className="flex-1 flex flex-col pb-20">
+                                <div className="flex justify-between items-center mb-4 px-2">
+                                    <span className="font-bold text-slate-800 text-lg">Question {currentIndex + 1}</span>
+                                    <span className="text-slate-400 text-sm font-medium">{questions.length}문제 중</span>
+                                </div>
+                                
+                                <QuestionCard 
+                                    question={questions[currentIndex]}
+                                    currentAnswer={userAnswers[currentIndex]}
+                                    onAnswer={handleAnswer}
+                                />
+                            </div>
+                        )}
+
+                        {screen === 'result' && (
+                            <ResultView 
+                                {...calculateScore()} 
+                                questions={questions}
+                                userAnswers={userAnswers}
+                                onRetry={() => {
+                                    setScreen('home');
+                                    setSelectedGrade(null);
+                                }}
+                            />
+                        )}
+                    </main>
+
+                    {/* Footer Nav for Quiz */}
+                    {screen === 'quiz' && (
+                        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-4 z-20 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+                            <div className="max-w-xl mx-auto flex gap-3">
+                                <button 
+                                    onClick={handlePrev} 
+                                    disabled={currentIndex === 0}
+                                    className="flex-1 py-3.5 rounded-xl font-bold text-slate-600 bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-200 transition-colors"
+                                >
+                                    이전
+                                </button>
+                                
+                                {currentIndex === questions.length - 1 ? (
+                                    <button 
+                                        onClick={() => setScreen('result')}
+                                        disabled={Object.keys(userAnswers).length < questions.length}
+                                        className="flex-[2] py-3.5 rounded-xl font-bold text-white bg-[#0077c8] shadow-lg shadow-blue-200 hover:bg-blue-600 active:scale-95 transition-all disabled:opacity-50 disabled:shadow-none"
+                                    >
+                                        채점하기
+                                    </button>
+                                ) : (
+                                    <button 
+                                        onClick={handleNext}
+                                        className="flex-[2] py-3.5 rounded-xl font-bold text-white bg-slate-800 hover:bg-slate-700 active:scale-95 transition-all"
+                                    >
+                                        다음 문제
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Menu Modal */}
+                    {isMenuOpen && (
+                        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 animate-fade-in">
+                            <div className="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl relative">
+                                <button onClick={() => setIsMenuOpen(false)} className="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+                                    <X size={24} />
+                                </button>
+                                <h3 className="text-xl font-bold text-slate-900 mb-4">서비스 이용 가이드</h3>
+                                <div className="space-y-4 text-sm text-slate-600 leading-relaxed">
+                                    <p><strong>1. 학년 선택:</strong> 본인의 학년을 선택하면 난이도가 자동 조절됩니다.</p>
+                                    <p><strong>2. 문제 풀이:</strong> 듣기 문제는 재생 버튼을 눌러주세요. 독해 문제는 지문을 읽고 답을 고르세요.</p>
+                                    <p><strong>3. 결과 확인:</strong> 채점 후에는 2026 수능 원문과 비교한 상세 해설을 볼 수 있습니다.</p>
+                                </div>
+                                <button onClick={() => setIsMenuOpen(false)} className="w-full mt-6 py-3 bg-[#0077c8] text-white rounded-xl font-bold">확인</button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
