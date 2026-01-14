@@ -2,780 +2,1333 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2026학년도 수능 영어 심층 분석 보고서</title>
-    <!-- 구글 폰트: Noto Sans KR -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>2026 수능 심층 분석 및 윤선생 대응 전략</title>
+    
+    <!-- Tailwind CSS (스타일링) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js (차트) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome (아이콘) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Noto+Serif+KR:wght@700;900&display=swap" rel="stylesheet">
+
     <style>
-        :root {
-            --primary-color: #1a3c6e; /* 신뢰감 있는 네이비 */
-            --accent-color: #d32f2f; /* 경고/강조 레드 */
-            --bg-color: #f4f6f9;
-            --text-color: #333;
-            --light-gray: #e0e0e0;
-            --white: #ffffff;
-            --match-bg: #e8f5e9; /* 매칭 강조 배경색 */
-            --match-border: #4caf50; /* 매칭 강조 테두리 */
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: 'Noto Sans KR', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            line-height: 1.6;
-            -webkit-print-color-adjust: exact;
-        }
-
-        /* 레이아웃 컨테이너 */
-        .container {
-            max-width: 900px;
-            margin: 40px auto;
-            background: var(--white);
-            padding: 50px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-            border-radius: 8px;
-        }
-
-        /* 헤더 */
-        header {
-            border-bottom: 3px solid var(--primary-color);
-            padding-bottom: 20px;
-            margin-bottom: 40px;
-        }
-
-        h1 {
-            font-size: 32px;
-            color: var(--primary-color);
-            font-weight: 900;
-            margin-bottom: 10px;
-            letter-spacing: -1px;
-        }
-
-        .subtitle {
-            font-size: 18px;
-            color: #555;
-            font-weight: 500;
-        }
-
-        .report-info {
-            margin-top: 15px;
-            font-size: 14px;
-            color: #777;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        /* 공통 섹션 스타일 */
-        section {
-            margin-bottom: 50px;
-        }
-
-        h2 {
-            font-size: 22px;
-            color: var(--primary-color);
-            border-left: 5px solid var(--accent-color);
-            padding-left: 15px;
-            margin-bottom: 25px;
-            font-weight: 700;
-        }
-
-        h3 {
-            font-size: 18px;
-            color: #222;
-            margin-top: 30px;
-            margin-bottom: 15px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-        }
-
-        p {
-            margin-bottom: 15px;
-            color: #444;
-            text-align: justify;
-        }
-
-        /* 1. Executive Summary 카드 */
-        .summary-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-        }
-
-        .summary-card {
-            background: #fff;
-            border: 1px solid #eee;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.03);
-            border-top: 4px solid var(--primary-color);
-            transition: transform 0.2s;
-        }
-
-        .summary-card:hover {
-            transform: translateY(-3px);
-        }
-
-        .summary-title {
-            font-weight: 700;
-            font-size: 16px;
-            margin-bottom: 10px;
-            color: var(--primary-color);
-        }
-
-        .summary-card.alert {
-            border-top-color: var(--accent-color);
-        }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; color: #334155; }
+        .font-serif-kr { font-family: 'Noto Serif KR', serif; }
+        .gradient-text { background: linear-gradient(to right, #1e3a8a, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .card-shadow { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
         
-        .summary-card.alert .summary-title {
-            color: var(--accent-color);
+        /* 애니메이션 효과 */
+        .fade-in-up { animation: fadeInUp 0.8s ease-out forwards; opacity: 0; transform: translateY(20px); }
+        .delay-100 { animation-delay: 0.1s; }
+        .delay-150 { animation-delay: 0.15s; }
+        .delay-200 { animation-delay: 0.2s; }
+        .delay-300 { animation-delay: 0.3s; }
+
+        @keyframes fadeInUp {
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        /* 2. 데이터 분석 (차트) */
-        .chart-box {
-            background: #f9f9f9;
-            padding: 25px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
+        /* 상세 탐색기(Explorer) 스타일 */
+        .list-item-active { background-color: #eff6ff; border-left-color: #3b82f6; }
+        .list-item-inactive { border-left-color: transparent; }
+        .list-item-inactive:hover { background-color: #f8fafc; }
 
-        .bar-chart-container {
-            margin: 20px 0;
-        }
-
-        .bar-row {
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .bar-label {
-            width: 80px;
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .bar-track {
-            flex-grow: 1;
-            background: #e0e0e0;
-            height: 24px;
-            border-radius: 12px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .bar-fill {
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            padding-right: 10px;
-            color: white;
-            font-size: 12px;
-            font-weight: bold;
-            transition: width 1s ease-in-out;
-        }
-
-        .fill-2025 { background-color: #95a5a6; width: 85%; }
-        .fill-2026 { background-color: var(--accent-color); width: 95%; }
-
-        .stat-comparison {
-            display: flex;
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .stat-box {
-            flex: 1;
-            background: white;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            text-align: center;
-        }
-
-        .stat-value {
-            font-size: 24px;
-            font-weight: 900;
-            color: var(--primary-color);
-        }
-
-        .stat-desc {
-            font-size: 13px;
-            color: #666;
-        }
-
-        .insight-box {
-            background-color: #e3f2fd;
-            border-left: 4px solid #2196f3;
-            padding: 15px;
-            margin-top: 15px;
-            font-size: 14px;
-        }
-
-        .insight-title {
-            font-weight: 700;
-            color: #1565c0;
-            margin-bottom: 5px;
-            display: block;
-        }
-
-        /* 3. Case Study */
-        .case-study-box {
-            border: 1px solid #eee;
-            border-radius: 8px;
-            overflow: hidden;
-            margin-bottom: 20px;
-        }
-
-        .case-header {
-            background: #f5f5f5;
-            padding: 15px;
-            font-weight: 700;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .case-content {
-            padding: 20px;
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-
-        .case-visual-placeholder {
-            flex: 1;
-            min-width: 200px;
-            background: #eee;
-            height: 150px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #999;
-            border-radius: 4px;
-            font-size: 12px;
-            border: 2px dashed #ccc;
-        }
-
-        .case-text {
-            flex: 2;
-        }
-
-        .trap-box {
-            background: #fff0f0;
-            padding: 10px;
-            border-radius: 4px;
-            margin-top: 10px;
-            font-size: 14px;
-        }
-
-        .trap-label {
-            color: var(--accent-color);
-            font-weight: 700;
-            margin-right: 5px;
-        }
-
-        /* 4. Roadmap Table */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-
-        th, td {
-            padding: 12px 15px;
-            border: 1px solid #ddd;
-            text-align: left;
-            font-size: 14px;
-        }
-
-        th {
-            background-color: var(--primary-color);
-            color: white;
-            font-weight: 500;
-        }
-
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-
-        /* 5. Yoon's Section (Enhanced) */
-        .yoon-box {
-            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
-            padding: 30px;
-            border-radius: 8px;
-            border: 1px solid #dcdcdc;
-        }
-
-        .big-percent {
-            font-size: 60px;
-            font-weight: 900;
-            color: var(--primary-color);
-            line-height: 1;
-            margin: 10px 0;
-            text-align: center;
-        }
-
-        .big-percent span {
-            font-size: 24px;
-            font-weight: 500;
-            color: #555;
-        }
+        /* 커스텀 스크롤바 */
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         
-        /* New Style: Evidence Match Cards */
-        .match-container {
-            display: grid;
-            gap: 15px;
-            margin-top: 25px;
-        }
-        
-        .match-card {
-            background: white;
-            border-left: 5px solid var(--match-border);
-            padding: 15px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            border-radius: 0 8px 8px 0;
-        }
-
-        .match-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-            border-bottom: 1px dashed #eee;
-            padding-bottom: 5px;
-        }
-
-        .match-type {
-            font-weight: 900;
-            color: var(--match-border);
-            font-size: 13px;
-            text-transform: uppercase;
-            background: var(--match-bg);
-            padding: 2px 8px;
-            border-radius: 4px;
-        }
-
-        .match-q {
-            font-weight: 700;
-            color: #333;
-        }
-        
-        .comparison-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            font-size: 13px;
-        }
-        
-        .comp-col strong {
-            display: block;
-            color: #666;
-            margin-bottom: 5px;
-            font-size: 12px;
-        }
-        
-        .comp-box {
-            background: #fafafa;
-            padding: 10px;
-            border-radius: 4px;
-            height: 100%;
-            border: 1px solid #eee;
-            color: #444;
-        }
-        
-        .highlight {
-            background-color: #fff9c4; /* 노란색 형광펜 */
-            font-weight: bold;
-        }
-        
-        .source-tag {
-            display: block;
-            text-align: right;
-            font-size: 11px;
-            color: #888;
-            margin-top: 5px;
-            font-style: italic;
-        }
-
-        /* 버튼 */
-        .print-btn {
-            display: block;
-            width: 200px;
-            margin: 0 auto 40px;
-            padding: 15px;
-            background-color: var(--primary-color);
-            color: white;
-            text-align: center;
-            border-radius: 30px;
-            text-decoration: none;
-            font-weight: 700;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-            cursor: pointer;
-            border: none;
-            font-size: 16px;
-        }
-
-        .print-btn:hover {
-            background-color: #132c50;
-        }
-
-        /* 인쇄 설정 */
-        @media print {
-            body {
-                background-color: white;
-            }
-            .container {
-                box-shadow: none;
-                margin: 0;
-                padding: 0;
-                width: 100%;
-                max-width: 100%;
-            }
-            .print-btn {
-                display: none;
-            }
-            .bar-fill, .match-type, .highlight {
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
-        }
-        
-        /* 모바일 대응 */
-        @media (max-width: 768px) {
-            .container {
-                padding: 20px;
-                margin: 10px;
-            }
-            .stat-comparison {
-                flex-direction: column;
-            }
-            .case-content {
-                flex-direction: column;
-            }
-            .big-percent {
-                font-size: 48px;
-            }
-            .comparison-grid {
-                grid-template-columns: 1fr;
-            }
-        }
+        /* 모바일 터치 최적화 */
+        .touch-scroll { -webkit-overflow-scrolling: touch; }
     </style>
 </head>
-<body>
-    <div class="container">
-        <!-- Header -->
-        <header>
-            <div style="display:inline-block; background:var(--primary-color); color:white; padding:4px 10px; font-size:12px; border-radius:4px; margin-bottom:10px;">심층 분석 리포트</div>
-            <h1>2026학년도 수능 영어 분석</h1>
-            <div class="subtitle">역대 최다 텍스트, 정교해진 논리… ‘독해 지구력(Stamina)’이 승부를 갈랐다</div>
-            <div class="report-info">
-                <span>발행일: 2025년 12월 8일</span>
-                <span>작성: 상품연구팀</span>
+<body class="antialiased">
+
+    <!-- 1. Intro Header -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-14 md:h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2 cursor-pointer" onclick="location.reload()">
+                <i class="fa-solid fa-graduation-cap text-blue-800 text-xl md:text-2xl"></i>
+                <h1 class="font-bold text-lg md:text-xl text-slate-800 tracking-tight">2026 수능 분석 리포트</h1>
             </div>
-        </header>
-
-        <!-- 1. Executive Summary -->
-        <section>
-            <h2>1. Executive Summary (3줄 요약)</h2>
-            <div class="summary-grid">
-                <div class="summary-card alert">
-                    <div class="summary-title">① 1등급 3.11% '불수능'</div>
-                    <p style="font-size:14px; margin:0;">킬러문항 배제 기조에도 불구, 1등급 비율이 최근 9년 중 최저치를 기록하며 사실상 상대평가급 변별력 회복.</p>
-                </div>
-                <div class="summary-card">
-                    <div class="summary-title">② 타임 어택(Time Attack)</div>
-                    <p style="font-size:14px; margin:0;">역대 최다 텍스트 분량으로 인해 읽다가 지쳐 시간이 부족해지는 현상 극심. 속독 능력이 필수.</p>
-                </div>
-                <div class="summary-card">
-                    <div class="summary-title">③ 논리 함정(Logic Trap)</div>
-                    <p style="font-size:14px; margin:0;">단순 해석만으로는 풀 수 없는 '매력적 오답' 설계. 문맥 속 숨겨진 연결고리를 찾는 논리력이 관건.</p>
-                </div>
+            <div class="text-xs font-medium text-slate-500 bg-slate-100 px-3 py-1 rounded-full hidden sm:block">
+                Yoon's English School Analysis
             </div>
-        </section>
+        </div>
+    </header>
 
-        <!-- 2. 데이터 분석 -->
-        <section>
-            <h2>2. 데이터 인사이트: 숫자의 이면을 읽다</h2>
-            <p>단순히 "어려웠다"가 아닙니다. 데이터는 수험생이 겪었을 <strong>‘체력적 한계’</strong>를 명확히 보여줍니다.</p>
-            
-            <div class="chart-box">
-                <h3>[양적 분석] 지문 2개를 더 읽어야 했던 시험</h3>
-                <div class="bar-chart-container">
-                    <div class="bar-row">
-                        <span class="bar-label">2025 수능</span>
-                        <div class="bar-track">
-                            <div class="bar-fill fill-2025">6,490 단어</div>
-                        </div>
-                    </div>
-                    <div class="bar-row">
-                        <span class="bar-label" style="color:var(--accent-color)">2026 수능</span>
-                        <div class="bar-track">
-                            <div class="bar-fill fill-2026">6,754 단어 (+264)</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="insight-box">
-                    <span class="insight-title">💡 Insight: +264단어의 의미는?</span>
-                    수능 장문 독해 한 지문이 약 130~150단어입니다. 즉, 올해 수험생들은 작년 선배들보다 <strong>긴 지문 2개를 더 읽고 풀어야 했다</strong>는 뜻입니다. 이는 단순한 난이도 상승이 아닌, <strong>‘독해 지구력(Reading Stamina)’</strong> 싸움이었습니다.
-                </div>
-            </div>
+    <!-- 모바일: py-6 space-y-12 / PC: py-10 space-y-20 -->
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10 space-y-12 md:space-y-20">
 
-            <div class="chart-box">
-                <h3>[질적 분석] ‘스타카토(Staccato)’ 독해 능력 요구</h3>
-                <div class="stat-comparison">
-                    <div class="stat-box">
-                        <div class="stat-desc">문장 길이(평균)</div>
-                        <div class="stat-value" style="color:#555">12.1단어 <small style="font-size:0.5em; vertical-align:middle;">▼</small></div>
-                        <div style="font-size:13px; color:#888; margin-bottom:5px;">(2025년: 12.6단어)</div>
-                        <div style="font-size:12px; color:#999; border-top:1px dashed #eee; padding-top:5px;">호흡이 짧아짐</div>
-                    </div>
-                    <div class="stat-box" style="border-color:var(--accent-color); background:#fff5f5;">
-                        <div class="stat-desc">총 문장 개수</div>
-                        <div class="stat-value" style="color:var(--accent-color)">522개 <small style="font-size:0.5em; vertical-align:middle;">▲</small></div>
-                        <div style="font-size:13px; color:#d32f2f; margin-bottom:5px;">(2025년: 482개)</div>
-                        <div style="font-size:12px; color:#d32f2f; border-top:1px dashed #ffcdd2; padding-top:5px; font-weight:bold;">정보량 폭주</div>
-                    </div>
-                </div>
-                <div class="insight-box" style="margin-top:20px;">
-                    <span class="insight-title">💡 Insight: 숨 쉴 틈 없는 정보의 홍수</span>
-                    문장이 짧아졌다는 것은 쉬워졌다는 뜻이 아닙니다. 짧은 호흡으로 정보가 쉴 새 없이 쏟아졌음을 의미합니다. 문장 사이를 빠르게 연결하며 치고 나가는 <strong>‘속독속해(速讀速解)’</strong> 능력이 필수적이었습니다.
-                </div>
-            </div>
-        </section>
-
-        <!-- 3. 고난도 문항 분석 -->
-        <section>
-            <h2>3. 고난도 문항 Case Study: 왜 틀렸는가?</h2>
-            
-            <div class="case-study-box">
-                <div class="case-header">
-                    <span>빈칸 추론 (34번)</span>
-                    <span style="color:var(--accent-color)">오답률 상위</span>
-                </div>
-                <div class="case-content">
-                    <div style="flex: 1; min-width: 200px;">
-                        <img src="https://github.com/hyunqwer/2026KSAT/blob/image/2006ksat_34.png?raw=true" alt="34번 문항" style="width: 100%; height: auto; border: 1px solid #eee; border-radius: 4px;">
-                    </div>
-                    <div class="case-text">
-                        <strong>주제: 칸트의 법의 지배와 자유(Rule of Law)</strong>
-                        <div class="trap-box">
-                            <span class="trap-label">The Trap (함정):</span>
-                            학생들은 '자유(Freedom)'와 '강제(Force)'를 반대 개념으로 인식합니다. 하지만 지문은 "자유를 누리기 위해 법적 강제가 필요하다"는 역설적 논리를 다루고 있어, 빈칸 추론 시 논리적 혼란을 겪었습니다.
-                        </div>
-                        <p style="margin-top:10px; font-size:14px;">
-                            <strong>분석:</strong> 철학적 배경지식이 부족한 경우, '법 집행'과 '자유 보장'의 인과관계를 파악하는 데 상당한 시간이 소요되었습니다.
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="case-study-box">
-                <div class="case-header">
-                    <span>문단 순서 (37번)</span>
-                    <span style="color:var(--accent-color)">1등급 결정 문항</span>
-                </div>
-                <div class="case-content">
-                    <div style="flex: 1; min-width: 200px;">
-                        <img src="https://github.com/hyunqwer/2026KSAT/blob/image/2006ksat_37.png?raw=true" alt="37번 문항" style="width: 100%; height: auto; border: 1px solid #eee; border-radius: 4px;">
-                    </div>
-                    <div class="case-text">
-                        <strong>주제: 철학의 역할과 신경과학(Neuroscience)</strong>
-                        <div class="trap-box">
-                            <span class="trap-label">The Trap (함정):</span>
-                            추상적인 '철학(Philosophy)'과 구체적인 '과학적 뇌 연구(Science)' 사이의 관계를 규명하는 글입니다. 명시적인 연결어가 적고, 내용이 학문적 층위를 오가며 전개되어 흐름을 놓치기 쉬웠습니다.
-                        </div>
-                        <p style="margin-top:10px; font-size:14px;">
-                            <strong>분석:</strong> 좌뇌/우뇌의 기능적 설명과 철학적 개념을 연결하는 고리를 스스로 추론해야 하는 고난도 문항이었습니다.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 4. 학년별 전략 -->
-        <section>
-            <h2>4. [학년별 전략] 2027 수능 대비 로드맵</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th width="20%">대상</th>
-                        <th width="30%">핵심 전략 키워드</th>
-                        <th>구체적 실행 방안 (Action Plan)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><strong>초등 고학년</strong></td>
-                        <td style="color:var(--primary-color); font-weight:bold;">어휘 인프라 구축</td>
-                        <td>
-                            • <strong>[어휘의 양적 팽창]</strong> 수능 필수 어휘 80% 이상 노출<br>
-                            • 단순 암기가 아닌 예문 속 쓰임새 체득
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><strong>중등부</strong></td>
-                        <td style="color:var(--primary-color); font-weight:bold;">논리 독해 입문</td>
-                        <td>
-                            • <strong>[구조적 독해]</strong> 서론-본론-결론 구조 파악 훈련<br>
-                            • 접속사 없는 문장 간의 관계(인과, 대조) 파악
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><strong>예비 고1~고3</strong></td>
-                        <td style="color:var(--accent-color); font-weight:bold;">실전 지구력 배양</td>
-                        <td>
-                            • <strong>[타임 어택 시뮬레이션]</strong> 70분 풀타임 모의고사<br>
-                            • 킬러 문항(빈칸/순서) 집중 공략 및 매력적 오답 분석
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </section>
-
-        <!-- 5. 윤선생 연계성 (Updated with Excel Data) -->
-        <section>
-            <h2>5. 윤선생 학습 연계성 (Why Yoon’s?)</h2>
-            <div class="yoon-box">
-                <h3 style="margin-top:0; justify-content:center;">"수능이 변할수록, 윤선생의 학습 철학은 증명됩니다."</h3>
-                <p style="text-align:center;">2026 수능 데이터가 윤선생 커리큘럼의 우수성을 입증했습니다.</p>
-                
-                <div class="big-percent">98.1<span>%</span></div>
-                <div style="font-size:18px; font-weight:bold; color:#333; text-align:center;">수능 출제 어휘 적중률</div>
-                <p style="text-align:center; font-size:14px; margin-top:5px; color:#666; margin-bottom:30px;">(고유명사 제외, YES4.0 학제 어휘 기준)</p>
-
-                <h4 style="border-bottom:2px solid #ddd; padding-bottom:10px; margin-bottom:15px; color:#333;">🎯 듣기 영역 적중 사례 (Listening Match)</h4>
-                <div class="match-container">
-                    <!-- 듣기 1번 -->
-                    <div class="match-card">
-                        <div class="match-header">
-                            <span class="match-q">1번: 수면 유도 앱 광고</span>
-                            <span class="match-type">소재 적중</span>
-                        </div>
-                        <div class="comparison-grid">
-                            <div class="comp-col">
-                                <strong>수능 출제 패턴</strong>
-                                <div class="comp-box">
-                                    수면을 돕는 앱 소개 및 권유<br>
-                                    "Music will help you to sleep."
-                                </div>
-                            </div>
-                            <div class="comp-col">
-                                <strong>윤선생 교재 (SMART 중학)</strong>
-                                <div class="comp-box">
-                                    "<span class="highlight">You should rest and sleep more.</span>"<br>
-                                    "<span class="highlight">Music will help you to sleep.</span>"<br>
-                                    <span class="source-tag">Source: SMART 중학영어 1학년(2학기)</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- 듣기 3번 -->
-                    <div class="match-card">
-                        <div class="match-header">
-                            <span class="match-q">3번: 신체 언어와 심리</span>
-                            <span class="match-type">주제 적중</span>
-                        </div>
-                        <div class="comparison-grid">
-                            <div class="comp-col">
-                                <strong>수능 출제 패턴</strong>
-                                <div class="comp-box">
-                                    큰 포즈와 불안감 완화 (Body Language)<br>
-                                    신체 언어를 통한 감정 표현
-                                </div>
-                            </div>
-                            <div class="comp-col">
-                                <strong>윤선생 교재 (Reading PALS)</strong>
-                                <div class="comp-box">
-                                    "<span class="highlight">Most people show their real thoughts and emotions through body language.</span>"<br>
-                                    <span class="source-tag">Source: Yoon's Reading PALS C 9a</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <h4 style="border-bottom:2px solid #ddd; padding-bottom:10px; margin-top:40px; margin-bottom:15px; color:#333;">🎯 읽기 영역 적중 사례 (Reading Match)</h4>
-                <div class="match-container">
-                    <!-- 읽기 41번 -->
-                    <div class="match-card">
-                        <div class="match-header">
-                            <span class="match-q">41번: 복식사(패션 역사) 연구</span>
-                            <span class="match-type">내용 일치</span>
-                        </div>
-                        <div class="comparison-grid">
-                            <div class="comp-col">
-                                <strong>수능 출제 내용</strong>
-                                <div class="comp-box">
-                                    로마 시대 의복(토가)과 사회적 지위<br>
-                                    "The color of the toga indicated rank..."
-                                </div>
-                            </div>
-                            <div class="comp-col">
-                                <strong>윤선생 교재 (Advanced Readers)</strong>
-                                <div class="comp-box">
-                                    "<span class="highlight">The color of the toga also indicated the man's rank in society.</span>"<br>
-                                    <span class="source-tag">Source: Yoon's Advanced Readers E 9a</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- 읽기 43번 -->
-                    <div class="match-card">
-                        <div class="match-header">
-                            <span class="match-q">43번: 스마트폰 갈등과 해결</span>
-                            <span class="match-type">상황 100% 일치</span>
-                        </div>
-                        <div class="comparison-grid">
-                            <div class="comp-col">
-                                <strong>수능 출제 내용</strong>
-                                <div class="comp-box">
-                                    스마트폰 중독 딸과 부모의 갈등<br>
-                                    "Please turn off your devices..."
-                                </div>
-                            </div>
-                            <div class="comp-col">
-                                <strong>윤선생 교재 (SMART 중학)</strong>
-                                <div class="comp-box">
-                                    "<span class="highlight">Please turn off your devices</span> and put them in this basket."<br>
-                                    "You should be in <span class="highlight">control of your devices.</span>"<br>
-                                    <span class="source-tag">Source: SMART 중학영어 3학년(1학기)</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <p style="text-align:center; margin-top:20px; font-size:13px; color:#888;">
-                    * 위 내용은 실제 2026학년도 수능 문항과 윤선생 교재 내용을 발췌하여 비교한 것입니다.
+        <!-- 2. Executive Summary (3줄 요약) -->
+        <section class="fade-in-up">
+            <div class="text-center mb-6 md:mb-10">
+                <span class="text-blue-600 font-bold tracking-wider text-xs md:text-sm uppercase">Executive Summary</span>
+                <!-- 모바일 폰트 사이즈 조정 -->
+                <h2 class="text-2xl md:text-4xl font-black mt-2 mb-4 text-slate-900 break-keep">2026 수능, <br class="md:hidden"><span class="gradient-text">무엇이 달랐나?</span></h2>
+                <p class="text-slate-600 text-sm md:text-base max-w-2xl mx-auto break-keep">
+                    역대급 텍스트 분량과 정교해진 논리 함정. <br class="hidden md:block">
+                    단순한 '어려움'을 넘어 수험생의 <strong>‘독해 체력’</strong>을 시험했습니다.
                 </p>
             </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+                <!-- 요약 카드 1 -->
+                <div class="bg-white p-5 md:p-6 rounded-2xl card-shadow border-t-4 border-red-500">
+                    <div class="flex items-center gap-3 mb-3 md:mb-4">
+                        <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-600">
+                            <i class="fa-solid fa-chart-line"></i>
+                        </div>
+                        <h3 class="font-bold text-lg text-slate-800">1등급 3.11%</h3>
+                    </div>
+                    <p class="text-slate-600 text-sm leading-relaxed break-keep">
+                        최근 9년 중 최저치 기록. 사실상 상대평가급 변별력을 회복한 <strong>'불수능'</strong>이었습니다.
+                    </p>
+                </div>
+                <!-- 요약 카드 2 -->
+                <div class="bg-white p-5 md:p-6 rounded-2xl card-shadow border-t-4 border-blue-500">
+                    <div class="flex items-center gap-3 mb-3 md:mb-4">
+                        <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                            <i class="fa-solid fa-hourglass-half"></i>
+                        </div>
+                        <h3 class="font-bold text-lg text-slate-800">타임 어택 (Time Attack)</h3>
+                    </div>
+                    <p class="text-slate-600 text-sm leading-relaxed break-keep">
+                        역대 최다 텍스트 분량. 읽다가 지쳐 시간이 부족해지는 <strong>'독해 지구력'</strong> 싸움이었습니다.
+                    </p>
+                </div>
+                <!-- 요약 카드 3 -->
+                <div class="bg-white p-5 md:p-6 rounded-2xl card-shadow border-t-4 border-amber-500">
+                    <div class="flex items-center gap-3 mb-3 md:mb-4">
+                        <div class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-600">
+                            <i class="fa-solid fa-frown-open"></i>
+                        </div>
+                        <h3 class="font-bold text-lg text-slate-800">논리 함정 (Logic Trap)</h3>
+                    </div>
+                    <p class="text-slate-600 text-sm leading-relaxed break-keep">
+                        단순 해석으로는 풀 수 없는 <strong>'매력적 오답'</strong> 설계로 문해력 빈틈을 파고들었습니다.
+                    </p>
+                </div>
+            </div>
         </section>
 
-        <!-- 6. 결론 -->
-        <section style="margin-bottom:0;">
-            <h2>6. 결론 및 제언</h2>
-            <p>
-                2026학년도 수능 영어는 <strong>"요령은 통하지 않는다"</strong>는 메시지를 명확히 던졌습니다.
-                텍스트의 홍수 속에서 살아남을 수 있는 <strong>‘독해 체력’</strong>, 그리고 함정을 피해 가는 <strong>‘논리적 사고력’</strong>은 단기간에 만들어지지 않습니다.
-            </p>
-            <p style="font-weight:700; color:var(--primary-color); font-size:18px; margin-top:20px;">
-                지금이 바로 골든타임입니다.
-            </p>
-            <p>
-                빅데이터 기반의 맞춤형 학습 <strong>YES4.0</strong>과 정기적인 실력 점검 도구 <strong>YSAT</strong>를 통해, 변화하는 입시 환경에서도 흔들리지 않는 <strong>‘진짜 영어 실력’</strong>을 완성하십시오.
-            </p>
-        </section>
-    </div>
+        <!-- 3. Trend Analysis (데이터 차트) -->
+        <section class="fade-in-up delay-100 bg-white rounded-3xl p-5 md:p-8 card-shadow border border-slate-100">
+            <h3 class="text-xl md:text-2xl font-bold text-slate-800 mb-6 border-l-4 border-blue-600 pl-4">데이터로 보는 위기</h3>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-10">
+                <!-- 차트 1: 1등급 비율 -->
+                <div>
+                    <h4 class="font-bold text-slate-700 mb-2 flex items-center text-sm md:text-base">
+                        <i class="fa-solid fa-angle-right text-blue-500 mr-2"></i>1등급 비율 추이 (최근 9년)
+                    </h4>
+                    <div class="relative h-56 md:h-64 w-full">
+                        <canvas id="gradeChart"></canvas>
+                    </div>
+                    <p class="text-xs text-center text-slate-500 mt-2 bg-slate-50 py-2 rounded break-keep">
+                        * 3.11%는 최상위권조차 무너졌음을 의미합니다.
+                    </p>
+                </div>
 
+                <!-- 차트 2: 텍스트 분량 -->
+                <div>
+                    <h4 class="font-bold text-slate-700 mb-2 flex items-center text-sm md:text-base">
+                        <i class="fa-solid fa-angle-right text-blue-500 mr-2"></i>수능 총 단어 수 변화
+                    </h4>
+                    <div class="flex flex-col justify-center h-auto md:h-64 space-y-4 pt-2 md:pt-0">
+                        <!-- 2025 -->
+                        <div>
+                            <div class="flex justify-between text-xs font-bold text-slate-500 mb-1">
+                                <span>2025 수능</span>
+                                <span>6,490 단어</span>
+                            </div>
+                            <div class="w-full bg-slate-100 rounded-full h-6 overflow-hidden">
+                                <div class="bg-slate-400 h-6 rounded-full flex items-center justify-end pr-3 text-white text-xs font-bold" style="width: 85%">Base</div>
+                            </div>
+                        </div>
+                        <!-- 2026 -->
+                        <div>
+                            <div class="flex justify-between text-xs font-bold text-red-600 mb-1">
+                                <span>2026 수능 (역대 최다)</span>
+                                <span>6,754 단어 <span class="text-[10px] bg-red-100 px-1 rounded ml-1">+264</span></span>
+                            </div>
+                            <div class="w-full bg-slate-100 rounded-full h-8 overflow-hidden shadow-inner">
+                                <div class="bg-red-500 h-8 rounded-full flex items-center justify-end pr-3 text-white text-sm font-bold animate-pulse" style="width: 95%">+ 긴 지문 2개 분량</div>
+                            </div>
+                        </div>
+                        <div class="bg-blue-50 p-4 rounded-lg mt-4 border border-blue-100">
+                            <p class="text-sm text-blue-800 font-medium break-keep">
+                                <i class="fa-regular fa-lightbulb mr-2"></i>
+                                <strong>Insight:</strong> 작년보다 <span class="underline decoration-wavy">긴 지문 2개를 더 읽고</span> 풀어야 했습니다. '속독' 능력이 필수입니다.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- [New Section] Logic Trap Deep Dive (Refined Content) -->
+        <section class="fade-in-up delay-150">
+            <h3 class="text-xl md:text-2xl font-bold text-slate-800 mb-6 border-l-4 border-red-600 pl-4">Deep Dive: 1등급을 가른 결정타, '논리 함정'</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                <!-- Case 1 -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 md:p-6 transition hover:shadow-md">
+                    <span class="inline-block px-2 py-1 bg-red-100 text-red-600 text-xs font-bold rounded mb-3">Case 1. 37번 순서 배열</span>
+                    <h4 class="font-bold text-lg text-slate-800 mb-2">"보이지 않는 연결고리"</h4>
+                    <p class="text-slate-600 text-sm mb-4 leading-relaxed break-keep">
+                        기존의 <strong>'However', 'Therefore' 같은 명시적 연결사가 배제</strong>되었습니다. 
+                        단순히 앞뒤 문장의 접속사를 찾는 기술(Skill)로는 해결이 불가능하며, 
+                        <strong>오직 문맥의 흐름(Context)만으로</strong> 글의 전개 순서를 파악해야 하는 고난도 유형이었습니다.
+                        '감'으로 푸는 학생들은 대거 오답을 선택할 수밖에 없었습니다.
+                    </p>
+                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                        <div class="text-xs font-bold text-slate-500 mb-2 uppercase">핵심 차이 (Key Difference)</div>
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between text-sm font-medium gap-2 sm:gap-0">
+                            <div class="text-slate-400 line-through decoration-red-400">단순 연결사 찾기</div>
+                            <i class="fa-solid fa-arrow-down sm:fa-arrow-right text-slate-400 text-xs text-center"></i>
+                            <div class="text-blue-700 font-bold">문맥상 논리적 공백 추론</div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Case 2 -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 md:p-6 transition hover:shadow-md">
+                    <span class="inline-block px-2 py-1 bg-red-100 text-red-600 text-xs font-bold rounded mb-3">Case 2. 34번 빈칸 추론</span>
+                    <h4 class="font-bold text-lg text-slate-800 mb-2">"매력적인 오답의 유혹"</h4>
+                    <p class="text-slate-600 text-sm mb-4 leading-relaxed break-keep">
+                        선택지 간의 <strong>의미 차이가 매우 미세하게 설계</strong>되었습니다. 
+                        본문의 핵심 단어를 그대로 쓴 오답 선지가 학생들을 유혹했습니다. 
+                        정답은 본문의 내용을 완전히 다른 단어로 <strong>'재진술(Paraphrasing)'</strong>한 선지였기에, 
+                        정확한 어휘력과 문해력이 없으면 정답을 확신하기 어려웠습니다.
+                    </p>
+                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                        <div class="text-xs font-bold text-slate-500 mb-2 uppercase">핵심 차이 (Key Difference)</div>
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between text-sm font-medium gap-2 sm:gap-0">
+                            <div class="text-slate-400 line-through decoration-red-400">같은 단어 찾기</div>
+                            <i class="fa-solid fa-arrow-down sm:fa-arrow-right text-slate-400 text-xs text-center"></i>
+                            <div class="text-blue-700 font-bold">재진술(Paraphrasing) 파악</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. Vocabulary Match (Updated with 3-Year Trend) -->
+        <section class="fade-in-up delay-200">
+            <h3 class="text-xl md:text-2xl font-bold text-slate-800 mb-6 border-l-4 border-amber-600 pl-4">윤선생 학습 연계성 (Why Yoon’s?)</h3>
+            
+            <div class="bg-gradient-to-br from-slate-50 to-slate-100 rounded-3xl p-6 md:p-10 text-center card-shadow border border-slate-200 relative overflow-hidden">
+                <!-- Background Decoration -->
+                <i class="fa-solid fa-quote-left absolute top-4 left-4 text-4xl md:text-6xl text-slate-200 opacity-50"></i>
+                <i class="fa-solid fa-quote-right absolute bottom-4 right-4 text-4xl md:text-6xl text-slate-200 opacity-50"></i>
+
+                <h3 class="text-lg md:text-xl font-bold text-slate-600 mb-2 relative z-10 break-keep">"수능은 변해도, 영어 실력의 본질은 변하지 않습니다."</h3>
+                <p class="text-slate-500 text-xs md:text-sm mb-6 relative z-10 break-keep">윤선생, 검증된 커리큘럼과 명확한 성장 경로로<br class="hidden md:block">
+                실력으로 이어지는 영어 학습의 기준입니다.</p>
+                
+                <!-- Main 2026 Hero Stats -->
+                <div class="relative z-10 py-6">
+                    <div class="text-6xl md:text-8xl font-black text-blue-900 leading-none tracking-tighter drop-shadow-sm">
+                        98.1<span class="text-3xl md:text-4xl text-slate-500 font-medium ml-1">%</span>
+                    </div>
+                    <div class="text-lg md:text-2xl font-bold text-slate-700 mt-2">수능 출제 어휘 적중률</div>
+                    <p class="text-xs md:text-sm text-slate-500 mt-2 bg-white inline-block px-4 py-1 rounded-full border border-slate-200 shadow-sm break-keep">
+                        (고유명사 제외, YES4.0 학제 어휘 기준)
+                    </p>
+                </div>
+
+                <!-- 2026 Detailed Stats -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4 mt-4 relative z-10 max-w-2xl mx-auto mb-8">
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                        <span class="text-sm font-bold text-slate-600">수능 총 출제 단어</span>
+                        <span class="text-lg font-bold text-blue-600">1,609개</span>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                        <span class="text-sm font-bold text-slate-600">윤선생 커리큘럼 적중</span>
+                        <span class="text-lg font-bold text-red-600">1,579개</span>
+                    </div>
+                </div>
+
+                <!-- NEW: 3-Year Trend Analysis -->
+                <div class="bg-white/60 rounded-xl p-4 md:p-6 border-t border-slate-200 relative z-10">
+                    <h4 class="text-sm font-extrabold text-slate-600 mb-4 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-chart-line text-amber-500"></i>
+                        최근 3년 수능 어휘 적중률 추이
+                    </h4>
+                    <!-- 모바일: 1열 스택 (또는 sm부터 3열) -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-6 max-w-3xl mx-auto">
+                        <!-- 2024 -->
+                        <div class="bg-white rounded-lg p-3 md:p-4 border border-slate-200 shadow-sm hover:shadow-md transition-shadow flex sm:block justify-between items-center sm:text-center">
+                            <div class="text-xs text-slate-400 font-bold mb-0 sm:mb-1">2024 수능</div>
+                            <div class="text-right sm:text-center">
+                                <div class="text-lg md:text-xl font-black text-slate-700">98.8%</div>
+                                <div class="text-[10px] text-slate-400 mt-0 sm:mt-1">1,523 단어 적중</div>
+                            </div>
+                        </div>
+                        <!-- 2025 -->
+                        <div class="bg-white rounded-lg p-3 md:p-4 border border-slate-200 shadow-sm hover:shadow-md transition-shadow flex sm:block justify-between items-center sm:text-center">
+                            <div class="text-xs text-slate-400 font-bold mb-0 sm:mb-1">2025 수능</div>
+                            <div class="text-right sm:text-center">
+                                <div class="text-lg md:text-xl font-black text-slate-700">98.2%</div>
+                                <div class="text-[10px] text-slate-400 mt-0 sm:mt-1">1,540 단어 적중</div>
+                            </div>
+                        </div>
+                        <!-- 2026 -->
+                        <div class="bg-blue-50 rounded-lg p-3 md:p-4 border border-blue-200 shadow-md ring-2 ring-blue-100 flex sm:block justify-between items-center sm:text-center relative overflow-hidden sm:overflow-visible sm:transform sm:scale-105">
+                            <div class="absolute top-0 right-0 bg-blue-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-bl-lg rounded-tr-lg hidden sm:block">LATEST</div>
+                            <div class="text-xs text-blue-600 font-bold mb-0 sm:mb-1 flex items-center gap-2 sm:justify-center">
+                                2026 수능 <span class="sm:hidden bg-blue-500 text-white text-[9px] px-1 rounded">LATEST</span>
+                            </div>
+                            <div class="text-right sm:text-center">
+                                <div class="text-lg md:text-xl font-black text-blue-700">98.1%</div>
+                                <div class="text-[10px] text-blue-500 mt-0 sm:mt-1 font-bold">1,579 단어 적중</div>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-4 font-medium break-keep">
+                        * 윤선생 커리큘럼은 3년 연속 98% 이상의 경이로운 적중률을 기록하며 안정성을 입증했습니다.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. Interactive Evidence Explorer (Consultation 2 Format) -->
+        <section id="explorer" class="fade-in-up delay-300">
+            <div class="mb-6 md:mb-8">
+                <span class="text-amber-600 font-bold tracking-wider text-xs md:text-sm uppercase">Evidence Explorer</span>
+                <h3 class="text-2xl md:text-3xl font-black mt-2 text-slate-900">적중 증명 탐색기</h3>
+                <p class="text-slate-600 mt-2 text-sm md:text-base break-keep">
+                    아래 탐색기를 통해 실제 수능 문항 소재와 윤선생 교재의 지문(Source Extract)을 직접 비교해보세요.
+                    <span class="font-semibold text-blue-700">하나의 수능 문항에 대해 여러 개의 교재 지문이 매칭된 사례</span>를 모두 확인할 수 있습니다.
+                </p>
+            </div>
+
+            <!-- Controls Toolbar -->
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 mb-6 flex flex-col md:flex-row justify-between items-center gap-4">
+                <!-- Toggle Buttons -->
+                <div class="bg-slate-100 p-1 rounded-lg flex w-full md:w-auto">
+                    <button id="btn-listening" onclick="setMode('Listening')" class="flex-1 md:flex-none px-6 py-2 rounded-md text-sm font-bold transition-all shadow-sm bg-white text-blue-600 border border-slate-200">
+                        <i class="fa-solid fa-headphones mr-2"></i>듣기 (Listening)
+                    </button>
+                    <button id="btn-reading" onclick="setMode('Reading')" class="flex-1 md:flex-none px-6 py-2 rounded-md text-sm font-bold transition-all text-slate-500 hover:text-slate-700 hover:bg-slate-200">
+                        <i class="fa-solid fa-book-open mr-2"></i>읽기 (Reading)
+                    </button>
+                </div>
+                
+                <!-- Filter Dropdown -->
+                <div class="relative w-full md:w-72">
+                    <select id="categoryFilter" onchange="filterData()" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-slate-700 cursor-pointer text-sm font-medium shadow-sm hover:border-blue-400 transition-colors">
+                        <option value="All">모든 카테고리 보기</option>
+                        <!-- Options populated by JS -->
+                    </select>
+                    <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-slate-500">
+                        <i class="fa-solid fa-chevron-down text-xs"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Explorer Split View -->
+            <!-- 모바일: Flex-col(세로 배치), 높이 개별 설정 / PC: Grid(가로 배치), 고정 높이 -->
+            <div class="flex flex-col lg:grid lg:grid-cols-12 gap-6 lg:h-[700px]">
+                
+                <!-- Left Column: Item List (모바일 높이 250px / PC 높이 100%) -->
+                <div class="lg:col-span-4 bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col overflow-hidden h-[250px] lg:h-full">
+                    <div class="p-3 md:p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center sticky top-0 z-10">
+                        <span class="font-bold text-slate-700 text-sm"><i class="fa-solid fa-list-ul mr-2"></i>문항 리스트</span>
+                        <span id="matchCount" class="text-xs bg-blue-100 text-blue-700 px-2.5 py-1 rounded-full font-bold">0건</span>
+                    </div>
+                    <div id="itemList" class="overflow-y-auto p-2 space-y-2 custom-scroll flex-1 bg-slate-50/50 touch-scroll">
+                        <!-- Items populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Right Column: Details View (모바일 높이 500px / PC 높이 100%) -->
+                <div class="lg:col-span-8 h-[500px] lg:h-full">
+                    <div id="detailView" class="bg-white rounded-xl border border-blue-100 shadow-md h-full flex flex-col relative overflow-hidden">
+                        <!-- Default State -->
+                        <div id="emptyState" class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 bg-slate-50 z-10 p-8 text-center">
+                            <div class="w-16 h-16 md:w-20 md:h-20 bg-slate-200 rounded-full flex items-center justify-center mb-4 text-slate-400">
+                                <i class="fa-regular fa-hand-pointer text-2xl md:text-3xl"></i>
+                            </div>
+                            <h4 class="text-base md:text-lg font-bold text-slate-600 mb-2">문항을 선택해주세요</h4>
+                            <p class="text-xs md:text-sm break-keep">위 목록에서 수능 문항 유형을 선택하면<br>상세한 윤선생 교재 적중 사례를 확인할 수 있습니다.</p>
+                        </div>
+
+                        <!-- Content State -->
+                        <div id="contentState" class="hidden h-full flex flex-col">
+                            <!-- Sticky Header -->
+                            <div class="p-4 md:p-6 border-b border-slate-100 bg-white z-20 shadow-sm sticky top-0">
+                                <div class="flex items-start justify-between">
+                                    <div>
+                                        <span id="detailBadge" class="inline-block px-2.5 py-0.5 bg-slate-100 text-slate-600 rounded text-xs font-bold mb-2 uppercase tracking-wide border border-slate-200">Category</span>
+                                        <h3 id="detailTitle" class="text-xl md:text-2xl font-black text-slate-800 leading-tight mb-2">문항 제목</h3>
+                                        <div class="flex items-center text-blue-600 font-medium text-xs md:text-sm">
+                                            <i class="fa-solid fa-bullseye mr-2"></i>
+                                            <span id="detailTopic">유사 소재: ...</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Scrollable Content -->
+                            <div class="overflow-y-auto custom-scroll p-4 md:p-6 space-y-6 md:space-y-8 flex-1 bg-slate-50/30 touch-scroll">
+                                
+                                <!-- Section 1: CSAT Context -->
+                                <div class="relative">
+                                    <div class="absolute -left-3 top-0 bottom-0 w-1 bg-slate-300 rounded-full"></div>
+                                    <h5 class="text-xs md:text-sm font-bold text-slate-500 uppercase mb-3 flex items-center pl-4">
+                                        <i class="fa-solid fa-file-contract mr-2"></i> 수능 출제 경향 및 소재
+                                    </h5>
+                                    <div class="bg-white p-4 md:p-5 rounded-lg border border-slate-200 shadow-sm ml-1">
+                                        <p id="detailContext" class="text-slate-800 leading-relaxed font-medium text-sm md:text-base">
+                                            이 유형은 ...
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <!-- Section 2: Yoon Source Matches -->
+                                <div class="relative">
+                                    <div class="absolute -left-3 top-0 bottom-0 w-1 bg-amber-500 rounded-full"></div>
+                                    <h5 class="text-xs md:text-sm font-bold text-amber-700 uppercase mb-3 flex items-center pl-4">
+                                        <i class="fa-solid fa-book-bookmark mr-2"></i> 윤선생 교재 적중 증거 (Source Extracts)
+                                    </h5>
+                                    
+                                    <!-- Container for dynamic Matches -->
+                                    <div id="matchesContainer" class="space-y-4 ml-1">
+                                        <!-- Dynamic cards injected here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. Roadmap & Action Plan (Responsive: Table for Desktop / Cards for Mobile) -->
+        <section class="fade-in-up delay-300">
+            <h3 class="text-xl md:text-2xl font-bold text-slate-800 mb-6 border-l-4 border-blue-600 pl-4 break-keep">윤선생 YES4.0커리큘럼 학년별 필승 로드맵</h3>
+            
+            <!-- [Desktop View] Original Table Structure (Hidden on Mobile) -->
+            <div class="hidden lg:block overflow-hidden rounded-xl border border-slate-200 shadow-sm bg-white">
+                <div class="overflow-x-auto touch-scroll">
+                    <table class="w-full text-sm text-left text-slate-600 min-w-[800px]">
+                        <thead class="text-xs text-white uppercase bg-slate-800">
+                            <tr>
+                                <th scope="col" class="px-6 py-4 w-[15%]">대상</th>
+                                <th scope="col" class="px-6 py-4 w-[25%]">핵심 전략</th>
+                                <th scope="col" class="px-6 py-4 w-[35%]">구체적 실행 방안 (Action Plan)</th>
+                                <th scope="col" class="px-6 py-4 w-[25%]">윤선생 연계 교재 영역</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <!-- 초등 저학년 (1~2학년) -->
+                            <tr class="hover:bg-slate-50 transition-colors">
+                                <td class="px-6 py-5 align-top">
+                                    <div class="font-bold text-slate-900 text-lg">초등 저학년</div>
+                                    <div class="text-xs text-slate-500 mt-1 font-medium">(1~2학년)</div>
+                                </td>
+                                <td class="px-6 py-5 align-top">
+                                    <div class="font-bold text-green-600 text-base mb-2">기초 리터러시 구축</div>
+                                    <p class="text-slate-500 text-xs leading-relaxed">
+                                        영어에 대한 긍정적 정서 형성 및 기초 해독 능력 완성
+                                    </p>
+                                </td>
+                                <td class="px-6 py-5 align-top">
+                                    <ul class="list-disc list-inside space-y-2 marker:text-green-500 text-slate-700">
+                                        <li>파닉스를 통해 <strong>단어 해독 능력</strong> 형성</li>
+                                        <li>누적 <strong>1,000단어</strong> 수준의 기초 어휘 확보</li>
+                                        <li>반복 문장 입력으로 <strong>듣기·읽기 리듬</strong> 형성</li>
+                                        <li>성공 경험 중심 학습으로 <strong>영어 자신감</strong> 형성</li>
+                                    </ul>
+                                </td>
+                                <td class="px-6 py-5 align-top">
+                                    <div class="flex flex-wrap gap-2">
+                                        <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700 border border-green-200">파닉스</span>
+                                        <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700 border border-green-200">기초 어휘</span>
+                                        <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700 border border-green-200">기초 읽기</span>
+                                        <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700 border border-green-200">듣기(패턴·리듬)</span>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- 초등 고학년 (3~6학년) -->
+                            <tr class="hover:bg-slate-50 transition-colors bg-slate-50/30">
+                                <td class="px-6 py-5 align-top">
+                                    <div class="font-bold text-slate-900 text-lg">초등 고학년</div>
+                                    <div class="text-xs text-slate-500 mt-1 font-medium">(3~6학년)</div>
+                                </td>
+                                <td class="px-6 py-5 align-top">
+                                    <div class="font-bold text-blue-600 text-base mb-2">사고력 독해 확장</div>
+                                    <p class="text-slate-500 text-xs leading-relaxed">
+                                        초등 영어 완성 및 중등 대비 본격적인 학습 습관 형성
+                                    </p>
+                                </td>
+                                <td class="px-6 py-5 align-top">
+                                    <ul class="list-disc list-inside space-y-2 marker:text-blue-500 text-slate-700">
+                                        <li>누적 <strong>5,000단어(초6 기준)</strong>까지 어휘 체계 확장</li>
+                                        <li>문장 구조 인식 중심 <strong>문법 기초 완성</strong></li>
+                                        <li>다양한 장르 독해 및 배경지식 기반 <strong>융합 독해</strong> 경험</li>
+                                    </ul>
+                                </td>
+                                <td class="px-6 py-5 align-top">
+                                    <div class="flex flex-wrap gap-2">
+                                        <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700 border border-blue-200">어휘</span>
+                                        <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700 border border-blue-200">기초 문법</span>
+                                        <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700 border border-blue-200">독해(장르)</span>
+                                        <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700 border border-blue-200">읽기 유창성</span>
+                                        <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700 border border-blue-200">창의·융합</span>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- 중학교 -->
+                            <tr class="hover:bg-slate-50 transition-colors">
+                                <td class="px-6 py-5 align-top">
+                                    <div class="font-bold text-slate-900 text-lg">중학교</div>
+                                </td>
+                                <td class="px-6 py-5 align-top">
+                                    <div class="font-bold text-indigo-600 text-base mb-2">결정적 언어 체력</div>
+                                    <p class="text-slate-500 text-xs leading-relaxed">
+                                        고등까지 이어지는 탄탄한 기본기 및 논리적 사고 완성
+                                    </p>
+                                </td>
+                                <td class="px-6 py-5 align-top">
+                                    <ul class="list-disc list-inside space-y-2 marker:text-indigo-500 text-slate-700">
+                                        <li>누적 <strong>8,000단어(중등 졸업 기준)</strong> 확보</li>
+                                        <li>중학 필수 문법 완전 숙달 및 <strong>구조 분석 능력</strong> 강화</li>
+                                        <li>빈칸·문장삽입 등 <strong>논리 독해 유형</strong> 훈련</li>
+                                        <li><strong>180 WPM</strong> 듣기 훈련으로 수능 대비 처리 속도 확보</li>
+                                    </ul>
+                                </td>
+                                <td class="px-6 py-5 align-top">
+                                    <div class="flex flex-wrap gap-2">
+                                        <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-700 border border-indigo-200">어휘(확장)</span>
+                                        <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-700 border border-indigo-200">문법(구조)</span>
+                                        <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-700 border border-indigo-200">논리 독해</span>
+                                        <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-700 border border-indigo-200">듣기(속도)</span>
+                                        <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-700 border border-indigo-200">쓰기(요약)</span>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- 고등학교 -->
+                            <tr class="hover:bg-slate-50 transition-colors bg-slate-50/30">
+                                <td class="px-6 py-5 align-top">
+                                    <div class="font-bold text-slate-900 text-lg">고등학교</div>
+                                </td>
+                                <td class="px-6 py-5 align-top">
+                                    <div class="font-bold text-amber-600 text-base mb-2">실전 1등급 완성</div>
+                                    <p class="text-slate-500 text-xs leading-relaxed">
+                                        실전 운영 능력 기반 고난도 유형 정복 및 멘탈 관리
+                                    </p>
+                                </td>
+                                <td class="px-6 py-5 align-top">
+                                    <ul class="list-disc list-inside space-y-2 marker:text-amber-500 text-slate-700">
+                                        <li>누적 <strong>9,500단어(학제 졸업 기준)</strong> 완성</li>
+                                        <li>수능 어휘 범위 내 <strong>해석 리스크 최소화</strong></li>
+                                        <li>1등급 변별 <strong>고난도 유형</strong> 집중 공략</li>
+                                        <li>시간 배분·문항 운영 전략 및 <strong>실전 멘탈 관리</strong></li>
+                                    </ul>
+                                </td>
+                                <td class="px-6 py-5 align-top">
+                                    <div class="flex flex-wrap gap-2">
+                                        <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700 border border-amber-200">수능 어휘</span>
+                                        <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700 border border-amber-200">고난도 독해</span>
+                                        <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700 border border-amber-200">실전 문법</span>
+                                        <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700 border border-amber-200">실전 듣기</span>
+                                        <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700 border border-amber-200">모의평가</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- [Mobile View] Card List Structure (Hidden on Desktop) -->
+            <div class="lg:hidden space-y-5">
+                <!-- Card 1: 초등 저학년 (Green Theme) -->
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="bg-green-50 p-4 border-b border-green-100 flex justify-between items-center">
+                        <div>
+                            <span class="font-black text-slate-800 text-lg">초등 저학년</span>
+                            <span class="text-xs text-green-700 ml-1 font-bold bg-green-100 px-2 py-0.5 rounded-full border border-green-200">1~2학년</span>
+                        </div>
+                        <i class="fa-solid fa-seedling text-green-500 text-xl"></i>
+                    </div>
+                    <div class="p-5 space-y-5">
+                        <!-- Strategy -->
+                        <div>
+                            <div class="flex items-center gap-2 mb-2">
+                                <i class="fa-solid fa-flag text-green-500 text-xs"></i>
+                                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">핵심 전략</span>
+                            </div>
+                            <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                <div class="font-bold text-green-600 text-base mb-1">기초 리터러시 구축</div>
+                                <p class="text-slate-500 text-xs leading-relaxed">영어에 대한 긍정적 정서 형성 및 기초 해독 능력 완성</p>
+                            </div>
+                        </div>
+                        <!-- Action Plan -->
+                        <div>
+                            <div class="flex items-center gap-2 mb-2">
+                                <i class="fa-solid fa-list-check text-green-500 text-xs"></i>
+                                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Action Plan</span>
+                            </div>
+                             <ul class="list-disc list-outside ml-4 space-y-1.5 marker:text-green-500 text-slate-700 text-sm">
+                                <li>파닉스를 통해 <strong>단어 해독 능력</strong> 형성</li>
+                                <li>누적 <strong>1,000단어</strong> 수준의 기초 어휘 확보</li>
+                                <li>반복 문장 입력으로 <strong>듣기·읽기 리듬</strong> 형성</li>
+                                <li>성공 경험 중심 학습으로 <strong>영어 자신감</strong> 형성</li>
+                             </ul>
+                        </div>
+                        <!-- Keywords -->
+                        <div>
+                            <div class="flex items-center gap-2 mb-2">
+                                <i class="fa-solid fa-tags text-green-500 text-xs"></i>
+                                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">연계 교재</span>
+                            </div>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-green-50 text-green-700 border border-green-200">파닉스</span>
+                                <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-green-50 text-green-700 border border-green-200">기초 어휘</span>
+                                <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-green-50 text-green-700 border border-green-200">기초 읽기</span>
+                                <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-green-50 text-green-700 border border-green-200">듣기(패턴·리듬)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 2: 초등 고학년 (Blue Theme) -->
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="bg-blue-50 p-4 border-b border-blue-100 flex justify-between items-center">
+                        <div>
+                            <span class="font-black text-slate-800 text-lg">초등 고학년</span>
+                            <span class="text-xs text-blue-700 ml-1 font-bold bg-blue-100 px-2 py-0.5 rounded-full border border-blue-200">3~6학년</span>
+                        </div>
+                        <i class="fa-solid fa-layer-group text-blue-500 text-xl"></i>
+                    </div>
+                    <div class="p-5 space-y-5">
+                        <!-- Strategy -->
+                        <div>
+                            <div class="flex items-center gap-2 mb-2">
+                                <i class="fa-solid fa-flag text-blue-500 text-xs"></i>
+                                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">핵심 전략</span>
+                            </div>
+                            <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                <div class="font-bold text-blue-600 text-base mb-1">사고력 독해 확장</div>
+                                <p class="text-slate-500 text-xs leading-relaxed">초등 영어 완성 및 중등 대비 본격적인 학습 습관 형성</p>
+                            </div>
+                        </div>
+                        <!-- Action Plan -->
+                        <div>
+                            <div class="flex items-center gap-2 mb-2">
+                                <i class="fa-solid fa-list-check text-blue-500 text-xs"></i>
+                                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Action Plan</span>
+                            </div>
+                             <ul class="list-disc list-outside ml-4 space-y-1.5 marker:text-blue-500 text-slate-700 text-sm">
+                                <li>누적 <strong>5,000단어(초6 기준)</strong>까지 어휘 체계 확장</li>
+                                <li>문장 구조 인식 중심 <strong>문법 기초 완성</strong></li>
+                                <li>다양한 장르 독해 및 배경지식 기반 <strong>융합 독해</strong> 경험</li>
+                             </ul>
+                        </div>
+                        <!-- Keywords -->
+                        <div>
+                            <div class="flex items-center gap-2 mb-2">
+                                <i class="fa-solid fa-tags text-blue-500 text-xs"></i>
+                                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">연계 교재</span>
+                            </div>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">어휘</span>
+                                <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">기초 문법</span>
+                                <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">독해(장르)</span>
+                                <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">읽기 유창성</span>
+                                <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">창의·융합</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 3: 중학교 (Indigo Theme) -->
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="bg-indigo-50 p-4 border-b border-indigo-100 flex justify-between items-center">
+                        <div>
+                            <span class="font-black text-slate-800 text-lg">중학교</span>
+                        </div>
+                        <i class="fa-solid fa-dumbbell text-indigo-500 text-xl"></i>
+                    </div>
+                    <div class="p-5 space-y-5">
+                        <!-- Strategy -->
+                        <div>
+                            <div class="flex items-center gap-2 mb-2">
+                                <i class="fa-solid fa-flag text-indigo-500 text-xs"></i>
+                                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">핵심 전략</span>
+                            </div>
+                            <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                <div class="font-bold text-indigo-600 text-base mb-1">결정적 언어 체력</div>
+                                <p class="text-slate-500 text-xs leading-relaxed">고등까지 이어지는 탄탄한 기본기 및 논리적 사고 완성</p>
+                            </div>
+                        </div>
+                        <!-- Action Plan -->
+                        <div>
+                            <div class="flex items-center gap-2 mb-2">
+                                <i class="fa-solid fa-list-check text-indigo-500 text-xs"></i>
+                                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Action Plan</span>
+                            </div>
+                             <ul class="list-disc list-outside ml-4 space-y-1.5 marker:text-indigo-500 text-slate-700 text-sm">
+                                <li>누적 <strong>8,000단어(중등 졸업 기준)</strong> 확보</li>
+                                <li>중학 필수 문법 완전 숙달 및 <strong>구조 분석 능력</strong> 강화</li>
+                                <li>빈칸·문장삽입 등 <strong>논리 독해 유형</strong> 훈련</li>
+                                <li><strong>180 WPM</strong> 듣기 훈련으로 수능 대비 처리 속도 확보</li>
+                             </ul>
+                        </div>
+                        <!-- Keywords -->
+                        <div>
+                            <div class="flex items-center gap-2 mb-2">
+                                <i class="fa-solid fa-tags text-indigo-500 text-xs"></i>
+                                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">연계 교재</span>
+                            </div>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">어휘(확장)</span>
+                                <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">문법(구조)</span>
+                                <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">논리 독해</span>
+                                <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">듣기(속도)</span>
+                                <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">쓰기(요약)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 4: 고등학교 (Amber Theme) -->
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="bg-amber-50 p-4 border-b border-amber-100 flex justify-between items-center">
+                        <div>
+                            <span class="font-black text-slate-800 text-lg">고등학교</span>
+                        </div>
+                        <i class="fa-solid fa-trophy text-amber-500 text-xl"></i>
+                    </div>
+                    <div class="p-5 space-y-5">
+                        <!-- Strategy -->
+                        <div>
+                            <div class="flex items-center gap-2 mb-2">
+                                <i class="fa-solid fa-flag text-amber-500 text-xs"></i>
+                                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">핵심 전략</span>
+                            </div>
+                            <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                <div class="font-bold text-amber-600 text-base mb-1">실전 1등급 완성</div>
+                                <p class="text-slate-500 text-xs leading-relaxed">실전 운영 능력 기반 고난도 유형 정복 및 멘탈 관리</p>
+                            </div>
+                        </div>
+                        <!-- Action Plan -->
+                        <div>
+                            <div class="flex items-center gap-2 mb-2">
+                                <i class="fa-solid fa-list-check text-amber-500 text-xs"></i>
+                                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Action Plan</span>
+                            </div>
+                             <ul class="list-disc list-outside ml-4 space-y-1.5 marker:text-amber-500 text-slate-700 text-sm">
+                                <li>누적 <strong>9,500단어(학제 졸업 기준)</strong> 완성</li>
+                                <li>수능 어휘 범위 내 <strong>해석 리스크 최소화</strong></li>
+                                <li>1등급 변별 <strong>고난도 유형</strong> 집중 공략</li>
+                                <li>시간 배분·문항 운영 전략 및 <strong>실전 멘탈 관리</strong></li>
+                             </ul>
+                        </div>
+                        <!-- Keywords -->
+                        <div>
+                            <div class="flex items-center gap-2 mb-2">
+                                <i class="fa-solid fa-tags text-amber-500 text-xs"></i>
+                                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">연계 교재</span>
+                            </div>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">수능 어휘</span>
+                                <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">고난도 독해</span>
+                                <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">실전 문법</span>
+                                <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">실전 듣기</span>
+                                <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">모의평가</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 7. Outro (강조형 디자인 적용) -->
+        <div class="relative overflow-hidden bg-slate-900 rounded-3xl p-8 md:p-12 text-center text-white shadow-2xl fade-in-up delay-300 border border-slate-700">
+            <!-- Decorative Background Element -->
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-amber-500"></div>
+            <i class="fa-solid fa-quote-right absolute -bottom-4 -right-4 text-9xl text-slate-800 opacity-50 transform rotate-12 pointer-events-none"></i>
+            
+            <div class="relative z-10">
+                <div class="inline-block px-3 py-1 mb-6 border border-blue-400/30 rounded-full bg-blue-900/30 text-blue-300 text-xs font-bold tracking-widest uppercase">
+                    Final Message
+                </div>
+                <h2 class="text-2xl md:text-4xl font-black mb-6 leading-tight break-keep font-serif-kr">
+                    "수능은 변해도,<br class="md:hidden"> <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-indigo-200">영어 실력의 본질</span>은<br> 변하지 않습니다."
+                </h2>
+                <div class="w-16 h-1 bg-blue-500 mx-auto mb-6 rounded-full"></div>
+                <p class="text-slate-300 text-sm md:text-lg max-w-2xl mx-auto leading-relaxed break-keep font-light">
+                    윤선생은 <span class="text-white font-bold">검증된 커리큘럼</span>과 <span class="text-white font-bold">명확한 성장 로드맵</span>으로<br class="hidden md:block">
+                    결과로 증명되는 영어 실력의 기준을 만듭니다.
+                </p>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="bg-slate-50 border-t border-slate-200 py-8 text-center text-xs text-slate-400">
+        &copy; 2026 YOON'S ENGLISH SCHOOL. All rights reserved.
+    </footer>
+
+    <!-- Script Logic -->
+    <script>
+        // --- Full Data Source from Consultation 2 (All Questions) ---
+        const curriculumData = [
+            // --- Listening (17 Questions) ---
+            { 
+                id: 'L1', section: 'Listening', type: '1. 목적 파악', category: '일상/생활', topic: '수면 유도 앱 광고', 
+                context: '수면 및 휴식의 중요성 강조', 
+                matches: [
+                    { text: "You should rest and sleep more.", source: "s09 SMART 중학영어 1학년(2학기)" },
+                    { text: "Music will help you to sleep.", source: "s09 SMART 중학영어 1학년(2학기)" }
+                ]
+            },
+            { 
+                id: 'L2', section: 'Listening', type: '2. 의견 파악', category: '일상/생활', topic: '실내 암벽 등반의 이점', 
+                context: '스포츠 활동 다양성과 운동의 건강 효과', 
+                matches: [
+                    { text: "Activities include whitewater rafting and backpacking, as well as rock climbing...", source: "s12 Yoon's Word Partners 1~6" },
+                    { text: "Exercise keeps your body strong.", source: "s12 Yoon's Word Partners 1~6" }
+                ]
+            },
+            { 
+                id: 'L3', section: 'Listening', type: '3. 요지 파악', category: '사회/인문', topic: '큰 포즈와 불안 완화', 
+                context: '신체 언어와 감정 표현의 연관성', 
+                matches: [
+                    { text: "A person who walks with his or her chin high is confident or proud.", source: "s11 Advanced Readers D 8b 1~3" },
+                    { text: "Most people show their real thoughts and emotions through body language.", source: "s11 Advanced Readers D 8b 1~3" }
+                ]
+            },
+            { 
+                id: 'L4', section: 'Listening', type: '4. 그림 내용 일치', category: '일상/생활', topic: '철도 박물관 사진', 
+                context: '플랫폼·기차 내부 묘사', 
+                matches: [
+                    { text: "His father stood nearby on the railroad loading platform. Erskine climbed the high metal steps...", source: "s12 Yoon's Chapter Books 1~5" },
+                    { text: "Erskine walked between rows of seats, each wide enough for two people.", source: "s12 Yoon's Chapter Books 1~5" }
+                ]
+            },
+            { 
+                id: 'L5', section: 'Listening', type: '5. 할 일 파악', category: '일상/생활', topic: '홈메이드 파이 가게 준비', 
+                context: '구매해야 할 재료·리스트 점검', 
+                matches: [
+                    { text: "What else do we need to buy? Oh, don't forget milk.", source: "s11 SMART 중학영어 2학년(2학기)" },
+                    { text: "Did you buy everything on the shopping list? I think so. Bacon, bread, and cheese.", source: "s08 POWERUP 1-1 1~2" }
+                ]
+            },
+            { 
+                id: 'L6', section: 'Listening', type: '6. 숫자 정보 파악', category: '일상/생활', topic: '전기 히터와 슬리퍼 구매', 
+                context: '가격 비교·할인 계산', 
+                matches: [
+                    { text: "It was $50 before, but now it's only $25. Is it 50% off?", source: "s08 POWERUP 1-1 1~2" },
+                    { text: "I'll take the bag and the hat... The total price was nine dollars.", source: "s08 POWERUP 1-1 1~2" }
+                ]
+            },
+            { 
+                id: 'L7', section: 'Listening', type: '7. 이유 파악', category: '기타/감정', topic: 'Morning Tea Club 불참', 
+                context: '일정 충돌 또는 건강 문제', 
+                matches: [
+                    { text: "I have an appointment to see her at two o'clock, but I won't be able to make it.", source: "s12 윤선생 수능 project(전략편) 1~3" },
+                    { text: "I am in bed with the flu.", source: "s12 윤선생 수능 project(전략편) 1~3" }
+                ]
+            },
+            { 
+                id: 'L8', section: 'Listening', type: '8. 언급 유무 파악', category: '정보/안내', topic: 'Autumn Treasure Hunt 행사 정보', 
+                context: '행사 정보(상품·날짜·장소 등)', 
+                matches: [
+                    { text: "The winner gets a 32GB media player! You can apply via our school website...", source: "s11 Advanced Readers D 8b 1~3" },
+                    { text: "The Warriors will play at the Tigers' school. What day is the basketball game? Friday...", source: "s08 English Immersion P.E. 1-2" }
+                ]
+            },
+            { 
+                id: 'L9', section: 'Listening', type: '9. 담화 세부 내용', category: '정보/안내', topic: 'Court Visit Program 안내', 
+                context: '이용 시 금지 사항·제한 사항', 
+                matches: [
+                    { text: "Children under 140 cm are not allowed to ride.", source: "s11 SMART 중학영어 2학년(2학기)" },
+                    { text: "Do not touch anything. ... Make sure you don't take pictures.", source: "s08 SMART 중학영어 1학년(1학기)" }
+                ]
+            },
+            { 
+                id: 'L10', section: 'Listening', type: '10. 표 내용 파악', category: '정보/안내', topic: '버터나이프 세트 선택', 
+                context: '조건 비교 후 선택', 
+                matches: [
+                    { text: "Which do you prefer, blue or green? I prefer blue. And what size would you like?", source: "s13 SMART 중학영어 3학년(2학기)" },
+                    { text: "I'd like one that weighs less than 1.5 kilograms... costs less than 800 dollars.", source: "s12 Yoon's Word Partners 1~6" }
+                ]
+            },
+            { 
+                id: 'L11', section: 'Listening', type: '11. 적절한 응답', category: '일상/생활', topic: '아이 픽업 지연 상황', 
+                context: '늦은 사유 설명·도움 요청', 
+                matches: [
+                    { text: "Mom picked me up late from soccer practice. She was stuck in traffic.", source: "s11 Yoon's Writing Solutions A" },
+                    { text: "Can you help me with this math problem? Of course. It's easy.", source: "s10 Yoon's Reading PALS B 8a" }
+                ]
+            },
+            { 
+                id: 'L12', section: 'Listening', type: '12. 적절한 응답', category: '일상/생활', topic: '수학여행 장소 선택', 
+                context: '장소 제안·교통 비교', 
+                matches: [
+                    { text: "Where would you like to go? How about Jeju-do? We can swim at the beach...", source: "s10 SMART 중학영어 2학년(1학기)" },
+                    { text: "The bus is a lot faster than the train. Let’s hurry.", source: "s11 SMART 중학영어 2학년(2학기)" }
+                ]
+            },
+            { 
+                id: 'L13', section: 'Listening', type: '13. 적절한 응답', category: '일상/생활', topic: 'DIY 의자 키트 부품 손상', 
+                context: '환불·교환 요구', 
+                matches: [
+                    { text: "I bought this bag yesterday, but there is a problem with it. ... I was wondering if I could get a refund.", source: "s08 SMART 중학영어 1학년(1학기)" },
+                    { text: "I have a complaint about this bag. What's the problem? There's a small rip down there.", source: "s13 POWERUP 3-2 1~2" }
+                ]
+            },
+            { 
+                id: 'L14', section: 'Listening', type: '14. 적절한 응답', category: '일상/생활', topic: '자녀의 편식 문제 해결 조언', 
+                context: '올바른 식습관에 대한 조언', 
+                matches: [
+                    { text: "You should eat healthy foods, like fruits and vegetables. Please stay away from candy...", source: "s09 SMART 중학영어 1학년(2학기)" },
+                    { text: "You'd better not eat too much fast food. Also you'd better exercise daily.", source: "s10 SMART 중학영어 2학년(1학기)" }
+                ]
+            },
+            { 
+                id: 'L15', section: 'Listening', type: '15. 상황에 적절한 말', category: '일상/생활', topic: '자전거 경로 지도 제작 방법', 
+                context: '활동 제안 표현', 
+                matches: [
+                    { text: "Why don't we go to the rock music festival...?", source: "s08 POWERUP 1-1 1~2" },
+                    { text: "How about playing baseball? Why don't we go shopping?", source: "s10 POWERUP 2-1" }
+                ]
+            },
+            { 
+                id: 'L16', section: 'Listening', type: '16~17. 담화 주제', category: '학술/과학', topic: '과학 실험에 유용한 빠르게 자라는 식물들', 
+                context: '식물 성장 속도·관찰', 
+                matches: [
+                    { text: "Some types of bamboo can grow almost a meter in just one day!", source: "s09 SMART 중학영어 1학년(2학기)" },
+                    { text: "Mom, look at the chicory! The leaves are big.", source: "s11 SMART 중학영어 2학년(2학기)" }
+                ]
+            },
+            
+            // --- Reading (28 Questions) ---
+            { 
+                id: 'R18', section: 'Reading', type: '18. 목적 파악', category: '정보/안내', topic: '신규 동아리 개설 제안서 요청', 
+                context: '동아리 가입 권유', 
+                matches: [
+                    { text: "Let's all join the English Drama Club together! Sure, that's a good idea.", source: "s08 SMART 중학영어 1학년(1학기)" },
+                    { text: "The Baking Club Wants You! [...] Come and join us.", source: "s08 SMART 중학영어 1학년(1학기)" }
+                ]
+            },
+            { 
+                id: 'R19', section: 'Reading', type: '19. 심경 변화', category: '기타/감정', topic: '오랜만에 고향 방문', 
+                context: '혼란·놀람 등 감정 변화', 
+                matches: [
+                    { text: "I was very confused.", source: "s08 English Immersion P.E. 1-2" },
+                    { text: "She looked surprised. Then, she smiled at Kevin.", source: "s11 Yoon's Word Partners 1~6" }
+                ]
+            },
+            { 
+                id: 'R20', section: 'Reading', type: '20. 필자의 주장', category: '사회/인문', topic: '현대 음악 작사가의 문학적 기여 인정', 
+                context: '음악 가사의 문학적 가치', 
+                matches: [
+                    { text: "Rock lyrics are known for expressing freedom.", source: "s10 Yoon's Advanced Readers D 8a" }
+                ]
+            },
+            { 
+                id: 'R21', section: 'Reading', type: '21. 함축 의미', category: '학술/과학', topic: '디지털 플랫폼과 장소의 연결 약화', 
+                context: '시간·공간 제약 해소', 
+                matches: [
+                    { text: "There are no barriers of time and space in cyberspace.", source: "s10 윤선생 완소 단어장 B book1~2" },
+                    { text: "You can buy anything through the Internet. [...] You can buy everything from your own room.", source: "s08 POWERUP 1-1 1~2" }
+                ]
+            },
+            { 
+                id: 'R22', section: 'Reading', type: '22. 요지 파악', category: '사회/인문', topic: '스포츠 생태계의 협조적 경쟁 관리', 
+                context: '스포츠 윤리·팀워크', 
+                matches: [
+                    { text: "It doesn't matter if you win or lose. It's how you play the game.", source: "s08 English Immersion P.E. 1-2" },
+                    { text: "Anne and I were playing especially well. We helped each other. It was great teamwork!", source: "s08 English Immersion P.E. 1-2" }
+                ]
+            },
+            { 
+                id: 'R23', section: 'Reading', type: '23. 주제 추론', category: '일상/생활', topic: '대중교통에서 빈도의 중요성', 
+                context: '운행 간격의 의미', 
+                matches: [
+                    { text: "The airport limousines leave at twenty-minute intervals.", source: "s12 윤선생 완소 단어장 C book1~2" }
+                ]
+            },
+            { 
+                id: 'R24', section: 'Reading', type: '24. 제목 추론', category: '사회/인문', topic: '컬처테인먼트의 상업화 위험', 
+                context: '광고의 상업성·영향', 
+                matches: [
+                    { text: "Makers of products spend millions of dollars a year on ads,", source: "s10 POWERUP 2-1 1~2" },
+                    { text: "Television commercials are the best way to advertise things in the United States.", source: "s08 Yoon's Reading Solutions A 7a" }
+                ]
+            },
+            { 
+                id: 'R25', section: 'Reading', type: '25. 도표 내용', category: '정보/안내', topic: '미국 십 대의 친구와 시간 보내기 비율', 
+                context: '청소년 활동·습관 통계', 
+                matches: [
+                    { text: "The graph shows the use of mobile phone by teens.", source: "s11 SMART 중학영어 2학년(2학기)" },
+                    { text: "I am seventeen year old American.", source: "s14 English Immersion American culture 1~2" }
+                ]
+            },
+            { 
+                id: 'R26', section: 'Reading', type: '26. 글의 세부 내용', category: '사회/인문', topic: 'Max Kleiber에 대한 정보', 
+                context: '인물 정보·업적', 
+                matches: [
+                    { text: "Heo Jun was a famous Korean doctor. [...] He was born in Neunggok in 1546.", source: "s10 English Immersion Famous People 1~2" },
+                    { text: "Heo Jun spent fifteen years writing about Eastern medicine.", source: "s300627" }
+                ]
+            },
+            { 
+                id: 'R27', section: 'Reading', type: '27. 안내문 세부 내용', category: '정보/안내', topic: '학교 종소리 경연 대회', 
+                context: '교내 행사 안내·시상', 
+                matches: [
+                    { text: "We are holding our 4th English Song Contest next week. [...] The winner gets a 32GB media player!", source: "s11 SMART 중학영어 2학년(2학기)" },
+                    { text: "The student president votes were counted on Wednesday.", source: "s12 Yoon's Writing Solutions A" }
+                ]
+            },
+            { 
+                id: 'R28', section: 'Reading', type: '28. 안내문 세부 내용', category: '정보/안내', topic: 'Fun Bowling 시즌 패스', 
+                context: '시설 이용료 및 패스 조건', 
+                matches: [
+                    { text: "Tickets are 5.00 for one person or 9.00 for a couple.", source: "s09 English Immersion Holidays 1~2" },
+                    { text: "The bowling alley rented shoes to us. It did not cost a lot of money...", source: "s08 English Immersion P.E. 1-2" }
+                ]
+            },
+            { 
+                id: 'R29', section: 'Reading', type: '29. 문법성 판단', category: '학술/과학', topic: '인간 지능과 적응적 정보 축적', 
+                context: '뇌 기능과 기억 구조', 
+                matches: [
+                    { text: "The brain is the most complicated organ of the human body.", source: "s12 Yoon's Reading PALS C 9a" },
+                    { text: "Humans have short-term memory and long-term memory.", source: "s11 SMART 중학영어 2학년(2학기)" }
+                ]
+            },
+            { 
+                id: 'R30', section: 'Reading', type: '30. 어휘의 적절성', category: '사회/인문', topic: '상황 윤리의 적용', 
+                context: '경쟁·정직의 가치 판단', 
+                matches: [
+                    { text: "I wasn't really safe. Why are the boy's teammates so happy? [...] Being honest can be a difficult decision", source: "s08 English Immersion P.E. 1-2" },
+                    { text: "It doesn't matter if you win or lose. It's how you play the game.", source: "s08 English Immersion P.E. 1-2" }
+                ]
+            },
+            { 
+                id: 'R31', section: 'Reading', type: '31. 빈칸 추론', category: '사회/인문', topic: '초기 곡물 무역 회사의 위험 관리', 
+                context: '사업 기회와 전문 지식', 
+                matches: [
+                    { text: "Whatever you enjoy, if you look for practical applications, you could turn your interest into a profitable business opportunity.", source: "s14 Yoon's Reading PALS D 10a" },
+                    { text: "Start the way Bill Gates did - by learning everything you can about your area of expertise.", source: "s14 Yoon's Reading PALS D 10a" }
+                ]
+            },
+            { 
+                id: 'R32', section: 'Reading', type: '32. 빈칸 추론', category: '사회/인문', topic: '글쓰기에서의 협력적 문체', 
+                context: '의사소통·오해', 
+                matches: [
+                    { text: "Communication is the overlap between what's intended and what's understood.", source: "s13 Yoon's Reading Solutions C 9b" },
+                    { text: "read it again and imagine you are the person receiving it. Could the words be read by the receiver in the wrong way?", source: "s13 POWERUP 3-2 1~2" }
+                ]
+            },
+            { 
+                id: 'R33', section: 'Reading', type: '33. 빈칸 추론', category: '학술/과학', topic: '건물 설계 시 사용자 참여의 중요성', 
+                context: '사용자 편의를 위한 설계', 
+                matches: [
+                    { text: "Smart houses can also serve much more practical purposes. Disabled or elderly people...", source: "s15 Yoon's Advanced Readers F 10b" },
+                    { text: "An architect must be able to design a building that is safe practical and attractive.", source: "s15 Yoon's Reading PALS D 10b" }
+                ]
+            },
+            { 
+                id: 'R34', section: 'Reading', type: '34. 빈칸 추론', category: '사회/인문', topic: '칸트의 법의 지배와 자유', 
+                context: '법과 규칙의 역할 및 보호 기능', 
+                matches: [
+                    { text: "The use of your seat belt is required by law. The seat belt protects the passenger.", source: "s12 Yoon's Advanced Readers E 9a" },
+                    { text: "If you don't obey the laws, you will go to jail.", source: "s09 English Immersion Holidays 1~2" }
+                ]
+            },
+            { 
+                id: 'R35', section: 'Reading', type: '35. 무관한 문장 찾기', category: '일상/생활', topic: '자기관리 활동의 우선순위', 
+                context: '스트레스 관리 및 건강한 습관', 
+                matches: [
+                    { text: "It's easier to handle stress when you do things you like. [...] Just talking about your feeling with friends will help.", source: "s13 SMART 중학영어 3학년(2학기) book5~8" },
+                    { text: "I am so tired. I can’t focus on this work. You should take a rest.", source: "s10 SMART 중학영어 2학년(1학기)" }
+                ]
+            },
+            { 
+                id: 'R36', section: 'Reading', type: '36. 글의 순서 파악', category: '학술/과학', topic: '시계의 본질로서의 반복적 과정', 
+                context: '시간 측정 역사·원리', 
+                matches: [
+                    { text: "The Babylonians used a system of counting based on the number 60. Both the Indian and the Chinese counting systems...", source: "s14 Yoon's Reading Solutions D 10a" },
+                    { text: "Now we have clocks that can measure time in nanoseconds! They are called atomic clocks.", source: "s11 Reading PALS B 8b 1~2" }
+                ]
+            },
+            { 
+                id: 'R37', section: 'Reading', type: '37. 글의 순서 파악', category: '학술/과학', topic: '철학의 역할과 신경과학과의 협력', 
+                context: '뇌 기능과 학문 간 연관성', 
+                matches: [
+                    { text: "The left side of the body controlled by the left brain... The right brain works with feelings and imagination.", source: "s12 Yoon's Advanced Readers E 9a" },
+                    { text: "Philosophy is the study of general values we have such as existence and truth.", source: "s12 Yoon's Debate Project" }
+                ]
+            },
+            { 
+                id: 'R38', section: 'Reading', type: '38. 주어진 문장 넣기', category: '사회/인문', topic: '내러티브의 형성 및 영향', 
+                context: '이야기의 힘, 구전', 
+                matches: [
+                    { text: "You learned from your experience. Your experience is your own personal history.", source: "s10 Yoon's Advanced Readers D 8a" },
+                    { text: "We can also learn from the history of people who lived before us.", source: "s10 Yoon's Advanced Readers D 8a" }
+                ]
+            },
+            { 
+                id: 'R39', section: 'Reading', type: '39. 주어진 문장 넣기', category: '학술/과학', topic: '비디오 게임에서의 지각과 행동', 
+                context: '게임 중독 및 디지털 활동', 
+                matches: [
+                    { text: "I can't stop playing computer games.", source: "s10 POWERUP 2-1 1~2" },
+                    { text: "Internet game addiction is very dangerous... Internet game addiction destroys human relations.", source: "s13 Yoon's Reading Solutions C 9b" },
+                    { text: "You can play games, watch movies, and read comics on the Internet.", source: "s13 SMART 중학영어 3학년(2학기) book5~8" }
+                ]
+            },
+            { 
+                id: 'R40', section: 'Reading', type: '40. 요약문 완성', category: '사회/인문', topic: '공연 예술의 특성과 경제적 불안정', 
+                context: '라이브 공연의 가치·비용', 
+                matches: [
+                    { text: "Tickets sometimes cost more than a week's wages... People return to the same show time after time...", source: "s14 English Immersion American culture 1~2" },
+                    { text: "The money will be used for a new stage, sound equipment, props, and costumes.", source: "s09 Yoon's Writing Solutions A" }
+                ]
+            },
+            { 
+                id: 'R41', section: 'Reading', type: '41~42. 장문', category: '사회/인문', topic: '복식사 연구에서 시각 자료의 중요성', 
+                context: '복식과 사회적 지위·패션', 
+                matches: [
+                    { text: "The color of the toga also indicated the man's rank in society.", source: "s12 Yoon's Reading PALS C 9a" },
+                    { text: "Some people like to stay up-to-date with today's fashion.", source: "s12 Yoon's Reading PALS C 9a" }
+                ]
+            },
+            { 
+                id: 'R43', section: 'Reading', type: '43~45. 장문', category: '일상/생활', topic: '스마트폰 중독 딸과의 유대감 회복', 
+                context: '기술 통제의 중요성·가족 갈등', 
+                matches: [
+                    { text: "Please turn off your devices and put them in this basket. Just remember, you should be in control of your devices...", source: "s12 SMART 중학영어 3학년(1학기)" },
+                    { text: "My mom took my cellphone. [...] And that made her upset?", source: "s12 POWERUP 3-1 1~2" }
+                ]
+            },
+            { 
+                id: 'R44', section: 'Reading', type: '43~45. 장문 (지칭)', category: '일상/생활', topic: '스마트폰 중독 딸과의 유대감 회복', 
+                context: '규칙 준수·관계 회복 필요성', 
+                matches: [
+                    { text: "You shouldn't use your cellphone during class.", source: "s10 SMART 중학영어 2학년(1학기)" },
+                    { text: "My brother always does the same thing. I'm still upset. I don't know what I should do.", source: "s10 SMART 중학영어 2학년(1학기)" }
+                ]
+            },
+            { 
+                id: 'R45', section: 'Reading', type: '43~45. 장문 (세부 사실)', category: '일상/생활', topic: '스마트폰 중독 딸과의 유대감 회복', 
+                context: '독서를 통한 학습·가족의 염려', 
+                matches: [
+                    { text: "Reading helps you build better and more logical thinking skills.", source: "s11 Yoon's 4-Skill Up(Fluent)" },
+                    { text: "My parents were concerned about me and tried many different things, but nothing really worked.", source: "s13 Yoon's Reading PALS C 9b" }
+                ]
+            }
+        ];
+
+        // --- 1. Chart Render & Init ---
+        document.addEventListener('DOMContentLoaded', function() {
+            // Render Grade Chart
+            const ctx = document.getElementById('gradeChart').getContext('2d');
+            const labels = ['2018', '2019', '2020', '2021', '2022', '2023', '2024', '2025', '2026'];
+            const data = [10.03, 5.30, 7.43, 12.66, 6.25, 7.83, 4.71, 6.22, 3.11];
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '1등급 비율(%)',
+                        data: data,
+                        borderColor: '#2563eb', 
+                        backgroundColor: (context) => {
+                            const ctx = context.chart.ctx;
+                            const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+                            gradient.addColorStop(0, 'rgba(37, 99, 235, 0.2)');
+                            gradient.addColorStop(1, 'rgba(37, 99, 235, 0)');
+                            return gradient;
+                        },
+                        pointBackgroundColor: labels.map(year => year === '2026' ? '#ef4444' : '#2563eb'), 
+                        pointRadius: labels.map(year => year === '2026' ? 6 : 4),
+                        borderWidth: 2,
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, max: 15, grid: { color: '#f1f5f9' }, ticks: { font: { family: 'Noto Sans KR' } } },
+                        x: { grid: { display: false }, ticks: { font: { family: 'Noto Sans KR' } } }
+                    }
+                }
+            });
+
+            // Init Explorer
+            populateFilters();
+            setMode('Listening');
+        });
+
+        // --- 2. Explorer Logic ---
+        let currentMode = 'Listening';
+        let currentFilter = 'All';
+        let selectedItemId = null;
+
+        function setMode(mode) {
+            currentMode = mode;
+            currentFilter = 'All'; 
+            selectedItemId = null; // Reset selection on mode switch
+            
+            // Toggle Buttons Style
+            const btnList = document.getElementById('btn-listening');
+            const btnRead = document.getElementById('btn-reading');
+            
+            const activeClass = "bg-white text-blue-600 border border-slate-200 shadow-sm"; 
+            const inactiveClass = "text-slate-500 hover:text-slate-700 hover:bg-slate-200";
+
+            if(mode === 'Listening') {
+                btnList.className = `flex-1 md:flex-none px-6 py-2 rounded-md text-sm font-bold transition-all shadow-sm bg-white text-blue-600 border border-slate-200`;
+                btnRead.className = `flex-1 md:flex-none px-6 py-2 rounded-md text-sm font-bold transition-all text-slate-500 hover:text-slate-700 hover:bg-slate-200`;
+            } else {
+                btnList.className = `flex-1 md:flex-none px-6 py-2 rounded-md text-sm font-bold transition-all text-slate-500 hover:text-slate-700 hover:bg-slate-200`;
+                btnRead.className = `flex-1 md:flex-none px-6 py-2 rounded-md text-sm font-bold transition-all shadow-sm bg-white text-blue-600 border border-slate-200`;
+            }
+
+            // Update Filter & List
+            populateFilters();
+            renderList();
+            
+            // Auto-select first item
+            const firstItem = curriculumData.find(item => item.section === mode);
+            if(firstItem) selectItem(firstItem.id);
+        }
+
+        function populateFilters() {
+            const select = document.getElementById('categoryFilter');
+            select.innerHTML = '<option value="All">모든 카테고리 보기</option>';
+            
+            const categories = [...new Set(curriculumData
+                .filter(item => item.section === currentMode)
+                .map(item => item.category))];
+            
+            categories.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat;
+                option.textContent = cat;
+                select.appendChild(option);
+            });
+            select.value = currentFilter;
+        }
+
+        function filterData() {
+            currentFilter = document.getElementById('categoryFilter').value;
+            renderList();
+        }
+
+        function renderList() {
+            const listContainer = document.getElementById('itemList');
+            listContainer.innerHTML = '';
+
+            const filtered = curriculumData.filter(item => {
+                return item.section === currentMode && (currentFilter === 'All' || item.category === currentFilter);
+            });
+
+            document.getElementById('matchCount').textContent = `${filtered.length}건`;
+
+            if (filtered.length === 0) {
+                listContainer.innerHTML = '<div class="p-8 text-center text-slate-400 text-sm">해당 조건의 데이터가 없습니다.</div>';
+                return;
+            }
+
+            filtered.forEach(item => {
+                const el = document.createElement('div');
+                const isSelected = selectedItemId === item.id;
+                
+                // Styling active vs inactive
+                let baseClass = "p-3 rounded-lg cursor-pointer transition-all border text-left group relative overflow-hidden";
+                if(isSelected) {
+                    baseClass += " bg-blue-50 border-blue-200 shadow-sm list-item-active border-l-4";
+                } else {
+                    baseClass += " bg-white border-transparent hover:bg-slate-50 hover:border-slate-200 border-l-4 list-item-inactive";
+                }
+
+                el.className = baseClass;
+                el.onclick = () => selectItem(item.id);
+
+                el.innerHTML = `
+                    <div class="flex justify-between items-start mb-1">
+                        <span class="text-xs font-bold ${isSelected ? 'text-blue-700' : 'text-slate-500'}">${item.type}</span>
+                        <span class="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 border border-slate-200">${item.category}</span>
+                    </div>
+                    <div class="font-bold text-sm text-slate-800 line-clamp-1 group-hover:text-blue-600 transition-colors">${item.topic}</div>
+                    <div class="mt-1 flex items-center gap-1">
+                        <span class="text-[10px] bg-slate-50 text-slate-400 px-1.5 rounded border border-slate-100">${item.matches.length} Sources</span>
+                    </div>
+                `;
+                listContainer.appendChild(el);
+            });
+        }
+
+        function selectItem(id) {
+            selectedItemId = id;
+            renderList(); // Update active state styling
+
+            const item = curriculumData.find(d => d.id === id);
+            if (!item) return;
+
+            // Toggle Views
+            document.getElementById('emptyState').classList.add('hidden');
+            const content = document.getElementById('contentState');
+            content.classList.remove('hidden');
+            
+            // Animation
+            content.classList.remove('fade-in-up');
+            void content.offsetWidth; 
+            content.classList.add('fade-in-up');
+
+            // Populate Content Header
+            document.getElementById('detailBadge').textContent = item.category;
+            document.getElementById('detailTitle').textContent = item.type;
+            document.getElementById('detailTopic').textContent = `유사 소재: ${item.topic}`;
+            document.getElementById('detailContext').textContent = item.context;
+
+            // Populate Matches
+            const matchesContainer = document.getElementById('matchesContainer');
+            matchesContainer.innerHTML = '';
+
+            item.matches.forEach((match, index) => {
+                const card = document.createElement('div');
+                const accentColor = item.section === 'Listening' ? 'amber' : 'blue';
+                const bgClass = item.section === 'Listening' ? 'bg-amber-50' : 'bg-blue-50';
+                const borderClass = item.section === 'Listening' ? 'border-amber-200' : 'border-blue-200';
+                const badgeBg = item.section === 'Listening' ? 'bg-amber-500' : 'bg-blue-500';
+                const quoteColor = item.section === 'Listening' ? 'text-amber-200/50' : 'text-blue-200/50';
+
+                card.className = `${bgClass} p-4 md:p-5 rounded-lg border ${borderClass} shadow-sm relative group hover:shadow-md transition-shadow`;
+                
+                card.innerHTML = `
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-xs font-bold text-white ${badgeBg} px-2 py-0.5 rounded uppercase tracking-wider">Proof ${index + 1}</span>
+                        <span class="text-xs font-mono text-slate-500 bg-white px-2 py-1 rounded border border-slate-200 shadow-sm">
+                            <i class="fa-solid fa-book mr-1"></i>${match.source}
+                        </span>
+                    </div>
+                    <p class="font-serif text-base md:text-lg text-slate-800 leading-relaxed italic relative z-10 pl-4 border-l-2 border-slate-300">
+                        "${match.text}"
+                    </p>
+                    <i class="fa-solid fa-quote-right absolute bottom-4 right-4 text-3xl md:text-4xl ${quoteColor} -z-0"></i>
+                `;
+                matchesContainer.appendChild(card);
+            });
+        }
+    </script>
 </body>
 </html>
